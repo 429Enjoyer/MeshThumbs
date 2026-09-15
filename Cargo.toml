@@ -9,5 +9,5 @@ resolver = "2"
 [workspace.package]
 edition = "2021"
 license = "MIT"
-version = "1.0.1"
-authors = ["3DThumbnails"]
+version = "1.0.0"
+authors = ["MeshThumbs"]

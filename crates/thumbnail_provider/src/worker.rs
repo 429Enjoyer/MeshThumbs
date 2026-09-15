@@ -24,7 +24,7 @@ use windows::{
 pub(super) fn render(input: &Path, size: u32) -> anyhow::Result<RgbaBitmap> {
     let executable = worker_path()?;
     let output = tempfile::Builder::new()
-        .prefix("3dthumb-result-")
+        .prefix("meshthumbs-result-")
         .suffix(".rgba")
         .tempfile()?
         .into_temp_path();

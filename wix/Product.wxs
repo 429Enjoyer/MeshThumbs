@@ -2,11 +2,11 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product
     Id="*"
-    Name="3DThumbnails"
+    Name="MeshThumbs"
     Language="1033"
-    Version="1.0.1"
-    Manufacturer="3DThumbnails"
-    UpgradeCode="1c8b7d42-3648-4d5f-9bb1-bb7644cda908">
+    Version="1.0.0"
+    Manufacturer="MeshThumbs"
+    UpgradeCode="5d411f35-6764-41dd-ae2b-20792d111c23">
 
     <Package
       InstallerVersion="500"
@@ -15,7 +15,7 @@
       Platform="x64"
       Description="Windows Explorer thumbnail provider for OBJ, FBX, glTF, STL, DAE, PLY and 3DS files" />
 
-    <MajorUpgrade DowngradeErrorMessage="A newer version of 3DThumbnails is already installed." />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of MeshThumbs is already installed." />
     <MediaTemplate EmbedCab="yes" />
 
     <CustomAction
@@ -37,133 +37,101 @@
       <Custom Action="ClearExplorerCacheOnUninstall" Before="RemoveFiles">REMOVE="ALL"</Custom>
     </InstallExecuteSequence>
 
-    <Feature Id="ProductFeature" Title="3DThumbnails" Level="1">
+    <Feature Id="ProductFeature" Title="MeshThumbs" Level="1">
       <ComponentGroupRef Id="ProductComponents" />
       <ComponentRef Id="ProgramDataLogDir" />
     </Feature>
 
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFiles64Folder">
-        <Directory Id="INSTALLFOLDER" Name="3DThumbnails" />
+        <Directory Id="INSTALLFOLDER" Name="MeshThumbs" />
       </Directory>
       <Directory Id="CommonAppDataFolder">
-        <Directory Id="ProgramDataVendor" Name="3DThumbnails" />
+        <Directory Id="ProgramDataVendor" Name="MeshThumbs" />
       </Directory>
     </Directory>
 
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
-      <Component Id="ThumbnailProviderDll" Guid="78bd76f2-a4a7-4e8a-93c4-daf56df96a21" Win64="yes">
+      <Component Id="ThumbnailProviderDll" Guid="dedfa04d-b418-4403-b323-bf2e5b23ac3e" Win64="yes">
         <File Id="ThumbDll" Source="$(var.TargetDir)\thumbnail_provider.dll" KeyPath="yes" />
         <File Id="ThumbnailWorker" Source="$(var.TargetDir)\thumbgen.exe" />
         <File Id="ClearCacheScript" Source="$(var.ProjectDir)\scripts\clear-explorer-cache.ps1" />
         <File Id="ThirdPartyNotices" Source="$(var.ProjectDir)\THIRD-PARTY-NOTICES.txt" />
-        <RemoveRegistryKey Root="HKCR" Key="VisualStudio.obj.4a87b58f\shellex\{e357fccd-a995-4576-b01f-234630154e96}" Action="removeOnInstall" />
-        <RemoveRegistryKey Root="HKCU" Key="Software\Classes\.obj\shellex\{e357fccd-a995-4576-b01f-234630154e96}" Action="removeOnInstall" />
-        <RemoveRegistryKey Root="HKCU" Key="Software\Classes\.fbx\shellex\{e357fccd-a995-4576-b01f-234630154e96}" Action="removeOnInstall" />
-        <RemoveRegistryKey Root="HKCU" Key="Software\Classes\.glb\shellex\{e357fccd-a995-4576-b01f-234630154e96}" Action="removeOnInstall" />
-        <RemoveRegistryKey Root="HKCU" Key="Software\Classes\.gltf\shellex\{e357fccd-a995-4576-b01f-234630154e96}" Action="removeOnInstall" />
-        <RemoveRegistryKey Root="HKCU" Key="Software\Classes\SystemFileAssociations\.obj\shellex\{e357fccd-a995-4576-b01f-234630154e96}" Action="removeOnInstall" />
-        <RemoveRegistryKey Root="HKCU" Key="Software\Classes\SystemFileAssociations\.fbx\shellex\{e357fccd-a995-4576-b01f-234630154e96}" Action="removeOnInstall" />
-        <RemoveRegistryKey Root="HKCU" Key="Software\Classes\SystemFileAssociations\.glb\shellex\{e357fccd-a995-4576-b01f-234630154e96}" Action="removeOnInstall" />
-        <RemoveRegistryKey Root="HKCU" Key="Software\Classes\SystemFileAssociations\.gltf\shellex\{e357fccd-a995-4576-b01f-234630154e96}" Action="removeOnInstall" />
-        <RemoveRegistryKey Root="HKCU" Key="Software\Classes\CLSID\{4C6F2B8A-5D2E-4C64-9AC7-B6FD046A8241}" Action="removeOnInstall" />
-        <RemoveRegistryKey Root="HKCU" Key="Software\Classes\CLSID\{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00001}" Action="removeOnInstall" />
-        <RemoveRegistryKey Root="HKCU" Key="Software\Classes\CLSID\{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00002}" Action="removeOnInstall" />
-        <RemoveRegistryKey Root="HKCU" Key="Software\Classes\CLSID\{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00003}" Action="removeOnInstall" />
-        <RemoveRegistryKey Root="HKCU" Key="Software\Classes\CLSID\{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00004}" Action="removeOnInstall" />
-        <RemoveRegistryKey Root="HKCR" Key="AppXmgw6pxxs62rbgfp9petmdyb4fx7rnd4k\shellex\{e357fccd-a995-4576-b01f-234630154e96}" Action="removeOnUninstall" />
-        <RemoveRegistryKey Root="HKCR" Key=".obj\shellex\{e357fccd-a995-4576-b01f-234630154e96}" Action="removeOnUninstall" />
-        <RemoveRegistryKey Root="HKCR" Key=".fbx\shellex\{e357fccd-a995-4576-b01f-234630154e96}" Action="removeOnUninstall" />
-        <RemoveRegistryKey Root="HKCR" Key=".glb\shellex\{e357fccd-a995-4576-b01f-234630154e96}" Action="removeOnUninstall" />
-        <RemoveRegistryKey Root="HKCR" Key=".gltf\shellex\{e357fccd-a995-4576-b01f-234630154e96}" Action="removeOnUninstall" />
-        <RemoveRegistryKey Root="HKCR" Key="CLSID\{4C6F2B8A-5D2E-4C64-9AC7-B6FD046A8241}" Action="removeOnUninstall" />
-        <RemoveRegistryKey Root="HKCR" Key="CLSID\{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00001}" Action="removeOnUninstall" />
-        <RemoveRegistryKey Root="HKCR" Key="CLSID\{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00002}" Action="removeOnUninstall" />
-        <RemoveRegistryKey Root="HKCR" Key="CLSID\{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00003}" Action="removeOnUninstall" />
-        <RemoveRegistryKey Root="HKCR" Key="CLSID\{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00004}" Action="removeOnUninstall" />
-        <RegistryKey Root="HKCR" Key="AppXmgw6pxxs62rbgfp9petmdyb4fx7rnd4k\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
-          <RegistryValue Type="string" Value="{4C6F2B8A-5D2E-4C64-9AC7-B6FD046A8241}" />
-        </RegistryKey>
 
         <RegistryKey Root="HKCR" Key=".obj\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
-          <RegistryValue Type="string" Value="{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00001}" />
+          <RegistryValue Type="string" Value="{A9FFD4C4-3FA9-4EB7-8B47-B89A7F09D059}" />
         </RegistryKey>
         <RegistryKey Root="HKCR" Key=".fbx\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
-          <RegistryValue Type="string" Value="{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00002}" />
+          <RegistryValue Type="string" Value="{4E5FD91F-C018-4850-9636-3069629C6D3D}" />
         </RegistryKey>
         <RegistryKey Root="HKCR" Key=".glb\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
-          <RegistryValue Type="string" Value="{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00003}" />
+          <RegistryValue Type="string" Value="{E859325C-5506-4419-8AC5-6A4B03F3A138}" />
         </RegistryKey>
         <RegistryKey Root="HKCR" Key=".gltf\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
-          <RegistryValue Type="string" Value="{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00004}" />
+          <RegistryValue Type="string" Value="{B7265976-0DBA-44B5-9303-0B0DAFD034E0}" />
         </RegistryKey>
 
-        <RegistryKey Root="HKCR" Key="CLSID\{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00001}">
-          <RegistryValue Type="string" Value="3D Model Thumbnail Provider OBJ" />
+        <RegistryKey Root="HKCR" Key="CLSID\{A9FFD4C4-3FA9-4EB7-8B47-B89A7F09D059}">
+          <RegistryValue Type="string" Value="MeshThumbs Thumbnail Provider OBJ" />
           <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
           <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
         </RegistryKey>
-        <RegistryKey Root="HKCR" Key="CLSID\{4C6F2B8A-5D2E-4C64-9AC7-B6FD046A8241}">
-          <RegistryValue Type="string" Value="3D Model Thumbnail Provider Legacy" />
+        <RegistryKey Root="HKCR" Key="CLSID\{4E5FD91F-C018-4850-9636-3069629C6D3D}">
+          <RegistryValue Type="string" Value="MeshThumbs Thumbnail Provider FBX" />
           <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
           <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
         </RegistryKey>
-        <RegistryKey Root="HKCR" Key="CLSID\{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00002}">
-          <RegistryValue Type="string" Value="3D Model Thumbnail Provider FBX" />
+        <RegistryKey Root="HKCR" Key="CLSID\{E859325C-5506-4419-8AC5-6A4B03F3A138}">
+          <RegistryValue Type="string" Value="MeshThumbs Thumbnail Provider GLB" />
           <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
           <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
         </RegistryKey>
-        <RegistryKey Root="HKCR" Key="CLSID\{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00003}">
-          <RegistryValue Type="string" Value="3D Model Thumbnail Provider GLB" />
-          <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
-          <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
-        </RegistryKey>
-        <RegistryKey Root="HKCR" Key="CLSID\{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00004}">
-          <RegistryValue Type="string" Value="3D Model Thumbnail Provider GLTF" />
+        <RegistryKey Root="HKCR" Key="CLSID\{B7265976-0DBA-44B5-9303-0B0DAFD034E0}">
+          <RegistryValue Type="string" Value="MeshThumbs Thumbnail Provider GLTF" />
           <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
           <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
         </RegistryKey>
         <RegistryKey Root="HKCR" Key=".stl\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
-          <RegistryValue Type="string" Value="{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00005}" />
+          <RegistryValue Type="string" Value="{A3BAFD17-52CD-4CF6-869E-A4BB020591EF}" />
         </RegistryKey>
         <RegistryKey Root="HKCR" Key="SystemFileAssociations\.stl\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
-          <RegistryValue Type="string" Value="{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00005}" />
+          <RegistryValue Type="string" Value="{A3BAFD17-52CD-4CF6-869E-A4BB020591EF}" />
         </RegistryKey>
-        <RegistryKey Root="HKCR" Key="CLSID\{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00005}">
-          <RegistryValue Type="string" Value="3D Model Thumbnail Provider STL" />
+        <RegistryKey Root="HKCR" Key="CLSID\{A3BAFD17-52CD-4CF6-869E-A4BB020591EF}">
+          <RegistryValue Type="string" Value="MeshThumbs Thumbnail Provider STL" />
           <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
           <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
         </RegistryKey>
         <RegistryKey Root="HKCR" Key=".dae\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
-          <RegistryValue Type="string" Value="{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00006}" />
+          <RegistryValue Type="string" Value="{7BF654CD-6B62-4A1C-BE5F-53DF447C2BE6}" />
         </RegistryKey>
         <RegistryKey Root="HKCR" Key="SystemFileAssociations\.dae\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
-          <RegistryValue Type="string" Value="{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00006}" />
+          <RegistryValue Type="string" Value="{7BF654CD-6B62-4A1C-BE5F-53DF447C2BE6}" />
         </RegistryKey>
-        <RegistryKey Root="HKCR" Key="CLSID\{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00006}">
-          <RegistryValue Type="string" Value="3D Model Thumbnail Provider DAE" />
+        <RegistryKey Root="HKCR" Key="CLSID\{7BF654CD-6B62-4A1C-BE5F-53DF447C2BE6}">
+          <RegistryValue Type="string" Value="MeshThumbs Thumbnail Provider DAE" />
           <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
           <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
         </RegistryKey>
         <RegistryKey Root="HKCR" Key=".ply\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
-          <RegistryValue Type="string" Value="{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00007}" />
+          <RegistryValue Type="string" Value="{AB2CDE52-5C15-4DAF-B43A-E4C9F1EAAEC0}" />
         </RegistryKey>
         <RegistryKey Root="HKCR" Key="SystemFileAssociations\.ply\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
-          <RegistryValue Type="string" Value="{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00007}" />
+          <RegistryValue Type="string" Value="{AB2CDE52-5C15-4DAF-B43A-E4C9F1EAAEC0}" />
         </RegistryKey>
-        <RegistryKey Root="HKCR" Key="CLSID\{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00007}">
-          <RegistryValue Type="string" Value="3D Model Thumbnail Provider PLY" />
+        <RegistryKey Root="HKCR" Key="CLSID\{AB2CDE52-5C15-4DAF-B43A-E4C9F1EAAEC0}">
+          <RegistryValue Type="string" Value="MeshThumbs Thumbnail Provider PLY" />
           <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
           <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
         </RegistryKey>
         <RegistryKey Root="HKCR" Key=".3ds\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
-          <RegistryValue Type="string" Value="{0EF2C8D1-7B70-48C9-B7B8-0F45D3D0000A}" />
+          <RegistryValue Type="string" Value="{0AD51061-9A3C-4EC3-9757-874ECB89457C}" />
         </RegistryKey>
         <RegistryKey Root="HKCR" Key="SystemFileAssociations\.3ds\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
-          <RegistryValue Type="string" Value="{0EF2C8D1-7B70-48C9-B7B8-0F45D3D0000A}" />
+          <RegistryValue Type="string" Value="{0AD51061-9A3C-4EC3-9757-874ECB89457C}" />
         </RegistryKey>
-        <RegistryKey Root="HKCR" Key="CLSID\{0EF2C8D1-7B70-48C9-B7B8-0F45D3D0000A}">
-          <RegistryValue Type="string" Value="3D Model Thumbnail Provider 3DS" />
+        <RegistryKey Root="HKCR" Key="CLSID\{0AD51061-9A3C-4EC3-9757-874ECB89457C}">
+          <RegistryValue Type="string" Value="MeshThumbs Thumbnail Provider 3DS" />
           <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
           <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
         </RegistryKey>
@@ -171,11 +139,11 @@
     </ComponentGroup>
 
     <DirectoryRef Id="ProgramDataVendor">
-      <Component Id="ProgramDataLogDir" Guid="ff1433b1-fdcb-49cb-b43d-40fc8cd52c1b" Win64="yes">
+      <Component Id="ProgramDataLogDir" Guid="36edadc7-b126-4180-9b1d-5a2287fabea1" Win64="yes">
         <CreateFolder />
         <RemoveFile Id="RemoveProgramDataLogs" Name="*" On="uninstall" />
         <RemoveFolder Id="RemoveProgramDataVendor" On="uninstall" />
-        <RegistryValue Root="HKLM" Key="Software\3DThumbnails" Name="LogDir" Type="string" Value="[ProgramDataVendor]" KeyPath="yes" />
+        <RegistryValue Root="HKLM" Key="Software\MeshThumbs" Name="LogDir" Type="string" Value="[ProgramDataVendor]" KeyPath="yes" />
       </Component>
     </DirectoryRef>
   </Product>

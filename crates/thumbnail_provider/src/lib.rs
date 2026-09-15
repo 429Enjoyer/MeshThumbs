@@ -38,15 +38,14 @@ use windows::{
 
 const PROVIDER_VERSION: &str = env!("CARGO_PKG_VERSION");
 
-const CLSID_OBJ_PROVIDER: GUID = GUID::from_u128(0x0ef2c8d1_7b70_48c9_b7b8_0f45d3d00001);
-const CLSID_FBX_PROVIDER: GUID = GUID::from_u128(0x0ef2c8d1_7b70_48c9_b7b8_0f45d3d00002);
-const CLSID_GLB_PROVIDER: GUID = GUID::from_u128(0x0ef2c8d1_7b70_48c9_b7b8_0f45d3d00003);
-const CLSID_GLTF_PROVIDER: GUID = GUID::from_u128(0x0ef2c8d1_7b70_48c9_b7b8_0f45d3d00004);
-const CLSID_STL_PROVIDER: GUID = GUID::from_u128(0x0ef2c8d1_7b70_48c9_b7b8_0f45d3d00005);
-const CLSID_DAE_PROVIDER: GUID = GUID::from_u128(0x0ef2c8d1_7b70_48c9_b7b8_0f45d3d00006);
-const CLSID_PLY_PROVIDER: GUID = GUID::from_u128(0x0ef2c8d1_7b70_48c9_b7b8_0f45d3d00007);
-const CLSID_3DS_PROVIDER: GUID = GUID::from_u128(0x0ef2c8d1_7b70_48c9_b7b8_0f45d3d0000a);
-const CLSID_LEGACY_PROVIDER: GUID = GUID::from_u128(0x4c6f2b8a_5d2e_4c64_9ac7_b6fd046a8241);
+const CLSID_OBJ_PROVIDER: GUID = GUID::from_u128(0xa9ffd4c4_3fa9_4eb7_8b47_b89a7f09d059);
+const CLSID_FBX_PROVIDER: GUID = GUID::from_u128(0x4e5fd91f_c018_4850_9636_3069629c6d3d);
+const CLSID_GLB_PROVIDER: GUID = GUID::from_u128(0xe859325c_5506_4419_8ac5_6a4b03f3a138);
+const CLSID_GLTF_PROVIDER: GUID = GUID::from_u128(0xb7265976_0dba_44b5_9303_0b0dafd034e0);
+const CLSID_STL_PROVIDER: GUID = GUID::from_u128(0xa3bafd17_52cd_4cf6_869e_a4bb020591ef);
+const CLSID_DAE_PROVIDER: GUID = GUID::from_u128(0x7bf654cd_6b62_4a1c_be5f_53df447c2be6);
+const CLSID_PLY_PROVIDER: GUID = GUID::from_u128(0xab2cde52_5c15_4daf_b43a_e4c9f1eaaec0);
+const CLSID_3DS_PROVIDER: GUID = GUID::from_u128(0x0ad51061_9a3c_4ec3_9757_874ecb89457c);
 
 #[derive(Clone, Copy)]
 struct ProviderInfo {
@@ -54,11 +53,7 @@ struct ProviderInfo {
     extension: &'static str,
 }
 
-const PROVIDERS: [ProviderInfo; 9] = [
-    ProviderInfo {
-        clsid: CLSID_LEGACY_PROVIDER,
-        extension: ".model",
-    },
+const PROVIDERS: [ProviderInfo; 8] = [
     ProviderInfo {
         clsid: CLSID_OBJ_PROVIDER,
         extension: ".obj",
@@ -420,10 +415,10 @@ fn log_line(message: &str) {
 fn log_path() -> Option<PathBuf> {
     std::env::var_os("PROGRAMDATA")
         .map(PathBuf::from)
-        .map(|p| p.join("3DThumbnails").join("3dthumbs.log"))
+        .map(|p| p.join("MeshThumbs").join("meshthumbs.log"))
         .or_else(|| {
-            directories::ProjectDirs::from("dev", "3DThumbnails", "3DThumbnails")
-                .map(|d| d.data_local_dir().join("3dthumbs.log"))
+            directories::ProjectDirs::from("dev", "MeshThumbs", "MeshThumbs")
+                .map(|d| d.data_local_dir().join("meshthumbs.log"))
         })
 }
 
@@ -448,10 +443,7 @@ fn write_stream_to_temp_model(stream: &IStream, extension_hint: &str) -> Result<
         let extension_matches = path
             .extension()
             .and_then(|s| s.to_str())
-            .is_some_and(|ext| {
-                extension_hint == ".model"
-                    || ext.eq_ignore_ascii_case(extension_hint.trim_start_matches('.'))
-            });
+            .is_some_and(|ext| ext.eq_ignore_ascii_case(extension_hint.trim_start_matches('.')));
         if extension_matches && std::fs::metadata(&path).is_ok_and(|m| m.len() == stat.cbSize) {
             return Ok(ModelInput {
                 path,
@@ -473,11 +465,11 @@ fn write_stream_to_temp_model(stream: &IStream, extension_hint: &str) -> Result<
     if prefix_len == 0 || prefix_len > requested {
         return Err(Error::from(E_FAIL));
     }
-    let extension = match extension_hint.strip_prefix('.') {
-        Some("model") | None | Some("") => guess_model_extension(&buffer[..prefix_len as usize]),
-        Some(ext) => ext,
-    };
-    let dir = std::env::temp_dir().join("3DThumbnails");
+    let extension = extension_hint
+        .strip_prefix('.')
+        .filter(|ext| renderer::SUPPORTED_EXTENSIONS.contains(ext))
+        .ok_or_else(|| Error::from(E_FAIL))?;
+    let dir = std::env::temp_dir().join("MeshThumbs");
     create_dir_all(&dir).map_err(|_| Error::from(E_FAIL))?;
     let mut file = tempfile::Builder::new()
         .prefix("stream-")
@@ -509,34 +501,4 @@ fn write_stream_to_temp_model(stream: &IStream, extension_hint: &str) -> Result<
         path: temporary.to_path_buf(),
         _temporary: Some(temporary),
     })
-}
-
-fn guess_model_extension(prefix: &[u8]) -> &'static str {
-    if prefix.starts_with(b"glTF") {
-        return "glb";
-    }
-    if prefix.starts_with(b"Kaydara FBX Binary") {
-        return "fbx";
-    }
-
-    let trimmed = prefix
-        .iter()
-        .copied()
-        .skip_while(|b| b.is_ascii_whitespace())
-        .collect::<Vec<_>>();
-    if trimmed.starts_with(b"{") {
-        return "gltf";
-    }
-    if trimmed.starts_with(b"; FBX") || trimmed.windows(3).any(|w| w == b"FBX") {
-        return "fbx";
-    }
-    if trimmed.starts_with(b"v ")
-        || trimmed.starts_with(b"#")
-        || trimmed.starts_with(b"o ")
-        || trimmed.starts_with(b"mtllib")
-    {
-        return "obj";
-    }
-
-    "glb"
 }

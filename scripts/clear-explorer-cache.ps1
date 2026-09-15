@@ -20,17 +20,14 @@ $explorerCacheDir = Join-Path $env:LOCALAPPDATA "Microsoft\Windows\Explorer"
 $legacyIconCache = Join-Path $env:LOCALAPPDATA "IconCache.db"
 $thumbHandler = "{e357fccd-a995-4576-b01f-234630154e96}"
 $providerClsids = @(
-    "{4C6F2B8A-5D2E-4C64-9AC7-B6FD046A8241}",
-    "{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00001}",
-    "{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00002}",
-    "{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00003}",
-    "{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00004}",
-    "{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00005}",
-    "{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00006}",
-    "{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00007}",
-    "{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00008}",
-    "{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00009}",
-    "{0EF2C8D1-7B70-48C9-B7B8-0F45D3D0000A}"
+    "{A9FFD4C4-3FA9-4EB7-8B47-B89A7F09D059}",
+    "{4E5FD91F-C018-4850-9636-3069629C6D3D}",
+    "{E859325C-5506-4419-8AC5-6A4B03F3A138}",
+    "{B7265976-0DBA-44B5-9303-0B0DAFD034E0}",
+    "{A3BAFD17-52CD-4CF6-869E-A4BB020591EF}",
+    "{7BF654CD-6B62-4A1C-BE5F-53DF447C2BE6}",
+    "{AB2CDE52-5C15-4DAF-B43A-E4C9F1EAAEC0}",
+    "{0AD51061-9A3C-4EC3-9757-874ECB89457C}"
 )
 
 function Remove-ThumbnailKeyIfOurs {
@@ -43,7 +40,7 @@ function Remove-ThumbnailKeyIfOurs {
 }
 
 function Remove-CurrentUserShellOverrides {
-    foreach ($ext in ".obj", ".fbx", ".glb", ".gltf", ".stl", ".dae", ".ply", ".x3d", ".x3db", ".3ds", ".model") {
+    foreach ($ext in ".obj", ".fbx", ".glb", ".gltf", ".stl", ".dae", ".ply", ".3ds") {
         Remove-ThumbnailKeyIfOurs "HKCU:\Software\Classes\$ext\shellex\$thumbHandler"
         Remove-ThumbnailKeyIfOurs "HKCU:\Software\Classes\SystemFileAssociations\$ext\shellex\$thumbHandler"
 
