@@ -6,10 +6,19 @@ license.workspace = true
 
 [dependencies]
 anyhow = "1"
+asset-importer = { version = "0.8", features = ["static-link"] }
 bytemuck = "1"
 glam = "0.29"
 gltf = { version = "1.4", features = ["import", "KHR_texture_transform"] }
-image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "bmp", "tga", "dds"] }
 thiserror = "2"
 tobj = "4"
 ufbx = "0.10"
+urlencoding = "2"
+
+# asset-importer-sys 0.8 links bundled zlib for MSVC but omits it on MinGW.
+[target.'cfg(all(windows, target_env = "gnu"))'.dependencies]
+libz-sys = { version = "1", default-features = false, features = ["static"] }
+
+[build-dependencies]
+cc = "1"

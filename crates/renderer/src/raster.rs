@@ -206,6 +206,23 @@ fn draw_triangle(
                 .as_ref()
                 .map(|t| modulate(t.sample(tex_uv), tri.color))
                 .unwrap_or(tri.color);
+            let weights = if inv_z > 0.0 {
+                [
+                    w0 * inv_z0 / inv_z,
+                    w1 * inv_z1 / inv_z,
+                    w2 * inv_z2 / inv_z,
+                ]
+            } else {
+                [w0, w1, w2]
+            };
+            let vertex_color = std::array::from_fn(|channel| {
+                (0..3)
+                    .map(|i| tri.vertices[i].color[channel] as f32 * weights[i])
+                    .sum::<f32>()
+                    .round()
+                    .clamp(0.0, 255.0) as u8
+            });
+            color = modulate(color, vertex_color);
 
             let normal = (n[0] * w0 + n[1] * w1 + n[2] * w2).normalize_or_zero();
             let shade = 0.68 + normal.dot(light).max(0.0) * 0.32;

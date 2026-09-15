@@ -4,11 +4,13 @@ use std::{
     io::Write,
     path::PathBuf,
     ptr::null_mut,
-    sync::Mutex,
+    sync::{Arc, Mutex},
 };
 
 use once_cell::sync::Lazy;
-use renderer::{render_thumbnail, RenderOptions};
+use renderer::MAX_MODEL_BYTES;
+
+mod worker;
 use windows::{
     core::{implement, Error, IUnknown, Interface, Result, GUID, HRESULT, PCWSTR},
     Win32::{
@@ -20,7 +22,7 @@ use windows::{
             CreateDIBSection, BITMAPINFO, BITMAPINFOHEADER, BI_RGB, DIB_RGB_COLORS, HBITMAP,
         },
         System::Com::{
-            CoTaskMemFree, IClassFactory, IClassFactory_Impl, IStream, STATFLAG_NONAME,
+            CoTaskMemFree, IClassFactory, IClassFactory_Impl, IStream, STATFLAG_DEFAULT,
             STREAM_SEEK_SET,
         },
         UI::Shell::PropertiesSystem::{
@@ -29,7 +31,7 @@ use windows::{
         },
         UI::Shell::{
             IInitializeWithItem, IInitializeWithItem_Impl, IThumbnailProvider,
-            IThumbnailProvider_Impl, SIGDN_FILESYSPATH, WTSAT_ARGB, WTS_ALPHATYPE,
+            IThumbnailProvider_Impl, SIGDN_FILESYSPATH, WTSAT_ARGB, WTSAT_UNKNOWN, WTS_ALPHATYPE,
         },
     },
 };
@@ -40,6 +42,10 @@ const CLSID_OBJ_PROVIDER: GUID = GUID::from_u128(0x0ef2c8d1_7b70_48c9_b7b8_0f45d
 const CLSID_FBX_PROVIDER: GUID = GUID::from_u128(0x0ef2c8d1_7b70_48c9_b7b8_0f45d3d00002);
 const CLSID_GLB_PROVIDER: GUID = GUID::from_u128(0x0ef2c8d1_7b70_48c9_b7b8_0f45d3d00003);
 const CLSID_GLTF_PROVIDER: GUID = GUID::from_u128(0x0ef2c8d1_7b70_48c9_b7b8_0f45d3d00004);
+const CLSID_STL_PROVIDER: GUID = GUID::from_u128(0x0ef2c8d1_7b70_48c9_b7b8_0f45d3d00005);
+const CLSID_DAE_PROVIDER: GUID = GUID::from_u128(0x0ef2c8d1_7b70_48c9_b7b8_0f45d3d00006);
+const CLSID_PLY_PROVIDER: GUID = GUID::from_u128(0x0ef2c8d1_7b70_48c9_b7b8_0f45d3d00007);
+const CLSID_3DS_PROVIDER: GUID = GUID::from_u128(0x0ef2c8d1_7b70_48c9_b7b8_0f45d3d0000a);
 const CLSID_LEGACY_PROVIDER: GUID = GUID::from_u128(0x4c6f2b8a_5d2e_4c64_9ac7_b6fd046a8241);
 
 #[derive(Clone, Copy)]
@@ -48,7 +54,7 @@ struct ProviderInfo {
     extension: &'static str,
 }
 
-const PROVIDERS: [ProviderInfo; 5] = [
+const PROVIDERS: [ProviderInfo; 9] = [
     ProviderInfo {
         clsid: CLSID_LEGACY_PROVIDER,
         extension: ".model",
@@ -69,6 +75,22 @@ const PROVIDERS: [ProviderInfo; 5] = [
         clsid: CLSID_GLTF_PROVIDER,
         extension: ".gltf",
     },
+    ProviderInfo {
+        clsid: CLSID_STL_PROVIDER,
+        extension: ".stl",
+    },
+    ProviderInfo {
+        clsid: CLSID_DAE_PROVIDER,
+        extension: ".dae",
+    },
+    ProviderInfo {
+        clsid: CLSID_PLY_PROVIDER,
+        extension: ".ply",
+    },
+    ProviderInfo {
+        clsid: CLSID_3DS_PROVIDER,
+        extension: ".3ds",
+    },
 ];
 
 static LOG_LOCK: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
@@ -81,7 +103,21 @@ static LOG_LOCK: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
 )]
 struct ThumbnailProvider {
     extension_hint: &'static str,
-    path: Mutex<Option<PathBuf>>,
+    path: Mutex<Option<Arc<ModelInput>>>,
+}
+
+struct ModelInput {
+    path: PathBuf,
+    _temporary: Option<tempfile::TempPath>,
+}
+
+impl ModelInput {
+    fn file(path: PathBuf) -> Arc<Self> {
+        Arc::new(Self {
+            path,
+            _temporary: None,
+        })
+    }
 }
 
 impl ThumbnailProvider {
@@ -94,28 +130,31 @@ impl ThumbnailProvider {
 }
 
 #[allow(non_snake_case)]
-impl IInitializeWithFile_Impl for ThumbnailProvider_Impl {
-    fn Initialize(&self, pszfilepath: &PCWSTR, _grfmode: u32) -> Result<()> {
+impl ThumbnailProvider {
+    fn initialize_file(&self, pszfilepath: &PCWSTR, _grfmode: u32) -> Result<()> {
         let path = unsafe { pszfilepath.to_string() }.map_err(|_| Error::from(E_FAIL))?;
         log_line(&format!("v{PROVIDER_VERSION} Initialize {path}"));
-        *self.path.lock().map_err(|_| Error::from(E_FAIL))? = Some(PathBuf::from(path));
+        *self.path.lock().map_err(|_| Error::from(E_FAIL))? =
+            Some(ModelInput::file(PathBuf::from(path)));
         Ok(())
     }
 }
 
 #[allow(non_snake_case)]
-impl IInitializeWithItem_Impl for ThumbnailProvider_Impl {
-    fn Initialize(
+impl ThumbnailProvider {
+    fn initialize_item(
         &self,
         psi: Option<&windows::Win32::UI::Shell::IShellItem>,
         _grfmode: u32,
     ) -> Result<()> {
         let item = psi.ok_or_else(|| Error::from(E_POINTER))?;
         let display_name = unsafe { item.GetDisplayName(SIGDN_FILESYSPATH)? };
-        let path = unsafe { display_name.to_string() }.map_err(|_| Error::from(E_FAIL))?;
+        let converted = unsafe { display_name.to_string() };
         unsafe { CoTaskMemFree(Some(display_name.0 as *const c_void)) };
+        let path = converted.map_err(|_| Error::from(E_FAIL))?;
         log_line(&format!("v{PROVIDER_VERSION} InitializeWithItem {path}"));
-        *self.path.lock().map_err(|_| Error::from(E_FAIL))? = Some(PathBuf::from(path));
+        *self.path.lock().map_err(|_| Error::from(E_FAIL))? =
+            Some(ModelInput::file(PathBuf::from(path)));
         Ok(())
     }
 }
@@ -127,16 +166,16 @@ impl IInitializeWithStream_Impl for ThumbnailProvider_Impl {
         let temp_path = write_stream_to_temp_model(stream, self.extension_hint)?;
         log_line(&format!(
             "v{PROVIDER_VERSION} InitializeWithStream {}",
-            temp_path.display()
+            temp_path.path.display()
         ));
-        *self.path.lock().map_err(|_| Error::from(E_FAIL))? = Some(temp_path);
+        *self.path.lock().map_err(|_| Error::from(E_FAIL))? = Some(Arc::new(temp_path));
         Ok(())
     }
 }
 
 #[allow(non_snake_case)]
-impl IThumbnailProvider_Impl for ThumbnailProvider_Impl {
-    fn GetThumbnail(
+impl ThumbnailProvider {
+    fn get_thumbnail(
         &self,
         cx: u32,
         phbmp: *mut HBITMAP,
@@ -146,21 +185,25 @@ impl IThumbnailProvider_Impl for ThumbnailProvider_Impl {
             return Err(Error::from(E_POINTER));
         }
 
-        let path = self
+        unsafe {
+            *phbmp = HBITMAP::default();
+            *pdwalpha = WTSAT_UNKNOWN;
+        }
+        let input = self
             .path
             .lock()
             .map_err(|_| Error::from(E_FAIL))?
             .clone()
             .ok_or_else(|| Error::from(E_FAIL))?;
 
+        let path = &input.path;
         let size = cx.clamp(32, 512);
-        match render_thumbnail(
-            &path,
-            &RenderOptions {
-                size,
-                ..Default::default()
-            },
-        ) {
+        let rendered = std::panic::catch_unwind(|| worker::render(path, size));
+        let rendered = rendered.map_err(|_| {
+            log_line("Renderer panic caught at COM boundary");
+            Error::from(E_FAIL)
+        })?;
+        match rendered {
             Ok(bitmap) => unsafe {
                 let hbmp = create_hbitmap(&bitmap.pixels, bitmap.width, bitmap.height)?;
                 *phbmp = hbmp;
@@ -183,6 +226,68 @@ impl IThumbnailProvider_Impl for ThumbnailProvider_Impl {
     }
 }
 
+// Sidecar-based formats require the original path. Do not advertise an
+// anonymous stream interface that cannot resolve external geometry/textures.
+#[implement(IInitializeWithFile, IInitializeWithItem, IThumbnailProvider)]
+struct FileThumbnailProvider {
+    inner: ThumbnailProvider,
+}
+
+#[allow(non_snake_case)]
+impl IInitializeWithFile_Impl for ThumbnailProvider_Impl {
+    fn Initialize(&self, path: &PCWSTR, mode: u32) -> Result<()> {
+        self.initialize_file(path, mode)
+    }
+}
+#[allow(non_snake_case)]
+impl IInitializeWithItem_Impl for ThumbnailProvider_Impl {
+    fn Initialize(
+        &self,
+        item: Option<&windows::Win32::UI::Shell::IShellItem>,
+        mode: u32,
+    ) -> Result<()> {
+        self.initialize_item(item, mode)
+    }
+}
+#[allow(non_snake_case)]
+impl IThumbnailProvider_Impl for ThumbnailProvider_Impl {
+    fn GetThumbnail(
+        &self,
+        size: u32,
+        bitmap: *mut HBITMAP,
+        alpha: *mut WTS_ALPHATYPE,
+    ) -> Result<()> {
+        self.get_thumbnail(size, bitmap, alpha)
+    }
+}
+#[allow(non_snake_case)]
+impl IInitializeWithFile_Impl for FileThumbnailProvider_Impl {
+    fn Initialize(&self, path: &PCWSTR, mode: u32) -> Result<()> {
+        self.inner.initialize_file(path, mode)
+    }
+}
+#[allow(non_snake_case)]
+impl IInitializeWithItem_Impl for FileThumbnailProvider_Impl {
+    fn Initialize(
+        &self,
+        item: Option<&windows::Win32::UI::Shell::IShellItem>,
+        mode: u32,
+    ) -> Result<()> {
+        self.inner.initialize_item(item, mode)
+    }
+}
+#[allow(non_snake_case)]
+impl IThumbnailProvider_Impl for FileThumbnailProvider_Impl {
+    fn GetThumbnail(
+        &self,
+        size: u32,
+        bitmap: *mut HBITMAP,
+        alpha: *mut WTS_ALPHATYPE,
+    ) -> Result<()> {
+        self.inner.get_thumbnail(size, bitmap, alpha)
+    }
+}
+
 #[implement(IClassFactory)]
 struct ClassFactory {
     provider: ProviderInfo,
@@ -196,7 +301,7 @@ impl IClassFactory_Impl for ClassFactory_Impl {
         riid: *const GUID,
         ppvobject: *mut *mut c_void,
     ) -> Result<()> {
-        if ppvobject.is_null() {
+        if ppvobject.is_null() || riid.is_null() {
             return Err(Error::from(E_POINTER));
         }
         unsafe { *ppvobject = null_mut() };
@@ -205,7 +310,15 @@ impl IClassFactory_Impl for ClassFactory_Impl {
             return Err(Error::from(CLASS_E_NOAGGREGATION));
         }
 
-        let unknown: IUnknown = ThumbnailProvider::new(self.provider.extension).into();
+        let state = ThumbnailProvider::new(self.provider.extension);
+        let unknown: IUnknown = if matches!(
+            self.provider.extension,
+            ".obj" | ".fbx" | ".gltf" | ".dae" | ".3ds"
+        ) {
+            FileThumbnailProvider { inner: state }.into()
+        } else {
+            state.into()
+        };
         let hr = unsafe { unknown.query(riid, ppvobject) };
         if hr.is_ok() {
             Ok(())
@@ -280,9 +393,9 @@ unsafe fn create_hbitmap(pixels: &[u8], width: u32, height: u32) -> Result<HBITM
 
     let out = std::slice::from_raw_parts_mut(bits as *mut u8, (width * height * 4) as usize);
     for (src, dst) in pixels.chunks_exact(4).zip(out.chunks_exact_mut(4)) {
-        dst[0] = src[2];
-        dst[1] = src[1];
-        dst[2] = src[0];
+        dst[0] = (src[2] as u16 * src[3] as u16 / 255) as u8;
+        dst[1] = (src[1] as u16 * src[3] as u16 / 255) as u8;
+        dst[2] = (src[0] as u16 * src[3] as u16 / 255) as u8;
         dst[3] = src[3];
     }
 
@@ -314,66 +427,88 @@ fn log_path() -> Option<PathBuf> {
         })
 }
 
-fn write_stream_to_temp_model(stream: &IStream, extension_hint: &str) -> Result<PathBuf> {
+fn write_stream_to_temp_model(stream: &IStream, extension_hint: &str) -> Result<ModelInput> {
     let mut stat = unsafe { std::mem::zeroed() };
     unsafe {
-        stream.Stat(&mut stat, STATFLAG_NONAME)?;
+        stream.Stat(&mut stat, STATFLAG_DEFAULT)?;
+    }
+    let named_path = if !stat.pwcsName.0.is_null() {
+        let name = unsafe { stat.pwcsName.to_string() };
+        unsafe { CoTaskMemFree(Some(stat.pwcsName.0.cast())) };
+        name.ok().map(PathBuf::from)
+    } else {
+        None
+    };
+    if stat.cbSize == 0 || stat.cbSize > MAX_MODEL_BYTES {
+        return Err(Error::from(E_FAIL));
+    }
+    // File-backed Shell streams can preserve sidecar buffers and textures.
+    // Anonymous/cloud streams still use a bounded, owned temporary copy below.
+    if let Some(path) = named_path.filter(|p| p.is_absolute() && p.is_file()) {
+        let extension_matches = path
+            .extension()
+            .and_then(|s| s.to_str())
+            .is_some_and(|ext| {
+                extension_hint == ".model"
+                    || ext.eq_ignore_ascii_case(extension_hint.trim_start_matches('.'))
+            });
+        if extension_matches && std::fs::metadata(&path).is_ok_and(|m| m.len() == stat.cbSize) {
+            return Ok(ModelInput {
+                path,
+                _temporary: None,
+            });
+        }
+    }
+    unsafe {
         stream.Seek(0, STREAM_SEEK_SET, None)?;
     }
-
-    let mut path = std::env::temp_dir();
-    path.push("3DThumbnails");
-    create_dir_all(&path).map_err(|_| Error::from(E_FAIL))?;
-    let stem = format!(
-        "stream-{}-{}",
-        std::process::id(),
-        time::OffsetDateTime::now_utc().unix_timestamp_nanos()
-    );
-    path.push(format!("{stem}.bin"));
-
-    let mut file = std::fs::File::create(&path).map_err(|_| Error::from(E_FAIL))?;
-    let mut remaining = stat.cbSize;
     let mut buffer = vec![0u8; 64 * 1024];
-    let mut prefix = Vec::with_capacity(128);
-
-    loop {
-        let requested = buffer.len().min(remaining.min(u32::MAX as u64) as usize) as u32;
-        if requested == 0 {
-            break;
+    let mut prefix_len = 0;
+    let requested = stat.cbSize.min(128) as u32;
+    unsafe {
+        stream
+            .Read(buffer.as_mut_ptr().cast(), requested, Some(&mut prefix_len))
+            .ok()?;
+    }
+    if prefix_len == 0 || prefix_len > requested {
+        return Err(Error::from(E_FAIL));
+    }
+    let extension = match extension_hint.strip_prefix('.') {
+        Some("model") | None | Some("") => guess_model_extension(&buffer[..prefix_len as usize]),
+        Some(ext) => ext,
+    };
+    let dir = std::env::temp_dir().join("3DThumbnails");
+    create_dir_all(&dir).map_err(|_| Error::from(E_FAIL))?;
+    let mut file = tempfile::Builder::new()
+        .prefix("stream-")
+        .suffix(&format!(".{extension}"))
+        .tempfile_in(dir)
+        .map_err(|_| Error::from(E_FAIL))?;
+    file.write_all(&buffer[..prefix_len as usize])
+        .map_err(|_| Error::from(E_FAIL))?;
+    let mut remaining = stat.cbSize - prefix_len as u64;
+    while remaining > 0 {
+        let requested = remaining.min(buffer.len() as u64) as u32;
+        let mut read = 0;
+        unsafe {
+            stream
+                .Read(buffer.as_mut_ptr().cast(), requested, Some(&mut read))
+                .ok()?;
         }
-
-        let mut read = 0u32;
-        let hr = unsafe {
-            stream.Read(
-                buffer.as_mut_ptr() as *mut c_void,
-                requested,
-                Some(&mut read),
-            )
-        };
-        if hr.is_err() {
-            return Err(Error::from(hr));
-        }
-        if read == 0 {
-            break;
-        }
-
-        if prefix.len() < 128 {
-            let take = (128 - prefix.len()).min(read as usize);
-            prefix.extend_from_slice(&buffer[..take]);
+        if read == 0 || read > requested {
+            return Err(Error::from(E_FAIL));
         }
         file.write_all(&buffer[..read as usize])
             .map_err(|_| Error::from(E_FAIL))?;
-        remaining = remaining.saturating_sub(read as u64);
+        remaining -= read as u64;
     }
-
-    let extension = match extension_hint.strip_prefix('.') {
-        Some("model") | None => guess_model_extension(&prefix),
-        Some(ext) if !ext.is_empty() => ext,
-        _ => guess_model_extension(&prefix),
-    };
-    let final_path = path.with_file_name(format!("{stem}.{extension}"));
-    std::fs::rename(&path, &final_path).map_err(|_| Error::from(E_FAIL))?;
-    Ok(final_path)
+    // TempPath owns only this generated file; it is deleted on release, replacement,
+    // or error, after any concurrent GetThumbnail reader releases its Arc.
+    let temporary = file.into_temp_path();
+    Ok(ModelInput {
+        path: temporary.to_path_buf(),
+        _temporary: Some(temporary),
+    })
 }
 
 fn guess_model_extension(prefix: &[u8]) -> &'static str {

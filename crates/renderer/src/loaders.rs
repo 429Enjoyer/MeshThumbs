@@ -1,12 +1,14 @@
 use std::{path::Path, sync::Arc};
 
-use anyhow::{anyhow, bail, Context};
+use anyhow::{bail, Context};
 use glam::{Mat4, Vec2, Vec3};
 use gltf::{image::Format, texture::WrappingMode};
 
 use crate::{RenderError, Scene, Texture, Triangle, Vertex, WrapMode};
 
-pub(crate) fn load_scene(path: &Path) -> Result<Scene, RenderError> {
+mod legacy;
+
+pub(crate) fn load_scene(path: &Path, max_triangles: usize) -> Result<Scene, RenderError> {
     match path
         .extension()
         .and_then(|e| e.to_str())
@@ -17,6 +19,9 @@ pub(crate) fn load_scene(path: &Path) -> Result<Scene, RenderError> {
         "obj" => load_obj(path).map_err(RenderError::Load),
         "glb" | "gltf" => load_gltf(path).map_err(RenderError::Load),
         "fbx" => load_fbx(path).map_err(RenderError::Load),
+        "stl" | "ply" | "dae" | "3ds" => {
+            legacy::load(path, max_triangles).map_err(RenderError::Load)
+        }
         _ => Err(RenderError::UnsupportedFormat),
     }
 }
@@ -74,12 +79,36 @@ fn load_obj(path: &Path) -> anyhow::Result<Scene> {
 }
 
 fn load_gltf(path: &Path) -> anyhow::Result<Scene> {
-    let (document, buffers, images) =
-        gltf::import(path).with_context(|| format!("failed to load glTF {}", path.display()))?;
-
-    let textures = images
-        .into_iter()
-        .map(|image| gltf_image_to_texture(image).map(Arc::new))
+    let source = gltf::Gltf::open(path)
+        .with_context(|| format!("failed to load glTF {}", path.display()))?;
+    let document = source.document;
+    let base = path.parent().unwrap_or_else(|| Path::new("."));
+    let buffers = gltf::import_buffers(&document, Some(base), source.blob)?;
+    let used_images = document
+        .materials()
+        .filter_map(|material| {
+            material
+                .pbr_metallic_roughness()
+                .base_color_texture()
+                .map(|info| info.texture().source().index())
+        })
+        .collect::<std::collections::HashSet<_>>();
+    // A missing or corrupt optional image must not discard valid geometry.
+    let textures = document
+        .images()
+        .map(|image| {
+            if !used_images.contains(&image.index()) {
+                return None;
+            }
+            if let gltf::image::Source::View { view, .. } = image.source() {
+                let buffer = buffers.get(view.buffer().index())?;
+                buffer.get(view.offset()..view.offset().checked_add(view.length())?)?;
+            }
+            gltf::image::Data::from_source(image.source(), Some(base), &buffers)
+                .ok()
+                .and_then(gltf_image_to_texture)
+                .map(Arc::new)
+        })
         .collect::<Vec<_>>();
 
     let mut scene = Scene::new();
@@ -102,14 +131,17 @@ fn load_gltf_node(
     textures: &[Option<Arc<Texture>>],
     scene: &mut Scene,
 ) {
-    let transform = parent_transform * gltf_transform(node.transform());
-
-    if let Some(mesh) = node.mesh() {
-        load_gltf_mesh(mesh, transform, buffers, textures, scene);
-    }
-
-    for child in node.children() {
-        load_gltf_node(child, transform, buffers, textures, scene);
+    let mut stack = vec![(node, parent_transform)];
+    let mut visited = std::collections::HashSet::new();
+    while let Some((node, parent)) = stack.pop() {
+        if !visited.insert(node.index()) {
+            continue;
+        }
+        let transform = parent * gltf_transform(node.transform());
+        if let Some(mesh) = node.mesh() {
+            load_gltf_mesh(mesh, transform, buffers, textures, scene);
+        }
+        stack.extend(node.children().map(|child| (child, transform)));
     }
 }
 
@@ -137,6 +169,10 @@ fn load_gltf_mesh(
             .map(|i| i.into_u32().collect::<Vec<_>>())
             .unwrap_or_else(|| (0..positions.len() as u32).collect());
 
+        let vertex_colors = reader
+            .read_colors(0)
+            .map(|c| c.into_rgba_f32().collect::<Vec<_>>())
+            .unwrap_or_default();
         let mat = primitive.material();
         let pbr = mat.pbr_metallic_roughness();
         let base = pbr.base_color_factor();
@@ -192,33 +228,24 @@ fn load_gltf_mesh(
                 })
         });
 
-        for tri in indices.chunks_exact(3) {
-            let vertices = [
-                gltf_vertex(
+        for tri in topology_indices(&indices, primitive.mode()) {
+            if tri.iter().any(|&i| i as usize >= positions.len()) {
+                continue;
+            }
+            let vertices = tri.map(|i| {
+                let mut v = gltf_vertex(
                     &positions,
                     &normals,
                     &texcoords,
-                    tri[0] as usize,
+                    i as usize,
                     transform,
                     normal_transform,
-                ),
-                gltf_vertex(
-                    &positions,
-                    &normals,
-                    &texcoords,
-                    tri[1] as usize,
-                    transform,
-                    normal_transform,
-                ),
-                gltf_vertex(
-                    &positions,
-                    &normals,
-                    &texcoords,
-                    tri[2] as usize,
-                    transform,
-                    normal_transform,
-                ),
-            ];
+                );
+                if let Some(c) = vertex_colors.get(i as usize) {
+                    v.color = to_rgba(c[0], c[1], c[2], c[3]);
+                }
+                v
+            });
             scene.triangles.push(Triangle {
                 vertices: fix_normals(vertices),
                 color,
@@ -230,32 +257,22 @@ fn load_gltf_mesh(
 
 fn load_fbx(path: &Path) -> anyhow::Result<Scene> {
     let parent = path.parent().unwrap_or_else(|| Path::new("."));
-    let path_utf8 = path
-        .to_str()
-        .ok_or_else(|| anyhow!("ufbx currently needs an UTF-8 path"))?;
-    let mut error = ufbx::Error::default();
-    let scene_ptr = unsafe {
-        ufbx::ufbx_load_file_len(
-            path_utf8.as_ptr(),
-            path_utf8.len(),
-            std::ptr::null(),
-            &mut error,
-        )
-    };
-    if scene_ptr.is_null() {
-        bail!("failed to load FBX: {:?}", error);
-    }
-
-    let scene_ref = unsafe { &*scene_ptr };
+    let path_utf8 = path.to_str().context("FBX path must be UTF-8")?;
+    let source = ufbx::load_file(path_utf8, ufbx::LoadOpts::default())
+        .map_err(|error| anyhow::anyhow!("failed to load FBX: {:?}", error))?;
     let mut scene = Scene::new();
-    for mesh in &scene_ref.meshes {
-        let materials = (&mesh.materials)
+    for node in &source.nodes {
+        let Some(mesh) = node.mesh.as_ref() else {
+            continue;
+        };
+        let transform = fbx_transform(&node.geometry_to_world);
+        let normal_transform = transform.inverse().transpose();
+        let materials = (&node.materials)
             .into_iter()
             .map(|material| fbx_material_data(material, parent))
             .collect::<Vec<_>>();
-
+        let mut indices = Vec::new();
         for (face_index, face) in (&mesh.faces).into_iter().enumerate() {
-            let mut indices = Vec::new();
             let count = ufbx::triangulate_face_vec(&mut indices, mesh, *face);
             if count == 0 {
                 continue;
@@ -272,6 +289,11 @@ fn load_fbx(path: &Path) -> anyhow::Result<Scene> {
                     fbx_vertex(mesh, tri[1] as usize),
                     fbx_vertex(mesh, tri[2] as usize),
                 ];
+                let vertices = vertices.map(|mut v| {
+                    v.position = transform.transform_point3(v.position);
+                    v.normal = normal_transform.transform_vector3(v.normal);
+                    v
+                });
                 scene.triangles.push(Triangle {
                     vertices: fix_normals(vertices),
                     color: material.0,
@@ -281,7 +303,6 @@ fn load_fbx(path: &Path) -> anyhow::Result<Scene> {
         }
     }
 
-    unsafe { ufbx::ufbx_free_scene(scene_ptr) };
     Ok(scene)
 }
 
@@ -333,7 +354,7 @@ fn gltf_image_to_texture(image: gltf::image::Data) -> Option<Texture> {
         Format::R32G32B32FLOAT | Format::R32G32B32A32FLOAT => return None,
     }
 
-    Some(Texture::from_gltf_image(image.width, image.height, rgba))
+    Texture::from_gltf_image(image.width, image.height, rgba)
 }
 
 fn wrap_mode(mode: WrappingMode) -> WrapMode {
@@ -431,8 +452,11 @@ fn load_fbx_texture(texture: &ufbx::Texture, parent: &Path) -> anyhow::Result<Te
 fn obj_vertex(mesh: &tobj::Mesh, i: usize) -> Vertex {
     Vertex {
         position: read_vec3(&mesh.positions, i).unwrap_or(Vec3::ZERO),
-        normal: read_vec3(&mesh.normals, i).unwrap_or(Vec3::Z),
+        normal: read_vec3(&mesh.normals, i).unwrap_or(Vec3::ZERO),
         uv: read_vec2(&mesh.texcoords, i).unwrap_or(Vec2::ZERO),
+        color: read_vec3(&mesh.vertex_color, i)
+            .map(|c| to_rgba(c.x, c.y, c.z, 1.0))
+            .unwrap_or([255; 4]),
     }
 }
 
@@ -446,13 +470,53 @@ fn gltf_vertex(
 ) -> Vertex {
     Vertex {
         position: transform.transform_point3(positions.get(i).copied().unwrap_or(Vec3::ZERO)),
-        normal: normal_transform.transform_vector3(normals.get(i).copied().unwrap_or(Vec3::Z)),
+        normal: normal_transform.transform_vector3(normals.get(i).copied().unwrap_or(Vec3::ZERO)),
         uv: texcoords.get(i).copied().unwrap_or(Vec2::ZERO),
+        color: [255; 4],
     }
 }
 
 fn gltf_transform(transform: gltf::scene::Transform) -> Mat4 {
     Mat4::from_cols_array_2d(&transform.matrix())
+}
+
+fn topology_indices(
+    indices: &[u32],
+    mode: gltf::mesh::Mode,
+) -> impl Iterator<Item = [u32; 3]> + '_ {
+    use gltf::mesh::Mode;
+    let count = match mode {
+        Mode::Triangles => indices.len() / 3,
+        Mode::TriangleStrip | Mode::TriangleFan => indices.len().saturating_sub(2),
+        _ => 0, // Lines and points must not be mistaken for triangles.
+    };
+    (0..count).map(move |i| match mode {
+        Mode::TriangleStrip if i % 2 == 1 => [indices[i + 1], indices[i], indices[i + 2]],
+        Mode::TriangleStrip => [indices[i], indices[i + 1], indices[i + 2]],
+        Mode::TriangleFan => [indices[0], indices[i + 1], indices[i + 2]],
+        _ => [indices[i * 3], indices[i * 3 + 1], indices[i * 3 + 2]],
+    })
+}
+
+fn fbx_transform(m: &ufbx::Matrix) -> Mat4 {
+    Mat4::from_cols_array(&[
+        m.m00 as f32,
+        m.m10 as f32,
+        m.m20 as f32,
+        0.0,
+        m.m01 as f32,
+        m.m11 as f32,
+        m.m21 as f32,
+        0.0,
+        m.m02 as f32,
+        m.m12 as f32,
+        m.m22 as f32,
+        0.0,
+        m.m03 as f32,
+        m.m13 as f32,
+        m.m23 as f32,
+        1.0,
+    ])
 }
 
 fn fbx_vertex(mesh: &ufbx::Mesh, i: usize) -> Vertex {
@@ -463,7 +527,7 @@ fn fbx_vertex(mesh: &ufbx::Mesh, i: usize) -> Vertex {
         ufbx::Vec3 {
             x: 0.0,
             y: 0.0,
-            z: 1.0,
+            z: 0.0,
         }
     };
     let uv = if mesh.vertex_uv.exists {
@@ -475,6 +539,11 @@ fn fbx_vertex(mesh: &ufbx::Mesh, i: usize) -> Vertex {
         position: Vec3::new(p.x as f32, p.y as f32, p.z as f32),
         normal: Vec3::new(n.x as f32, n.y as f32, n.z as f32),
         uv: Vec2::new(uv.x as f32, uv.y as f32),
+        color: if mesh.vertex_color.exists {
+            vec4_to_rgba(mesh.vertex_color[i])
+        } else {
+            [255; 4]
+        },
     }
 }
 
@@ -492,12 +561,12 @@ fn read_vec2(data: &[f32], index: usize) -> Option<Vec2> {
     Some(Vec2::new(*data.get(i)?, *data.get(i + 1)?))
 }
 
-fn fix_normals(mut vertices: [Vertex; 3]) -> [Vertex; 3] {
+pub(crate) fn fix_normals(mut vertices: [Vertex; 3]) -> [Vertex; 3] {
     let face = (vertices[1].position - vertices[0].position)
         .cross(vertices[2].position - vertices[0].position)
         .normalize_or_zero();
     for vertex in &mut vertices {
-        if vertex.normal.length_squared() < 0.01 {
+        if !vertex.normal.is_finite() || vertex.normal.length_squared() < 0.01 {
             vertex.normal = face;
         }
     }

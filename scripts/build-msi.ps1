@@ -1,5 +1,7 @@
 param(
-    [string]$Configuration = "release"
+    [ValidateSet("release", "debug")]
+    [string]$Configuration = "release",
+    [switch]$SkipBuild
 )
 
 $ErrorActionPreference = "Stop"
@@ -9,18 +11,20 @@ $TargetDir = Join-Path $TargetRoot $Configuration
 $WixObj = Join-Path $Root "wix\obj"
 $WixBin = Join-Path $Root "wix\bin"
 $ProductWxs = Join-Path $Root "wix\Product.wxs"
-$OutputMsi = Join-Path $Root "3DThumbnails-1.0.0-x64.msi"
+$OutputMsi = Join-Path $Root "3DThumbnails-1.0.1-x64.msi"
 $LocalWix = Join-Path $Root ".tools\wix314"
 
-cargo build -p thumbnail_provider --release
+if (-not $SkipBuild) {
+    $CargoArgs = @("build", "--manifest-path", (Join-Path $Root "Cargo.toml"), "-p", "thumbnail_provider", "-p", "thumbgen")
+    if ($Configuration -eq "release") { $CargoArgs += "--release" }
+    & cargo @CargoArgs
+    if ($LASTEXITCODE -ne 0) { throw "Thumbnail provider build failed." }
+}
+if (-not (Test-Path (Join-Path $TargetDir "thumbnail_provider.dll")) -or -not (Test-Path (Join-Path $TargetDir "thumbgen.exe"))) {
+    throw "Build both thumbnail_provider.dll and thumbgen.exe in $TargetDir."
+}
 
 New-Item -ItemType Directory -Force -Path $WixObj, $WixBin | Out-Null
-
-$wix = Get-Command wix.exe -ErrorAction SilentlyContinue
-if ($wix) {
-    & $wix.Source build $ProductWxs -arch x64 -d "TargetDir=$TargetDir" -d "ProjectDir=$Root" -o $OutputMsi
-    exit $LASTEXITCODE
-}
 
 $candle = Get-Command candle.exe -ErrorAction SilentlyContinue
 $light = Get-Command light.exe -ErrorAction SilentlyContinue
@@ -32,8 +36,9 @@ if (-not $light -and (Test-Path (Join-Path $LocalWix "light.exe"))) {
 }
 if ($candle -and $light) {
     & $candle.FullName -arch x64 "-dTargetDir=$TargetDir" "-dProjectDir=$Root" -out (Join-Path $WixObj "Product.wixobj") $ProductWxs
+    if ($LASTEXITCODE -ne 0) { throw "WiX compilation failed." }
     & $light.FullName -out $OutputMsi (Join-Path $WixObj "Product.wixobj")
     exit $LASTEXITCODE
 }
 
-throw "WiX Toolset not found. Install WiX v4 (`winget install WiXToolset.WiXToolset`) or WiX v3, then rerun this script."
+throw "WiX v3.14 not found. Install its candle.exe/light.exe tools or place them in .tools\wix314. Product.wxs uses the WiX v3 schema."

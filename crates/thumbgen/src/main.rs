@@ -6,7 +6,7 @@ use renderer::{render_thumbnail, RenderOptions};
 fn main() -> anyhow::Result<()> {
     let args = std::env::args_os().skip(1).collect::<Vec<_>>();
     if args.len() < 2 {
-        bail!("usage: thumbgen <model.obj|model.fbx|model.glb|model.gltf> <out.png> [size]");
+        bail!("usage: thumbgen <model.obj|fbx|glb|gltf|stl|dae|ply|3ds> <out.png> [size]");
     }
 
     let input = PathBuf::from(&args[0]);
@@ -25,6 +25,12 @@ fn main() -> anyhow::Result<()> {
         },
     )
     .with_context(|| format!("failed to render {}", input.display()))?;
+
+    // Private worker transport: fixed dimensions are validated by the COM host.
+    if args.get(3).is_some_and(|arg| arg == "--raw-rgba") {
+        std::fs::write(&output, &bitmap.pixels)?;
+        return Ok(());
+    }
 
     image::save_buffer(
         &output,

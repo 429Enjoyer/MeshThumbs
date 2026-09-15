@@ -24,7 +24,13 @@ $providerClsids = @(
     "{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00001}",
     "{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00002}",
     "{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00003}",
-    "{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00004}"
+    "{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00004}",
+    "{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00005}",
+    "{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00006}",
+    "{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00007}",
+    "{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00008}",
+    "{0EF2C8D1-7B70-48C9-B7B8-0F45D3D00009}",
+    "{0EF2C8D1-7B70-48C9-B7B8-0F45D3D0000A}"
 )
 
 function Remove-ThumbnailKeyIfOurs {
@@ -37,7 +43,7 @@ function Remove-ThumbnailKeyIfOurs {
 }
 
 function Remove-CurrentUserShellOverrides {
-    foreach ($ext in ".obj", ".fbx", ".glb", ".gltf", ".model") {
+    foreach ($ext in ".obj", ".fbx", ".glb", ".gltf", ".stl", ".dae", ".ply", ".x3d", ".x3db", ".3ds", ".model") {
         Remove-ThumbnailKeyIfOurs "HKCU:\Software\Classes\$ext\shellex\$thumbHandler"
         Remove-ThumbnailKeyIfOurs "HKCU:\Software\Classes\SystemFileAssociations\$ext\shellex\$thumbHandler"
 

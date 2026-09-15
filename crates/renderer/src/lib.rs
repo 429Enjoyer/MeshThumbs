@@ -5,6 +5,10 @@ use std::path::Path;
 
 pub use raster::RgbaBitmap;
 
+pub const MAX_MODEL_BYTES: u64 = 300 * 1024 * 1024;
+pub const SUPPORTED_EXTENSIONS: &[&str] =
+    &["obj", "fbx", "glb", "gltf", "stl", "dae", "ply", "3ds"];
+
 #[derive(Clone, Debug)]
 pub struct RenderOptions {
     pub size: u32,
@@ -35,17 +39,28 @@ pub fn render_thumbnail(
     options: &RenderOptions,
 ) -> Result<RgbaBitmap, RenderError> {
     let path = path.as_ref();
-    let mut scene = loaders::load_scene(path)?;
-
-    if scene.triangles.is_empty() {
+    let extension = path
+        .extension()
+        .and_then(|s| s.to_str())
+        .unwrap_or_default();
+    if !SUPPORTED_EXTENSIONS
+        .iter()
+        .any(|e| extension.eq_ignore_ascii_case(e))
+    {
+        return Err(RenderError::UnsupportedFormat);
+    }
+    if std::fs::metadata(path).map_err(anyhow::Error::from)?.len() > MAX_MODEL_BYTES {
+        return Err(RenderError::Load(anyhow::anyhow!(
+            "model exceeds the 300 MiB limit"
+        )));
+    }
+    if options.max_triangles == 0 {
         return Err(RenderError::EmptyModel);
     }
+    let mut scene = loaders::load_scene(path, options.max_triangles)?;
 
-    if scene.triangles.len() > options.max_triangles {
-        scene.triangles.truncate(options.max_triangles);
-    }
-
-    Ok(raster::render(&scene, options.size.max(32).min(1024)))
+    scene.prepare(options.max_triangles)?;
+    Ok(raster::render(&scene, options.size.clamp(32, 1024)))
 }
 
 #[derive(Clone)]
@@ -58,6 +73,58 @@ impl Scene {
         Self {
             triangles: Vec::new(),
         }
+    }
+
+    fn prepare(&mut self, budget: usize) -> Result<(), RenderError> {
+        self.triangles
+            .retain(|t| t.vertices.iter().all(|v| v.position.is_finite()));
+        if self.triangles.is_empty() {
+            return Err(RenderError::EmptyModel);
+        }
+        // Frame tiny, huge, and far-from-origin models without f32 overflow.
+        let mut min = glam::DVec3::splat(f64::INFINITY);
+        let mut max = glam::DVec3::splat(f64::NEG_INFINITY);
+        for v in self.triangles.iter().flat_map(|t| &t.vertices) {
+            min = min.min(v.position.as_dvec3());
+            max = max.max(v.position.as_dvec3());
+        }
+        let extent = (max - min).max_element();
+        if extent <= 0.0 {
+            return Err(RenderError::EmptyModel);
+        }
+        let center = (min + max) * 0.5;
+        for t in &mut self.triangles {
+            for v in &mut t.vertices {
+                v.position = ((v.position.as_dvec3() - center) / extent).as_vec3();
+                if !v.uv.is_finite() {
+                    v.uv = glam::Vec2::ZERO;
+                }
+            }
+            t.vertices = loaders::fix_normals(t.vertices);
+        }
+        self.triangles.retain(|t| {
+            (t.vertices[1].position - t.vertices[0].position)
+                .cross(t.vertices[2].position - t.vertices[0].position)
+                .length_squared()
+                > 0.0
+        });
+        if self.triangles.is_empty() {
+            return Err(RenderError::EmptyModel);
+        }
+        let total = self.triangles.len();
+        if total > budget {
+            let mut index = 0;
+            let mut selected = 0;
+            self.triangles.retain(|_| {
+                let keep = selected < budget && index == selected * total / budget;
+                index += 1;
+                if keep {
+                    selected += 1;
+                }
+                keep
+            });
+        }
+        Ok(())
     }
 }
 
@@ -73,13 +140,14 @@ pub(crate) struct Vertex {
     position: glam::Vec3,
     normal: glam::Vec3,
     uv: glam::Vec2,
+    color: [u8; 4],
 }
 
 #[derive(Clone)]
 pub(crate) struct Texture {
     width: u32,
     height: u32,
-    pixels: Vec<u8>,
+    pixels: std::sync::Arc<[u8]>,
     wrap_s: WrapMode,
     wrap_t: WrapMode,
     flip_v: bool,
@@ -90,23 +158,25 @@ impl Texture {
         Self::from_image_with_orientation(image, true)
     }
 
-    pub(crate) fn from_gltf_image(width: u32, height: u32, pixels: Vec<u8>) -> Self {
-        Self {
-            width,
-            height,
-            pixels,
-            wrap_s: WrapMode::Repeat,
-            wrap_t: WrapMode::Repeat,
-            flip_v: false,
+    pub(crate) fn from_gltf_image(width: u32, height: u32, pixels: Vec<u8>) -> Option<Self> {
+        if width == 0 || height == 0 {
+            return None;
         }
+        let image = image::RgbaImage::from_raw(width, height, pixels)?;
+        Some(Self::from_image_with_orientation(image.into(), false))
     }
 
     fn from_image_with_orientation(image: image::DynamicImage, flip_v: bool) -> Self {
-        let rgba = image.to_rgba8();
+        let image = if image.width() > 1024 || image.height() > 1024 {
+            image.thumbnail(1024, 1024)
+        } else {
+            image
+        };
+        let rgba = image.into_rgba8();
         Self {
             width: rgba.width(),
             height: rgba.height(),
-            pixels: rgba.into_raw(),
+            pixels: rgba.into_raw().into(),
             wrap_s: WrapMode::Repeat,
             wrap_t: WrapMode::Repeat,
             flip_v,
