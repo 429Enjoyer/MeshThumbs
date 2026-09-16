@@ -14,6 +14,7 @@ image = { version = "0.25", default-features = false, features = ["png", "jpeg",
 openusd = "0.7"
 roxmltree = "0.21"
 serde_json = "1"
+tempfile = "3"
 thiserror = "2"
 tobj = "4"
 ufbx = "0.10"
@@ -25,6 +26,14 @@ zstd = { version = "0.14", default-features = false }
 # asset-importer-sys 0.8 links bundled zlib for MSVC but omits it on MinGW.
 [target.'cfg(all(windows, target_env = "gnu"))'.dependencies]
 libz-sys = { version = "1", default-features = false, features = ["static"] }
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.58", features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System_JobObjects",
+    "Win32_System_Threading",
+] }
 
 [build-dependencies]
 cc = "1"

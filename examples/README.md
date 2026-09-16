@@ -1,9 +1,9 @@
 # Example models
 
-These files supply the thirty tiles in the [README preview](../docs/images/meshthumbs-preview.png).
-**28 tiles now use internet-sourced assets; two retain procedural fallbacks.**
-There are **37 model files**: the thirty preview entries, six format aliases/encodings,
-and `simple_cube.lwo`, the object referenced by `move_x.lws`.
+These files supply the thirty-one tiles in the [README preview](../docs/images/meshthumbs-preview.png).
+**29 tiles use internet-sourced assets; two retain procedural fallbacks.**
+There are **39 model files**: the thirty-one preview entries, six format aliases/encodings,
+`simple_cube.lwo` (referenced by `move_x.lws`), and the additional `PlanarSurface.3dm` example.
 Keep the texture files, `assets/`, `textures/`, and `Avocado.mtl` beside the models.
 
 Search online first when adding an example. Prefer the original target format,
@@ -36,10 +36,12 @@ See [the search results](SOURCES.md) and [source URLs/checksums](sources.json).
 | [hello_mesh.3dm](https://github.com/mcneel/rhino-developer-samples/blob/786cf13c4a1ea50444fbf6471b1a8a1507b3114f/rhino3dm/js/SampleViewer/01_basic/hello_mesh.3dm) | [hello_mesh.3dm](hello_mesh.3dm) | © 1993–2018 Robert McNeel & Associates | [McNeel permissive license](LICENSES/McNeel.txt) |
 | [Duplex_A_20110907.ifc](https://github.com/buildingsmart-community/Community-Sample-Test-Files/blob/7ddf57a201f88a0c213d5322b02ed15e94a60a40/IFC%202.3.0.1%20(IFC%202x3)/Duplex%20Apartment/Duplex_A_20110907.ifc) | [Duplex_A_20110907.ifc](Duplex_A_20110907.ifc) | BSI (2020) "Duplex Apartment Test Files," buildingSMART International | [CC BY 4.0](LICENSES/CC-BY-4.0.txt) |
 | [copter.md3](https://opengameart.org/content/cartoon-helicopter) | [copter.md3](copter.md3) | Gobusto (2011), Cartoon Helicopter | [CC BY-SA 3.0](LICENSES/CC-BY-SA-3.0.txt) |
+| [IFC4 Basin](https://github.com/buildingSMART/Sample-Test-Files/blob/80d976a9b193a26a8e928c3e79bff67af1de68a8/IFC%204.0.2.1%20(IFC%204%20ADD2%20TC1)/ISO%20Spec%20-%20ReferenceView_V1.2/basin-tessellation.ifc) | [Basin.ifc](Basin.ifc) | buildingSMART International Ltd.; header credits Jon / Geometry Gym exporter | [CC BY 4.0](LICENSES/CC-BY-4.0.txt) |
 | [Airplane.pmx](https://github.com/pennennennennennenem/MikuMikuDayo/releases/tag/MikuMikuDayo130) | [Airplane.pmx](Airplane.pmx) | pennennennennennenem, MikuMikuDayo airplane | [CC0](LICENSES/CC0-1.0.txt) |
 | [USB_Micro-B.wrl](https://github.com/KiCad/kicad-packages3D/blob/b8b3cfdfad88ba66f21002b3de51dc6f7d55ba5a/Connector_USB.3dshapes/USB_Micro-B_Molex_47346-0001.wrl) | [USB_Micro-B.wrl](USB_Micro-B.wrl) | Joan Obijuan; adapted for KiCad by Frank Shackmeister (Shack) | [CC BY-SA 4.0 with KiCad library exception](LICENSES/CC-BY-SA-4.0.txt) |
 | [USB_Micro-B.step](https://github.com/KiCad/kicad-packages3D/blob/b8b3cfdfad88ba66f21002b3de51dc6f7d55ba5a/Connector_USB.3dshapes/USB_Micro-B_Molex_47346-0001.step) | [USB_Micro-B.step](USB_Micro-B.step) | Joan Obijuan; adapted for KiCad by Frank Shackmeister (Shack) | [CC BY-SA 4.0 with KiCad library exception](LICENSES/CC-BY-SA-4.0.txt) |
 | [Classroom](https://github.com/ezequielmastrasso/gaffer-examples/blob/eab0243e478e6a573f44d1289643c6e40cf79ab0/assets/classroom/abc/classroom.abc) | [Classroom.abc](Classroom.abc) | Christophe Seux; Gaffer Examples Alembic export | [CC0](LICENSES/CC0-1.0.txt) |
+| [PlanarSurface](https://github.com/mcneel/rhino-developer-samples/blob/786cf13c4a1ea50444fbf6471b1a8a1507b3114f/rhino.inside/dotnet-netcore/BatchOperation/files/03.3dm) | [PlanarSurface.3dm](PlanarSurface.3dm) | © 1993–2018 Robert McNeel & Associates | [McNeel permissive license](LICENSES/McNeel.txt) |
 | Gear | [Gear.igs](Gear.igs) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
 | Mech | [Mech.md5mesh](Mech.md5mesh) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
 
@@ -90,6 +92,19 @@ original model by Christophe Seux. [Upstream credit and terms](https://github.co
 Its ceiling and walls remain present; the exterior view uses a neutral material
 because Alembic material graphs are not supported. Version 1.1.3 handles its
 repeated polygon corners without discarding the affected surfaces.
+
+`Basin.ifc` is the unchanged native IFC4 ReferenceView basin sample from
+buildingSMART International Ltd., renamed from `basin-tessellation.ifc`.
+Its header credits "Jon" and the Geometry Gym exporter. [Source](https://github.com/buildingSMART/Sample-Test-Files/blob/80d976a9b193a26a8e928c3e79bff67af1de68a8/IFC%204.0.2.1%20(IFC%204%20ADD2%20TC1)/ISO%20Spec%20-%20ReferenceView_V1.2/basin-tessellation.ifc);
+[license](https://github.com/buildingSMART/Sample-Test-Files/blob/80d976a9b193a26a8e928c3e79bff67af1de68a8/LICENSE). The rendered adaptation retains CC BY 4.0;
+MeshThumbs converts, frames, and resizes the preview. No endorsement is implied.
+The IFC2x3 Duplex remains as a separate example.
+
+`PlanarSurface.3dm` is McNeel's unchanged `03.3dm` sample, renamed only.
+Its planar Brep has no cached render mesh. MeshThumbs builds the preview mesh
+in memory; it does not write geometry or caches back into the model.
+The README image shows only `hello_mesh.3dm`, a mesh example; `PlanarSurface.3dm`
+is kept here as an additional example of 3DM support without a cached mesh.
 
 ## Procedural fallbacks
 

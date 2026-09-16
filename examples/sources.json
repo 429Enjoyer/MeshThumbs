@@ -221,6 +221,28 @@
       "evidence": "https://github.com/ezequielmastrasso/gaffer-examples/blob/eab0243e478e6a573f44d1289643c6e40cf79ab0/README.md#licences",
       "source_sha256": "dc30a0d6007b0c744ca52574d41c44e1c044cde069e1c47d131481b45aab4f57",
       "sha256": "dc30a0d6007b0c744ca52574d41c44e1c044cde069e1c47d131481b45aab4f57"
+    },
+    {
+      "file": "Basin.ifc",
+      "source": "https://github.com/buildingSMART/Sample-Test-Files/blob/80d976a9b193a26a8e928c3e79bff67af1de68a8/IFC%204.0.2.1%20(IFC%204%20ADD2%20TC1)/ISO%20Spec%20-%20ReferenceView_V1.2/basin-tessellation.ifc",
+      "credit": "buildingSMART International Ltd.; file header credits Jon / Geometry Gym exporter",
+      "license": "CC-BY-4.0.txt",
+      "terms": "CC BY 4.0",
+      "changes": "Native IFC4 ReferenceView sample renamed only; geometry unchanged. Preview converted with IfcConvert and rendered/resized by MeshThumbs.",
+      "evidence": "https://github.com/buildingSMART/Sample-Test-Files/blob/80d976a9b193a26a8e928c3e79bff67af1de68a8/LICENSE",
+      "source_sha256": "7278769ec5ef35d388819d2f197519061c7f0f68dd43a733f333ddeb74578121",
+      "sha256": "7278769ec5ef35d388819d2f197519061c7f0f68dd43a733f333ddeb74578121"
+    },
+    {
+      "file": "PlanarSurface.3dm",
+      "source": "https://github.com/mcneel/rhino-developer-samples/blob/786cf13c4a1ea50444fbf6471b1a8a1507b3114f/rhino.inside/dotnet-netcore/BatchOperation/files/03.3dm",
+      "credit": "© 1993–2018 Robert McNeel & Associates",
+      "license": "McNeel.txt",
+      "terms": "McNeel permissive license",
+      "changes": "Native 03.3dm sample renamed only. Its planar Brep has no saved render mesh; MeshThumbs tessellates it for display without modifying the file.",
+      "evidence": "https://github.com/mcneel/rhino-developer-samples/blob/786cf13c4a1ea50444fbf6471b1a8a1507b3114f/License.md",
+      "source_sha256": "11dcf2b38da9747e0af919f6ca56d832fe9b448a48affe8291778967c63cac4d",
+      "sha256": "11dcf2b38da9747e0af919f6ca56d832fe9b448a48affe8291778967c63cac4d"
     }
   ],
   "aliases": {
@@ -237,5 +259,5 @@
       "sha256": "7d5b9bc0183ea24f9fce24a91739346d50dace7ef022d75cd6bf265e12d0a6bb"
     }
   ],
-  "validated_with": "MeshThumbs 1.1.3"
+  "validated_with": "MeshThumbs 1.1.4"
 }

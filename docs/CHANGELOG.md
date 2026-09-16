@@ -2,6 +2,11 @@
 
 [Back to MeshThumbs](../README.md)
 
+## 1.1.4
+
+- Add IFC4 support.
+- Improve 3DM previews.
+
 ## 1.1.3
 
 - Fix ABC previews.

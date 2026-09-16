@@ -1,7 +1,7 @@
 # Preview credits
 
-`meshthumbs-preview.png` contains thirty examples rendered by MeshThumbs
-in a 1920×1080 layout (eight, eight, seven, and seven centered examples per row). Each
+`meshthumbs-preview.png` contains thirty-one examples rendered by MeshThumbs
+in a 1920×1080 layout (eight, eight, eight, and seven centered examples per row). Each
 model was rendered at 768×768 before resizing for the contact sheet. Ten use
 CC0 models from the Khronos glTF Sample Assets collection; the USD-family,
 3MF, VRM, downloaded native-format examples, and two procedural fallbacks are credited below.
@@ -35,6 +35,14 @@ ImageTexture node. SheenChair was converted to NOFF with geometry and normals;
 its materials and sheen effects are omitted.
 
 ## Native-format internet examples
+
+- **Basin.ifc:** [basin-tessellation.ifc](https://github.com/buildingSMART/Sample-Test-Files/blob/80d976a9b193a26a8e928c3e79bff67af1de68a8/IFC%204.0.2.1%20(IFC%204%20ADD2%20TC1)/ISO%20Spec%20-%20ReferenceView_V1.2/basin-tessellation.ifc), © buildingSMART
+  International Ltd.; original file header credits "Jon" and the Geometry Gym
+  exporter. [CC BY 4.0](../../examples/LICENSES/CC-BY-4.0.txt), with the
+  [upstream license](https://github.com/buildingSMART/Sample-Test-Files/blob/80d976a9b193a26a8e928c3e79bff67af1de68a8/LICENSE). Model bytes are unchanged; renamed only.
+  Converted to geometry with IfcConvert, rendered with MeshThumbs, framed and
+  resized. Its rendered adaptation remains CC BY 4.0. No endorsement is implied.
+
 
 - **Classroom.abc:** [Classroom](https://github.com/ezequielmastrasso/gaffer-examples/blob/eab0243e478e6a573f44d1289643c6e40cf79ab0/assets/classroom/abc/classroom.abc), original model by Christophe Seux,
   Alembic export distributed by Ezequiel Mastrasso / Gaffer Examples.
@@ -87,6 +95,17 @@ KiCad's [library exception](../../examples/LICENSES/KiCad-exception.md) and
 [Search results and remaining candidate limitations](../../examples/SOURCES.md).
 
 Model files, textures, and offline licenses are in [examples](../../examples/README.md). They are not included in the installer.
+
+## Additional example (not shown)
+
+`hello_mesh.3dm` is the only 3DM tile in the README image. The following model
+remains in `examples/` to demonstrate support without a cached mesh.
+
+- **PlanarSurface.3dm:** [McNeel `03.3dm`](https://github.com/mcneel/rhino-developer-samples/blob/786cf13c4a1ea50444fbf6471b1a8a1507b3114f/rhino.inside/dotnet-netcore/BatchOperation/files/03.3dm), © 1993–2018 Robert McNeel
+  & Associates, [permissive McNeel license](../../examples/LICENSES/McNeel.txt).
+  File bytes are unchanged; renamed only. Its uncached planar Brep is meshed
+  in memory by MeshThumbs, then rendered, framed and resized. No endorsement
+  is implied. [Upstream terms](https://github.com/mcneel/rhino-developer-samples/blob/786cf13c4a1ea50444fbf6471b1a8a1507b3114f/License.md).
 
 ## 3MF sample license
 

@@ -7,6 +7,7 @@ use gltf::{image::Format, texture::WrappingMode};
 use crate::{RenderError, Scene, Texture, Triangle, Vertex, WrapMode};
 
 mod dxf;
+mod ifc;
 mod legacy;
 mod lws;
 mod native_scene;
@@ -34,6 +35,7 @@ pub(crate) fn load_scene(path: &Path, max_triangles: usize) -> Result<Scene, Ren
         "3mf" => threemf::load(path, max_triangles).map_err(RenderError::Load),
         "vox" => vox::load(path, max_triangles).map_err(RenderError::Load),
         "dxf" => dxf::load(path, max_triangles).map_err(RenderError::Load),
+        "ifc" => ifc::load(path, max_triangles).map_err(RenderError::Load),
         "abc" | "3dm" => native_scene::load(path, max_triangles).map_err(RenderError::Load),
         "step" | "stp" | "igs" | "iges" => {
             step::load(path, max_triangles).map_err(RenderError::Load)
@@ -42,8 +44,8 @@ pub(crate) fn load_scene(path: &Path, max_triangles: usize) -> Result<Scene, Ren
             usd::load(path, max_triangles).map_err(RenderError::Load)
         }
         "fbx" => load_fbx(path).map_err(RenderError::Load),
-        "stl" | "ply" | "dae" | "3ds" | "x3d" | "off" | "wrl" | "vrml" | "ifc" | "pmx" | "lwo"
-        | "smd" | "md2" | "md3" | "md5mesh" | "ase" | "lxo" | "lws" => {
+        "stl" | "ply" | "dae" | "3ds" | "x3d" | "off" | "wrl" | "vrml" | "pmx" | "lwo" | "smd"
+        | "md2" | "md3" | "md5mesh" | "ase" | "lxo" | "lws" => {
             legacy::load(path, max_triangles).map_err(RenderError::Load)
         }
         _ => Err(RenderError::UnsupportedFormat),

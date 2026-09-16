@@ -8,3 +8,4 @@ examples/*.step -text
 examples/*.stp -text
 examples/*.vrml -text
 examples/*.wrl -text
+scripts/*.sh text eol=lf

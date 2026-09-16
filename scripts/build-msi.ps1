@@ -13,12 +13,13 @@ $ProductWxs = Join-Path $Root "wix\Product.wxs"
 $InstallerUiWxs = Join-Path $Root "wix\InstallerUI.wxs"
 $RestartExplorerSource = Get-Content -LiteralPath (Join-Path $Root "scripts\restart-explorer.ps1") -Raw
 $RestartExplorerCommand = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($RestartExplorerSource))
-$OutputMsi = Join-Path $Root "MeshThumbs-1.1.3-x64.msi"
+$OutputMsi = Join-Path $Root "MeshThumbs-1.1.4-x64.msi"
 $LocalWix = Join-Path $Root ".tools\wix314"
 
 if (-not $SkipBuild) {
     & (Join-Path $PSScriptRoot "build-step.ps1") -Configuration $Configuration -OutputDir (Join-Path $TargetDir "step")
     & (Join-Path $PSScriptRoot "build-scene.ps1") -Configuration $Configuration -OutputDir (Join-Path $TargetDir "scene")
+    & (Join-Path $PSScriptRoot "prepare-ifc.ps1") -Configuration $Configuration -OutputDir (Join-Path $TargetDir "ifc")
     $CargoArgs = @("build", "--manifest-path", (Join-Path $Root "Cargo.toml"), "-p", "thumbnail_provider", "-p", "thumbgen")
     if ($Configuration -eq "release") { $CargoArgs += "--release" }
     & cargo @CargoArgs
@@ -100,6 +101,30 @@ $($SceneComponents -join "`n")
 </ComponentGroup></Fragment></Wix>
 "@ | Set-Content -LiteralPath $SceneWxs -Encoding utf8
 
+$IfcDir = Join-Path $TargetDir "ifc"
+$IfcManifest = Join-Path $IfcDir "runtime-files.txt"
+if (-not (Test-Path -LiteralPath $IfcManifest)) { throw "Run scripts/prepare-ifc.ps1 before packaging." }
+$IfcFiles = @(Get-Content -LiteralPath $IfcManifest | Where-Object { $_ } | Sort-Object -Unique)
+foreach ($Required in @("IfcConvert.exe", "IFC-SOURCE.md", "IFC-NOTICES.txt", "ifcconvert-source-0.8.5.tar.gz", "build-info.json", "patch-ifc.cmake", "build-ifc-mingw.sh")) {
+    if ($Required -notin $IfcFiles) { throw "IFC runtime manifest is missing $Required" }
+}
+$IfcComponents = foreach ($Name in $IfcFiles) {
+    if ($Name -notmatch '^[A-Za-z0-9][A-Za-z0-9_.+-]*$' -or $Name -match '^(msvc|vcruntime)') { throw "Invalid IFC runtime filename: $Name" }
+    $Source = Join-Path $IfcDir $Name
+    if (-not (Test-Path -LiteralPath $Source -PathType Leaf)) { throw "Missing IFC runtime file: $Source. Run scripts/prepare-ifc.ps1." }
+    $Id = "Ifc_" + ($Name -replace '[^A-Za-z0-9_]', '_')
+    $EscapedSource = [System.Security.SecurityElement]::Escape($Source)
+    "<Component Id=`"$Id`" Guid=`"*`" Win64=`"yes`"><File Id=`"${Id}_File`" Name=`"$Name`" Source=`"$EscapedSource`" KeyPath=`"yes`" /></Component>"
+}
+$IfcWxs = Join-Path $WixObj "IfcRuntime.wxs"
+@"
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"><Fragment>
+<ComponentGroup Id="IfcRuntimeComponents" Directory="IFCFOLDER">
+$($IfcComponents -join "`n")
+</ComponentGroup></Fragment></Wix>
+"@ | Set-Content -LiteralPath $IfcWxs -Encoding utf8
+
 $candle = Get-Command candle.exe -ErrorAction SilentlyContinue
 $light = Get-Command light.exe -ErrorAction SilentlyContinue
 if (-not $candle -and (Test-Path (Join-Path $LocalWix "candle.exe"))) {
@@ -126,7 +151,9 @@ if ($candle -and $light) {
     if ($LASTEXITCODE -ne 0) { throw "STEP runtime WiX compilation failed." }
     & $candle.FullName -arch x64 -out (Join-Path $WixObj "SceneRuntime.wixobj") $SceneWxs
     if ($LASTEXITCODE -ne 0) { throw "Scene runtime WiX compilation failed." }
-    & $light.FullName -ext $UiAdapter -cultures:en-us -out $OutputMsi (Join-Path $WixObj "Product.wixobj") (Join-Path $WixObj "InstallerUI.wixobj") (Join-Path $WixObj "StepRuntime.wixobj") (Join-Path $WixObj "SceneRuntime.wixobj")
+    & $candle.FullName -arch x64 -out (Join-Path $WixObj "IfcRuntime.wixobj") $IfcWxs
+    if ($LASTEXITCODE -ne 0) { throw "IFC runtime WiX compilation failed." }
+    & $light.FullName -ext $UiAdapter -cultures:en-us -out $OutputMsi (Join-Path $WixObj "Product.wixobj") (Join-Path $WixObj "InstallerUI.wixobj") (Join-Path $WixObj "StepRuntime.wixobj") (Join-Path $WixObj "SceneRuntime.wixobj") (Join-Path $WixObj "IfcRuntime.wixobj")
     exit $LASTEXITCODE
 }
 

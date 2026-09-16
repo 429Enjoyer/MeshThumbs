@@ -2,6 +2,7 @@ param(
     [ValidateSet("release", "debug")][string]$Configuration = "release",
     [string]$OutputDir,
     [string]$Generator,
+    [string]$OcctInstall,
     [ValidateRange(1, 64)][int]$Jobs = [Math]::Min(16, [Environment]::ProcessorCount)
 )
 $ErrorActionPreference = "Stop"
@@ -49,6 +50,10 @@ $ImathBuild = Join-Path $Cache "imath-$Configuration"
 $AlembicBuild = Join-Path $Cache "alembic-$Configuration"
 $RhinoBuild = Join-Path $Cache "opennurbs-$Configuration"
 $BackendBuild = Join-Path $Cache "backend-$Configuration"
+if (-not $OcctInstall) { $OcctInstall = Join-Path $Root ".tools\step\install-$Configuration" }
+if (-not (Test-Path -LiteralPath (Join-Path $OcctInstall "cmake\OpenCASCADEConfig.cmake"))) {
+    throw "Run scripts/build-step.ps1 first, or provide -OcctInstall with the matching Open CASCADE 7.9.3 SDK."
+}
 Invoke-CMake -S $Imath -B $ImathBuild "-DCMAKE_BUILD_TYPE=$Config" -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF -DIMATH_BUILD_EXAMPLES=OFF "-DCMAKE_INSTALL_PREFIX=$Install" @GenArgs
 Invoke-CMake --build $ImathBuild --config $Config --parallel $Jobs
 Invoke-CMake --install $ImathBuild --config $Config
@@ -65,11 +70,19 @@ Invoke-CMake --build $RhinoBuild --config $Config --target opennurbsStatic --par
 $RhinoLibrary = @(Get-ChildItem -LiteralPath $RhinoBuild -Recurse -File | Where-Object { $_.Name -in @('opennurbsStatic.lib','libopennurbsStatic.a') })
 $ZlibLibrary = @(Get-ChildItem -LiteralPath $RhinoBuild -Recurse -File | Where-Object { $_.Name -in @('zlib.lib','libzlib.a') })
 if ($RhinoLibrary.Count -ne 1 -or $ZlibLibrary.Count -ne 1) { throw "Cannot uniquely locate openNURBS static libraries." }
-Invoke-CMake -S $Native -B $BackendBuild "-DCMAKE_BUILD_TYPE=$Config" "-DCMAKE_PREFIX_PATH=$Install" "-DOPENNURBS_SOURCE_DIR=$OpenNurbs" "-DOPENNURBS_LIBRARY=$($RhinoLibrary[0].FullName)" "-DOPENNURBS_ZLIB=$($ZlibLibrary[0].FullName)" "-DCMAKE_INSTALL_PREFIX=$OutputDir" @GenArgs
+Invoke-CMake -S $Native -B $BackendBuild "-DCMAKE_BUILD_TYPE=$Config" "-DCMAKE_PREFIX_PATH=$Install" "-DOpenCASCADE_DIR=$OcctInstall\cmake" "-DOPENNURBS_SOURCE_DIR=$OpenNurbs" "-DOPENNURBS_LIBRARY=$($RhinoLibrary[0].FullName)" "-DOPENNURBS_ZLIB=$($ZlibLibrary[0].FullName)" "-DCMAKE_INSTALL_PREFIX=$OutputDir" @GenArgs
 Invoke-CMake --build $BackendBuild --config $Config --parallel $Jobs
 Invoke-CMake --install $BackendBuild --config $Config
 $Files = @("meshthumbs_scene.dll", "SCENE-SOURCE.md")
 Copy-Item -LiteralPath (Join-Path $Root "docs\SCENE-SOURCE.md") -Destination $OutputDir
+# Exact OCCT dependency family needed for planar trimming/cap triangulation.
+$OcctDlls = @(Get-ChildItem -LiteralPath $OcctInstall -Recurse -File -Filter *.dll)
+foreach ($Toolkit in @("TKernel","TKMath","TKG2d","TKG3d","TKGeomBase","TKBRep","TKGeomAlgo","TKTopAlgo","TKShHealing","TKMesh")) {
+    $ToolkitFiles = @($OcctDlls | Where-Object { $_.Name -in @("$Toolkit.dll", "lib$Toolkit.dll") })
+    if ($ToolkitFiles.Count -ne 1) { throw "Cannot uniquely locate scene runtime $Toolkit" }
+    Copy-Item -LiteralPath $ToolkitFiles[0].FullName -Destination $OutputDir
+    $Files += $ToolkitFiles[0].Name
+}
 if ($CompilerInfo -match 'set\(CMAKE_CXX_COMPILER_ID "GNU"\)') {
     $Compiler = [regex]::Match($CompilerInfo, 'set\(CMAKE_CXX_COMPILER "([^"]+)"\)').Groups[1].Value
     foreach ($Name in @("libgcc_s_seh-1.dll","libstdc++-6.dll","libwinpthread-1.dll")) {

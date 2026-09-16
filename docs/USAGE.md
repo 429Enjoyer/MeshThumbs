@@ -6,7 +6,7 @@ Run the commands below from the repository root.
 
 ## Install and upgrade
 
-The 1.1.3 MSI upgrades earlier releases, including 1.1.0 and local 1.0.10 builds. Matching
+The 1.1.4 MSI upgrades earlier releases, including 1.1.0 and local 1.0.10 builds. Matching
 versions are also treated as upgrades. The previous release is removed inside
 the upgrade transaction after the new shared components are installed.
 
@@ -84,6 +84,10 @@ The native backends need Git and a C++17 compiler; MinGW builds require its POSI
 variant. The first build downloads the pinned Open CASCADE 7.9.3 source and
 compiles it, which takes substantially longer than incremental Rust builds.
 The scene backend also downloads pinned Alembic, Imath, and openNURBS sources.
+IFC4 uses a minimal IfcConvert build compiled with MinGW through WSL Ubuntu
+(`scripts/prepare-ifc.ps1`). Build prerequisites and optional cache/SDK reuse
+are documented in [IFC-SOURCE.md](IFC-SOURCE.md). Its notices, patches, source
+archive and build manifest accompany the MSI; no Microsoft runtime is bundled.
 
 ```powershell
 .\scripts\build-msi.ps1
@@ -113,6 +117,8 @@ Check dependency notices whenever the dependency graph changes.
 Keep `thumbnail_provider.dll` and `thumbgen.exe` together for manual registration.
 Include the accompanying `step` directory for STEP previews.
 Include `scene` for Alembic/3DM; IGES uses `step` as well.
+Run `scripts/prepare-ifc.ps1` for IFC4 and keep the resulting `ifc` directory
+beside `thumbgen.exe`. It contains a bundled executable, not a Python dependency.
 Registration scripts are available for the [current user](../scripts/register-current-user.ps1)
 or [all users](../scripts/register-machine.ps1).
 
@@ -202,20 +208,43 @@ placements. It shares STEP's tessellation, neutral material, precision handling,
 face/triangle limits, and Z-up convention. Curves/points alone have no thumbnail;
 annotations, CAD colors, textures, and externally referenced files are not rendered.
 
-Rhino (`.3dm`) reads mesh objects and **saved render meshes** on Breps and
-extrusions. Local block instances, object/layer visibility, object/layer colors,
-vertex colors, normals, and Z-up coordinates are supported. Default black layer
-wireframe colors use the neutral thumbnail material. It does not calculate new
-NURBS/SubD meshes: a visible surface without the required cached mesh causes
-the preview to fail. Save with render meshes in Rhino or export mesh objects.
-Linked external blocks, textures, per-instance inherited colors, curves, points,
-and annotations are unsupported. Mesh files from Rhino 5, 7, and 8 were checked.
+Rhino (`.3dm`) reads mesh objects and saved render meshes on Breps/extrusions.
+When no usable mesh is saved, it can also mesh **extrusions and planar Brep
+faces/surfaces**. Curved extrusion profiles are sampled adaptively; caps retain
+inner holes, open profiles remain uncapped, and mitered end planes are respected.
+Each Brep face prefers its saved mesh and only missing planar faces are generated.
+The source file is never modified. Local blocks, visibility, mirrored/scaled
+transforms, object/layer colors, vertex colors and Z-up coordinates are preserved.
+Default black layer wireframe colors use the neutral thumbnail material.
 
-IFC (`.ifc`) uses Assimp's **IFC2x3** reader, with product placements, common
-swept-solid/profile and faceted building geometry, and basic surface colors.
-Space representations are omitted. This is a building geometry preview, not a
-complete BIM viewer: unsupported representation types may be omitted. IFC4/4.3,
-IFCZIP, IFCXML, annotations, and full material/texture graphs are unsupported.
+Uncached curved Breps/NURBS surfaces and SubD are still unsupported and fail the
+preview rather than silently dropping visible geometry. Save their render meshes
+in Rhino or export mesh objects. Linked blocks, textures, per-instance inherited
+colors, curves, points and annotations are not rendered. Curve tessellation is
+bounded (positive rational weights, degree ≤32, 4,096 points per boundary,
+64 loops per face/profile group and 32,768 boundary points per object).
+The global geometry budget and Explorer worker deadline still apply.
+
+IFC (`.ifc`) supports **IFC2x3 and IFC4**. IFC2x3 retains the existing Assimp
+reader, with common extrusions/profiles, faceted geometry, placements and colors.
+IFC4 uses a bundled MinGW build of IfcConvert 0.8.5 and Open CASCADE 7.9.3 to
+tessellate geometry, including tessellated face sets, swept solids, BReps and
+boolean openings. Surface materials are carried through a temporary GLB.
+Spaces and separate opening volumes are excluded. Indexed face-color maps,
+textures, annotations and full BIM metadata are not represented by this preview.
+Unsupported upstream geometry may be omitted; this is not a full BIM viewer.
+IFC4.3, IFCZIP and IFCXML are not enabled in this release.
+
+No separate application or Python installation is required. The IFC4 converter
+runs hidden in a Windows job with a four-second conversion deadline and a
+768 MiB process-memory limit; converted meshes are limited to 300 MiB and the
+renderer triangle budget. Explorer keeps its overall five-second deadline.
+Large or complex IFC4 models may therefore have no thumbnail. Converter
+processes are stopped on timeout or worker exit. The COM host owns and cleans
+intermediate files even when it terminates its worker. CLI intermediates are
+normally removed on completion/failure; externally killing a CLI process can
+leave its temporary directory behind. The converter makes no runtime downloads.
+See [converter sources and licenses](IFC-SOURCE.md).
 
 ABC, IGS, IGES, 3DM, and IFC accept file, item, or anonymous stream initialization.
 The native scene reader limits hierarchy depth to 64, visits to 100,000, polygons

@@ -3,6 +3,7 @@
 #include <memory>
 #include <mutex>
 #include <opennurbs.h>
+#include "rhino_tessellation.h"
 static std::mutex rhinoMutex;
 
 static void mesh(Scene &scene, const ON_Mesh &mesh, const ON_Xform &world,
@@ -116,23 +117,26 @@ EXPORT int meshthumbs_3dm_load(const std::uint16_t *path, std::uint64_t budget,
       if (auto m = ON_Mesh::Cast(geometry))
         mesh(scene, *m, world, color);
       else if (auto brep = ON_Brep::Cast(geometry)) {
-        ON_SimpleArray<const ON_Mesh *> meshes;
-        brep->GetMesh(ON::render_mesh, meshes);
-        if (meshes.Count() != brep->m_F.Count())
-          throw std::runtime_error(
-              "3DM Brep requires saved render meshes for every face");
-        for (int i = 0; i < meshes.Count(); ++i) {
-          if (!meshes[i])
-            throw std::runtime_error("missing 3DM render mesh");
-          mesh(scene, *meshes[i], world, color);
+        if (brep->m_F.Count() > 100000)
+          throw std::runtime_error("3DM face limit exceeded");
+        for (int i = 0; i < brep->m_F.Count(); ++i) {
+          const auto &face = brep->m_F[i];
+          if (auto cached = face.Mesh(ON::render_mesh); cached && cached->FaceCount() > 0 && cached->VertexCount() >= 3) mesh(scene, *cached, world, color);
+          else rhino_planar_face(scene, face, world, color);
         }
       } else if (auto extrusion = ON_Extrusion::Cast(geometry)) {
         auto m = extrusion->Mesh(ON::render_mesh);
-        if (!m)
-          throw std::runtime_error(
-              "3DM extrusion requires a saved render mesh");
-        mesh(scene, *m, world, color);
-      } else if (ON_Surface::Cast(geometry) || ON_SubD::Cast(geometry))
+        if (m && m->FaceCount() > 0 && m->VertexCount() >= 3) mesh(scene, *m, world, color);
+        else rhino_extrusion(scene, *extrusion, world, color);
+      } else if (auto surface = ON_Surface::Cast(geometry)) {
+        if (!surface->IsPlanar())
+          throw std::runtime_error("3DM uncached curved surfaces are not supported");
+        std::unique_ptr<ON_Brep> brep(surface->BrepForm());
+        if (!brep || brep->m_F.Count() > 100000)
+          throw std::runtime_error("invalid 3DM planar surface");
+        for (int i = 0; i < brep->m_F.Count(); ++i)
+          rhino_planar_face(scene, brep->m_F[i], world, color);
+      } else if (ON_SubD::Cast(geometry))
         throw std::runtime_error(
             "3DM surface/SubD has no supported saved mesh");
       // Curves, points, annotations, lights and cameras have no surface.

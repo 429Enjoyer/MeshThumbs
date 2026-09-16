@@ -51,12 +51,19 @@ Alembic and 3DM use a separate scene DLL containing Alembic 1.8.8, Imath 3.1.12,
 and a pinned openNURBS 8.x revision with its prefixed zlib. Their upstream
 notices and the two openNURBS compatibility patches are documented in the
 [scene backend sources](SCENE-SOURCE.md) and third-party notices. IFC2x3 uses
-the existing Assimp dependency; no new Rust dependency is added.
+the existing Assimp dependency. The scene backend also dynamically uses the
+same OCCT 7.9.3 libraries to tessellate uncached 3DM planar faces and extrusion
+caps. Its new adapter code is original MIT code; no Rhino meshing SDK is bundled.
+IFC4 invokes a separate MinGW build of IfcConvert 0.8.5. Its LGPL library code,
+compatibility patches, source archive, dependency source
+locations and notices are documented in [IFC-SOURCE.md](IFC-SOURCE.md) and
+[IFC-NOTICES.txt](IFC-NOTICES.txt). Keep that information with the installer.
+The renderer reuses the workspace's existing tempfile/windows packages.
 
 When updating dependencies, compare the locked Windows dependency graph with
 the notice inventory and retain the applicable license texts and source links.
 When changing compilers, update the runtime notices as well. This inventory
-corresponds to the Rust 1.98.1 / MinGW build of MeshThumbs 1.1.3.
+corresponds to the Rust 1.98.1 / MinGW build of MeshThumbs 1.1.4.
 
 The standard WiX 3.14.1 installer dialogs and artwork retain MS-RL. Their
 unmodified sources, license, and this build's original installer authoring

@@ -1,4 +1,4 @@
-Third-party notices for MeshThumbs 1.1.3
+Third-party notices for MeshThumbs 1.1.4
 
 MeshThumbs project code is covered by the MIT license in LICENSE, including
 attribution to its 3DThumbnails upstream. Dependencies retain their own licenses.
@@ -13,7 +13,8 @@ components that are not linked into this particular Windows binary.
 For OR expressions, the selected license is listed below. Additional AND
 requirements are retained. Full selected license texts and source locations
 follow the inventory. Source archive links identify the published crate versions
-recorded in Cargo.lock; MeshThumbs does not carry dependency source patches.
+recorded in Cargo.lock; these Rust crate sources are unmodified. Native
+compatibility patches are documented in each backend source guide.
 
 The MPL-2.0 component option-ext 0.2.0 is accompanied by its exact published
 source archive, option-ext-0.2.0.crate. The MPL applies to that component's files,
@@ -24,6 +25,14 @@ with the GCC Runtime Library Exception 3.1. The CAD backend also distributes
 GCC/C++/pthread runtime DLLs. Their notices, exception, and GPL text follow.
 Rust runtime inventory is from Rust 1.98.1. Recheck runtime notices if changing
 the compiler or switching the release build between MinGW and MSVC.
+
+The scene backend also uses the same replaceable OCCT 7.9.3 libraries for
+uncached 3DM extrusion caps and planar faces. The CAD backend source archive
+and OCCT notices apply to those libraries as well.
+
+IFC4 converter: the separate IfcConvert executable and its dependencies retain
+the terms in ifc/IFC-NOTICES.txt. Corresponding source information and rebuild
+instructions accompany it in ifc/IFC-SOURCE.md.
 
 README preview assets: see docs/images/ATTRIBUTION.md in the source repository.
 

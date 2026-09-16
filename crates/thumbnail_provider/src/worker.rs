@@ -23,23 +23,25 @@ use windows::{
 
 pub(super) fn render(input: &Path, size: u32) -> anyhow::Result<RgbaBitmap> {
     let executable = worker_path()?;
-    let output = tempfile::Builder::new()
+    // The COM host owns converter intermediates too, so a killed worker cannot
+    // strand its IFC mesh. The converter's job kills descendants on worker exit.
+    let workspace = tempfile::Builder::new()
         .prefix("meshthumbs-result-")
-        .suffix(".rgba")
-        .tempfile()?
-        .into_temp_path();
+        .tempdir()?;
+    let output = workspace.path().join("result.rgba");
     let child = Command::new(&executable)
         .arg(input)
         .arg(&output)
         .arg(size.to_string())
         .arg("--raw-rgba")
+        .env("MESHTHUMBS_WORK_DIR", workspace.path())
         .stdin(Stdio::null())
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .creation_flags(0x08000000) // CREATE_NO_WINDOW
         .spawn()
         .context("could not start thumbnail worker")?;
-    let mut worker = Worker(child);
+    let mut worker = Worker(child, workspace);
     let deadline = Instant::now() + Duration::from_secs(5);
     loop {
         if let Some(status) = worker.0.try_wait()? {
@@ -65,11 +67,19 @@ pub(super) fn render(input: &Path, size: u32) -> anyhow::Result<RgbaBitmap> {
     })
 }
 
-struct Worker(Child);
+struct Worker(Child, tempfile::TempDir);
 impl Drop for Worker {
     fn drop(&mut self) {
         let _ = self.0.kill();
         let _ = self.0.wait();
+        // Job termination is asynchronous; briefly retry while the converter
+        // releases its output handles. This directory was created by this call.
+        for _ in 0..20 {
+            if std::fs::remove_dir_all(self.1.path()).is_ok() || !self.1.path().exists() {
+                break;
+            }
+            std::thread::sleep(Duration::from_millis(10));
+        }
     }
 }
 
