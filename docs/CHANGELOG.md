@@ -2,6 +2,13 @@
 
 [Back to MeshThumbs](../README.md)
 
+## 1.0.9
+
+- Add PMX 2.0/2.1 rest-pose previews with diffuse colors and local textures.
+- Add MagicaVoxel VOX previews with palette colors, exposed voxel surfaces,
+  scene transforms, instances, hidden layers, and initial animation frames.
+- Add LightWave LWO mesh previews with surface colors, vertex colors, and local textures.
+
 ## 1.0.8
 
 - Add Alembic Ogawa previews using the initial authored time, scene transforms,
@@ -9,11 +16,6 @@
 - Add IGES surface and solid previews through the existing Open CASCADE backend.
 - Add Rhino 3DM mesh and saved render-mesh previews, including local block instances.
 - Add IFC2x3 building geometry previews through Assimp.
-- Stop restarting Explorer from installer cache refresh actions; let Windows
-  Installer manage in-use files and application recovery through Restart Manager.
-- Skip the old-package refresh during upgrades and avoid launching duplicate
-  Explorer processes during manual cache resets.
-- Allow the rebuilt 1.0.8 installer to replace an earlier 1.0.8 installation.
 
 ## 1.0.7
 

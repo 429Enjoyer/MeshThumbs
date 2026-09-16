@@ -89,7 +89,10 @@ $providerClsids = @(
     "{3604F66F-141E-4741-BB85-6B5D1853C553}",
     "{C370DCC3-81F8-4B5A-9562-957D3588222B}",
     "{5EABC4CA-0201-41A3-B6BC-F325AEFB5030}",
-    "{422DE617-9A3A-41AE-96B9-19E0ED555129}"
+    "{422DE617-9A3A-41AE-96B9-19E0ED555129}",
+    "{C0036F44-536A-4952-9F4C-9F088FFB5241}",
+    "{DBD5A742-3E62-4AA6-88B8-8ABEA8DD3B27}",
+    "{8B08C226-6E4B-4D15-9629-A724BC4B753B}"
 )
 
 function Remove-ThumbnailKeyIfOurs {
@@ -102,7 +105,7 @@ function Remove-ThumbnailKeyIfOurs {
 }
 
 function Remove-CurrentUserShellOverrides {
-    foreach ($ext in ".obj", ".fbx", ".glb", ".gltf", ".stl", ".dae", ".ply", ".3ds", ".3mf", ".vrm", ".blend", ".x3d", ".off", ".usd", ".usda", ".usdc", ".usdz", ".wrl", ".vrml", ".step", ".stp", ".abc", ".igs", ".iges", ".3dm", ".ifc") {
+    foreach ($ext in ".obj", ".fbx", ".glb", ".gltf", ".stl", ".dae", ".ply", ".3ds", ".3mf", ".vrm", ".blend", ".x3d", ".off", ".usd", ".usda", ".usdc", ".usdz", ".wrl", ".vrml", ".step", ".stp", ".abc", ".igs", ".iges", ".3dm", ".ifc", ".pmx", ".vox", ".lwo") {
         Remove-ThumbnailKeyIfOurs "HKCU:\Software\Classes\$ext\shellex\$thumbHandler"
         Remove-ThumbnailKeyIfOurs "HKCU:\Software\Classes\SystemFileAssociations\$ext\shellex\$thumbHandler"
 

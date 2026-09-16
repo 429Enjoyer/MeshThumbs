@@ -32,7 +32,10 @@ $Providers = @(
     @{ Ext = ".igs"; Clsid = "{3604F66F-141E-4741-BB85-6B5D1853C553}"; DisableProcessIsolation = 1 },
     @{ Ext = ".iges"; Clsid = "{C370DCC3-81F8-4B5A-9562-957D3588222B}"; DisableProcessIsolation = 1 },
     @{ Ext = ".3dm"; Clsid = "{5EABC4CA-0201-41A3-B6BC-F325AEFB5030}"; DisableProcessIsolation = 1 },
-    @{ Ext = ".ifc"; Clsid = "{422DE617-9A3A-41AE-96B9-19E0ED555129}"; DisableProcessIsolation = 1 }
+    @{ Ext = ".ifc"; Clsid = "{422DE617-9A3A-41AE-96B9-19E0ED555129}"; DisableProcessIsolation = 1 },
+    @{ Ext = ".pmx"; Clsid = "{C0036F44-536A-4952-9F4C-9F088FFB5241}"; DisableProcessIsolation = 1 },
+    @{ Ext = ".vox"; Clsid = "{DBD5A742-3E62-4AA6-88B8-8ABEA8DD3B27}"; DisableProcessIsolation = 1 },
+    @{ Ext = ".lwo"; Clsid = "{8B08C226-6E4B-4D15-9629-A724BC4B753B}"; DisableProcessIsolation = 1 }
 )
 
 if (-not (Test-Path $Dll)) {

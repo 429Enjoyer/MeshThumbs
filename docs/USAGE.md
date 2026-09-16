@@ -9,8 +9,9 @@ Run the commands below from the repository root.
 The rebuilt 1.0.8 MSI can replace an earlier 1.0.8 MSI installation; Windows
 Installer treats matching versions as upgrades for this package.
 
-The rebuilt 1.0.8 installer's refresh actions notify Windows that thumbnail associations
-changed; they do not stop or start Explorer or delete its open cache databases.
+Starting with the rebuilt 1.0.8, the installer's refresh actions notify Windows
+that thumbnail associations changed; they do not stop or start Explorer or
+delete its open cache databases.
 Windows Installer's Restart Manager remains responsible for applications using
 the old DLL, including shutdown/recovery when needed. Windows may instead ask
 for a reboot if a file cannot be released. File replacement and registration
@@ -180,8 +181,41 @@ Space representations are omitted. This is a building geometry preview, not a
 complete BIM viewer: unsupported representation types may be omitted. IFC4/4.3,
 IFCZIP, IFCXML, annotations, and full material/texture graphs are unsupported.
 
-All five new extensions accept file, item, or anonymous stream initialization.
+ABC, IGS, IGES, 3DM, and IFC accept file, item, or anonymous stream initialization.
 The native scene reader limits hierarchy depth to 64, visits to 100,000, polygons
 to 4,096 corners, and expanded polygon storage to 300 MiB. All formats retain
 the Explorer worker's five-second deadline and five-million-triangle ceiling;
 complex models can exceed those limits and produce no thumbnail.
+
+
+## PMX, VOX, and LWO
+
+PMX (`.pmx`) uses the bundled Assimp reader for PMX 2.0/2.1 model geometry in
+its rest pose, diffuse colors, opacity, normals, UVs, and local diffuse textures.
+MMD does not need to be installed. Motion files, morph animation, IK, physics,
+toon shading/outlines, and sphere maps are not applied. PMD and VMD are not
+registered. Keep the model's texture folders beside it.
+
+MagicaVoxel (`.vox`) uses a native Rust reader for versions 150 and 200, with
+the default or embedded RGBA palette. It emits only exposed voxel faces and
+supports scene groups, instances, integer rotations/translations, and hidden
+nodes/layers. Each animated transform or shape uses its earliest authored
+frame; older PACK animation files show their first model. Model pivots and
+Z-up coordinates are converted for rendering. MATL/MATT shading, emission,
+glass/refraction, cameras, lighting, and animation playback are not rendered;
+palette RGBA determines thumbnail color. Parsing rejects invalid coordinates,
+references, cycles, counts, and truncated data. Limits include eight million
+stored voxels, 32 million instanced voxels, 256 million expanded grid cells,
+100,000 chunks/node visits, and 64 hierarchy levels, plus the shared triangle
+limit and Explorer deadline. MagicaVoxel does not need to be installed.
+
+LightWave (`.lwo`) uses Assimp for polygon meshes, layers, surface/vertex colors,
+normals, UVs, and local diffuse image textures. LWOB and LWO2 samples were
+checked. Subdivision surfaces show their control mesh, not a subdivided result.
+Procedural/node materials and animation are not reproduced. LWS scenes and
+LXO files are not registered. LightWave does not need to be installed.
+
+PMX and LWO require file or filesystem-backed item initialization in Explorer
+so relative textures retain their original paths. Anonymous streams are not
+advertised for these two formats. VOX is self-contained and accepts all three
+initialization methods. Missing optional textures fall back to material colors.

@@ -14,14 +14,14 @@
     <br />
     <br />
     <a href="docs/images/meshthumbs-preview.png"><img
-        src="docs/images/meshthumbs-preview.png" alt="MeshThumbs previews in 1920×1080, including Alembic, IGES, Rhino 3DM, and IFC models"
+        src="docs/images/meshthumbs-preview.png" alt="Preview"
         width="100%" /></a>
   </p>
 </div>
 
 **Supported formats**
 
-`OBJ` · `FBX` · `GLB` · `glTF` · `STL` · `DAE` · `PLY` · `3DS` · `3MF` · `VRM` · `BLEND` · `X3D` · `OFF` · `USD` · `USDA` · `USDC` · `USDZ` · `WRL` · `VRML` · `STEP` · `STP` · `ABC` · `IGS` · `IGES` · `3DM` · `IFC`
+`OBJ` · `FBX` · `GLB` · `glTF` · `STL` · `DAE` · `PLY` · `3DS` · `3MF` · `VRM` · `BLEND` · `X3D` · `OFF` · `USD` · `USDA` · `USDC` · `USDZ` · `WRL` · `VRML` · `STEP` · `STP` · `ABC` · `IGS` · `IGES` · `3DM` · `IFC` · `PMX` · `VOX` · `LWO`
 
 ## Install
 

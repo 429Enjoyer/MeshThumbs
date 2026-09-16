@@ -12,6 +12,7 @@ mod off;
 mod step;
 mod threemf;
 mod usd;
+mod vox;
 mod vrm;
 mod vrml;
 mod x3d;
@@ -28,6 +29,7 @@ pub(crate) fn load_scene(path: &Path, max_triangles: usize) -> Result<Scene, Ren
         "glb" | "gltf" => load_gltf(path).map_err(RenderError::Load),
         "vrm" => vrm::load(path).map_err(RenderError::Load),
         "3mf" => threemf::load(path, max_triangles).map_err(RenderError::Load),
+        "vox" => vox::load(path, max_triangles).map_err(RenderError::Load),
         "abc" | "3dm" => native_scene::load(path, max_triangles).map_err(RenderError::Load),
         "step" | "stp" | "igs" | "iges" => {
             step::load(path, max_triangles).map_err(RenderError::Load)
@@ -36,7 +38,7 @@ pub(crate) fn load_scene(path: &Path, max_triangles: usize) -> Result<Scene, Ren
             usd::load(path, max_triangles).map_err(RenderError::Load)
         }
         "fbx" => load_fbx(path).map_err(RenderError::Load),
-        "stl" | "ply" | "dae" | "3ds" | "x3d" | "off" | "wrl" | "vrml" | "ifc" => {
+        "stl" | "ply" | "dae" | "3ds" | "x3d" | "off" | "wrl" | "vrml" | "ifc" | "pmx" | "lwo" => {
             legacy::load(path, max_triangles).map_err(RenderError::Load)
         }
         _ => Err(RenderError::UnsupportedFormat),

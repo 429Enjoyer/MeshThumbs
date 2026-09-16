@@ -68,13 +68,17 @@ const CLSID_IGES_PROVIDER: GUID = GUID::from_u128(0xc370dcc3_81f8_4b5a_9562_957d
 const CLSID_3DM_PROVIDER: GUID = GUID::from_u128(0x5eabc4ca_0201_41a3_b6bc_f325aefb5030);
 const CLSID_IFC_PROVIDER: GUID = GUID::from_u128(0x422de617_9a3a_41ae_96b9_19e0ed555129);
 
+const CLSID_PMX_PROVIDER: GUID = GUID::from_u128(0xc0036f44536a49529f4c9f088ffb5241);
+const CLSID_VOX_PROVIDER: GUID = GUID::from_u128(0xdbd5a7423e624aa688b88abea8dd3b27);
+const CLSID_LWO_PROVIDER: GUID = GUID::from_u128(0x8b08c2266e4b4d159629a724bc4b753b);
+
 #[derive(Clone, Copy)]
 struct ProviderInfo {
     clsid: GUID,
     extension: &'static str,
 }
 
-const PROVIDERS: [ProviderInfo; 26] = [
+const PROVIDERS: [ProviderInfo; 29] = [
     ProviderInfo {
         clsid: CLSID_OBJ_PROVIDER,
         extension: ".obj",
@@ -178,6 +182,18 @@ const PROVIDERS: [ProviderInfo; 26] = [
     ProviderInfo {
         clsid: CLSID_IFC_PROVIDER,
         extension: ".ifc",
+    },
+    ProviderInfo {
+        clsid: CLSID_PMX_PROVIDER,
+        extension: ".pmx",
+    },
+    ProviderInfo {
+        clsid: CLSID_VOX_PROVIDER,
+        extension: ".vox",
+    },
+    ProviderInfo {
+        clsid: CLSID_LWO_PROVIDER,
+        extension: ".lwo",
     },
 ];
 
@@ -401,7 +417,9 @@ impl IClassFactory_Impl for ClassFactory_Impl {
         let state = ThumbnailProvider::new(self.provider.extension);
         let unknown: IUnknown = if matches!(
             self.provider.extension,
-            ".obj"
+            ".pmx"
+                | ".lwo"
+                | ".obj"
                 | ".fbx"
                 | ".gltf"
                 | ".dae"

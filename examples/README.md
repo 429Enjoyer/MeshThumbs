@@ -1,7 +1,7 @@
 # Example models
 
-These are the nineteen models shown in the [README preview](../docs/images/meshthumbs-preview.png).
-There are **25 model files**, including the USD encodings and VRML/STEP/IGES aliases.
+These are the twenty-two models shown in the [README preview](../docs/images/meshthumbs-preview.png).
+There are **28 model files**, including the USD encodings and VRML/STEP/IGES aliases.
 All models are in this directory so they can be viewed together in Explorer.
 Keep `assets/`, `textures/`, and `Avocado.mtl` beside them; those files supply
 textures and materials. FBX, GLB, VRM, 3MF, and USDZ include their required assets.
@@ -26,6 +26,9 @@ textures and materials. FBX, GLB, VRM, 3MF, and USDZ include their required asse
 | Knot | [Knot.abc](Knot.abc) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
 | Gear | [Gear.igs](Gear.igs), [Gear.iges](Gear.iges) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
 | Vase | [Vase.3dm](Vase.3dm) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
+| Robot | [Robot.pmx](Robot.pmx), [badge texture](assets/RobotBadge.png) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
+| Island | [Island.vox](Island.vox) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
+| Satellite | [Satellite.lwo](Satellite.lwo) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
 | House | [House.ifc](House.ifc) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
 
 ## Changes and licensing
@@ -64,6 +67,15 @@ Open CASCADE; `.igs` and `.iges` contain the same data. Vase is a procedural
 quad mesh with vertex normals, stored as Rhino 8 3DM. House is an original
 IFC2x3 scene of colored extruded profiles. These four models use no third-party
 geometry or textures and retain the MIT terms in `LICENSES/MIT.txt`.
+
+Robot is an original PMX 2.0 character made from boxes and ellipsoids with a
+single rest-pose bone; `assets/RobotBadge.png` is its original diffuse texture.
+Island is a VOX 200 scene with colored terrain, trees, a cabin, and a separately
+positioned chimney model. Satellite is an LWO2 polygon model with colored solar
+panels and a central body. All three models and the badge texture are original
+MIT assets with no third-party geometry, characters, or textures. Recreate them
+with `python scripts/generate-pmx-vox-lwo-examples.py` (Python 3.10+ and Pillow)
+from the repository root. PMX and LWO do not require a separate native backend.
 
 The project's MIT license does **not** relicense third-party models or textures.
 `assets/FlightHelmet/` belongs to FlightHelmet; the Avocado, BarramundiFish, and
