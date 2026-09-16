@@ -604,6 +604,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "png_export"
+version = "1.1.5"
+dependencies = [
+ "anyhow",
+ "image",
+ "renderer",
+ "tempfile",
+ "windows",
+]
+
+[[package]]
 name = "powerfmt"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -681,7 +692,7 @@ checksum = "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4"
 
 [[package]]
 name = "renderer"
-version = "1.1.4"
+version = "1.1.5"
 dependencies = [
  "anyhow",
  "asset-importer",
@@ -893,20 +904,22 @@ dependencies = [
 
 [[package]]
 name = "thumbgen"
-version = "1.1.4"
+version = "1.1.5"
 dependencies = [
  "anyhow",
  "image",
+ "png_export",
  "renderer",
 ]
 
 [[package]]
 name = "thumbnail_provider"
-version = "1.1.4"
+version = "1.1.5"
 dependencies = [
  "anyhow",
  "directories",
  "once_cell",
+ "png_export",
  "renderer",
  "tempfile",
  "time",

@@ -13,6 +13,7 @@ use std::{
 use once_cell::sync::Lazy;
 use renderer::MAX_MODEL_BYTES;
 
+mod menu;
 mod worker;
 use windows::{
     core::{implement, Error, IUnknown, Interface, Result, GUID, HRESULT, PCWSTR},
@@ -519,19 +520,22 @@ impl IClassFactory_Impl for ClassFactory_Impl {
     }
 
     fn LockServer(&self, flock: BOOL) -> Result<()> {
-        SERVER_LOCKS
-            .fetch_update(Ordering::SeqCst, Ordering::SeqCst, |count| {
-                if flock.as_bool() {
-                    count.checked_add(1)
-                } else {
-                    count.checked_sub(1)
-                }
-            })
-            .map_err(|_| Error::from(E_UNEXPECTED))?;
-        Ok(())
+        lock_server(flock)
     }
 }
 
+fn lock_server(flock: BOOL) -> Result<()> {
+    SERVER_LOCKS
+        .fetch_update(Ordering::SeqCst, Ordering::SeqCst, |count| {
+            if flock.as_bool() {
+                count.checked_add(1)
+            } else {
+                count.checked_sub(1)
+            }
+        })
+        .map_err(|_| Error::from(E_UNEXPECTED))?;
+    Ok(())
+}
 /// Returns the class factory requested by the Windows COM loader.
 ///
 /// # Safety
@@ -548,6 +552,10 @@ pub unsafe extern "system" fn DllGetClassObject(
         return E_POINTER;
     }
     unsafe { *ppv = null_mut() };
+
+    if unsafe { *rclsid } == menu::CLSID {
+        return unsafe { menu::factory(riid, ppv) };
+    }
 
     let Some(provider) = PROVIDERS
         .iter()

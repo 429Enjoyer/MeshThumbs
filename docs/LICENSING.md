@@ -4,90 +4,50 @@
 
 ## Project code
 
-[LICENSE](../LICENSE) contains the MIT terms for MeshThumbs and credits both
-the original 3DThumbnails authors and MeshThumbs contributors. The upstream
-[Cargo.toml](https://github.com/While402/3DThumbnails/blob/main/Cargo.toml)
-and README declare MIT; the imported upstream tree did not include a standalone
-license file. The upstream attribution is retained in the project license.
+[LICENSE](../LICENSE) contains the MIT terms and credits for MeshThumbs and
+3DThumbnails. The upstream [manifest](https://github.com/While402/3DThumbnails/blob/main/Cargo.toml)
+and README declare MIT; the imported tree had no standalone license file.
+The PNG exporter, context-menu handler, and native adapters are original MIT code.
 
-## Dependencies and distribution
+## Dependencies and redistribution
 
-[Third-party notices](THIRD-PARTY-NOTICES.txt) records 119 packages in the locked
-Windows GNU dependency graph, including build dependencies and procedural
-macros. It also contains notices for bundled native code and Rust/MinGW runtimes.
-Optional native components and other-platform runtime notices are retained
-conservatively; inclusion is not a claim that every component is linked.
+[THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt) records the locked Windows GNU
+dependency inventory, selected license texts, source locations, and runtime
+notices. It includes build dependencies and conservative cross-platform notices;
+not every listed component is linked into the Windows binaries.
 
-MIT is selected where a dependency offers it as an alternative. Other selected
-terms include BSD, MPL-2.0, and the additional Unicode license. The bundled GCC
-runtime retains its GPL terms with the GCC Runtime Library Exception.
+MIT is selected when offered as an alternative. Other terms include BSD,
+MPL-2.0, Unicode, Zlib, Apache-2.0, and GCC's GPL with Runtime Library Exception.
+Third-party code retains those terms.
 
-The `ufbx` Rust crate omits a standalone license file from its archive. Its
-manifest declares `MIT OR PDDL-1.0`; the notices retain that declaration, its
-package author, pinned source links, and the MIT notice for bundled ufbx 0.21.1.
+Keep these sources and notices with redistributed installers:
 
-USD parsing uses `openusd` 0.7.0 under MIT. Its crate archive omits the workspace
-license file; the notices include the license from the exact upstream commit
-recorded in the package's `.cargo_vcs_info.json`. New transitive dependency
-notices include the Zlib terms for `zlib-rs` and Apache-2.0 terms for `zopfli`.
+| Component | Included sources / instructions |
+| --- | --- |
+| option-ext 0.2.0 (MPL-2.0) | Exact published [crate archive](third-party/option-ext-0.2.0.crate), matching `Cargo.lock`, installed beside the notices. |
+| Open CASCADE 7.9.3 (LGPL-2.1 with exception) | Replaceable CAD/scene DLLs, `step/occt-source-7.9.3.tar.gz`, and [rebuild instructions](OCCT-SOURCE.md). |
+| Alembic, Imath, openNURBS | Pinned sources, upstream notices, and compatibility patches described in [SCENE-SOURCE.md](SCENE-SOURCE.md). |
+| IFC4 / IfcConvert 0.8.5 | Source archive, patches, build recipe, and dependency information in [IFC-SOURCE.md](IFC-SOURCE.md); full terms in [IFC-NOTICES.txt](IFC-NOTICES.txt). Include the linked Boost source for offline redistribution. |
+| WiX 3.14.1 UI (MS-RL) | Upstream source/artwork and MeshThumbs installer authoring archives; see [WIX-UI-SOURCE.md](WIX-UI-SOURCE.md). |
 
-The unmodified MPL-2.0 source for `option-ext` 0.2.0 is included as
-[option-ext-0.2.0.crate](third-party/option-ext-0.2.0.crate). Its SHA-256 matches
-`Cargo.lock`. This is a gzip-compressed tar archive containing the published
-source and license. The MSI installs the same archive alongside `LICENSE` and
-`THIRD-PARTY-NOTICES.txt`, so its source remains available offline.
+The `ufbx` and `openusd` crates omit standalone license files from their archives.
+Their notices retain pinned upstream license evidence: ufbx's declared terms and
+bundled C-library MIT notice, and openusd's MIT license from its recorded commit.
 
-STEP and IGES use Open CASCADE Technology 7.9.3 under LGPL-2.1 with the Open CASCADE
-exception. Its libraries remain separate, replaceable DLLs; MeshThumbs code and
-the small C interface adapter remain MIT. The installer includes the library's
-corresponding source and build system in `step/occt-source-7.9.3.tar.gz`, plus
-[rebuild and replacement instructions](OCCT-SOURCE.md). Notices include the LGPL,
-its exception, the bundled DELABELLA triangulator, and Flex/Bison parser notices.
-The MinGW CAD build also ships its GCC, C++, and pthread runtime DLLs; their
-terms and exceptions are retained in the runtime notices. No new Rust package
-is added by this integration.
-
-Alembic and 3DM use a separate scene DLL containing Alembic 1.8.8, Imath 3.1.12,
-and a pinned openNURBS 8.x revision with its prefixed zlib. Their upstream
-notices and the two openNURBS compatibility patches are documented in the
-[scene backend sources](SCENE-SOURCE.md) and third-party notices. IFC2x3 uses
-the existing Assimp dependency. The scene backend also dynamically uses the
-same OCCT 7.9.3 libraries to tessellate uncached 3DM planar faces and extrusion
-caps. Its new adapter code is original MIT code; no Rhino meshing SDK is bundled.
-IFC4 invokes a separate MinGW build of IfcConvert 0.8.5. Its LGPL library code,
-compatibility patches, source archive, dependency source
-locations and notices are documented in [IFC-SOURCE.md](IFC-SOURCE.md) and
-[IFC-NOTICES.txt](IFC-NOTICES.txt). Keep that information with the installer.
-The renderer reuses the workspace's existing tempfile/windows packages.
-
-When updating dependencies, compare the locked Windows dependency graph with
-the notice inventory and retain the applicable license texts and source links.
-When changing compilers, update the runtime notices as well. This inventory
-corresponds to the Rust 1.98.1 / MinGW build of MeshThumbs 1.1.4.
-
-The standard WiX 3.14.1 installer dialogs and artwork retain MS-RL. Their
-unmodified sources, license, and this build's original installer authoring
-accompany the MSI as two source archives. See [installer UI sources](WIX-UI-SOURCE.md).
-The independent MeshThumbs application code remains MIT.
+The MinGW release bundles GCC/C++/pthread runtime DLLs, with their notices and
+exceptions. The PNG exporter reuses existing dependencies and Windows system UI.
+When changing dependencies or compilers, recheck the inventory and source bundles.
+The current runtime inventory is based on Rust 1.98.1 and MinGW.
 
 ## Preview assets
 
-The project MIT license does not relicense models or their rendered images.
-[Preview credits](images/ATTRIBUTION.md) identifies every model in the current
-README image, its source, license, and the changes made for display. Earlier
-preview images and previously published installers are not updated by this
-documentation change.
+The MIT license does not relicense models or rendered images. [Preview credits](images/ATTRIBUTION.md)
+identify the source, author, license, and display changes for each README tile.
+Preserve the individual credits and terms, including share-alike licenses,
+the KiCad exception, and the VRM sample's embedded permissions.
 
-The 1080p preview contains internet-sourced models under CC0, CC BY 4.0,
-BSD, MIT, the Irrlicht notice, McNeel's permissive terms, CC BY-SA 3.0/4.0,
-and the VRM Public License 1.0 with its embedded settings. Two original MIT
-fallbacks remain for IGES and MD5MESH. The Classroom Alembic example is CC0.
-Refer to the per-model credits for exact copyright holders, revisions, and
-changes; do not treat the entire
-asset collection as MIT. Share-alike rendered adaptations retain their source
-license. The KiCad library exception and attribution are included.
-
-The [examples](../examples/README.md) directory includes corresponding files,
-required textures, offline license texts, and [source checksums](../examples/sources.json)
-for the new downloads. These example assets are not installed by the MSI.
-The [search log](../examples/SOURCES.md) records candidates that are not yet suitable.
+[Examples](../examples/README.md) contains model files, textures, offline license
+texts, and [source checksums](../examples/sources.json). Two original MIT fallbacks
+remain for IGES and MD5MESH; the [search log](../examples/SOURCES.md) explains why.
+Example assets are not installed by the MSI. These credits describe the current
+preview; they do not change previously published images or installers.

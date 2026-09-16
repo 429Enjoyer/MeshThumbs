@@ -30,12 +30,17 @@ impl Drop for Handle {
     }
 }
 
-pub(super) struct Process {
+pub struct Process {
     process: Handle,
     job: Handle,
 }
 impl Process {
-    pub(super) fn spawn(executable: &Path, args: &[OsString], cwd: &Path) -> Result<Self> {
+    pub fn spawn(
+        executable: &Path,
+        args: &[OsString],
+        cwd: &Path,
+        memory_limit: usize,
+    ) -> Result<Self> {
         let mut command = quoted(executable.as_os_str().encode_wide())?;
         for arg in args {
             command.push(32);
@@ -53,7 +58,7 @@ impl Process {
             let mut limits = JOBOBJECT_EXTENDED_LIMIT_INFORMATION::default();
             limits.BasicLimitInformation.LimitFlags =
                 JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE | JOB_OBJECT_LIMIT_PROCESS_MEMORY;
-            limits.ProcessMemoryLimit = 768 * 1024 * 1024;
+            limits.ProcessMemoryLimit = memory_limit;
             SetInformationJobObject(
                 job.0,
                 JobObjectExtendedLimitInformation,
@@ -77,23 +82,23 @@ impl Process {
                 &startup,
                 &mut info,
             )
-            .context("could not start bundled IfcConvert")?;
+            .context("could not start render process")?;
             let thread = Handle(info.hThread);
             let result = Self {
                 process: Handle(info.hProcess),
                 job,
             };
             AssignProcessToJobObject(result.job.0, result.process.0)
-                .context("could not isolate IFC converter")?;
+                .context("could not isolate render process")?;
             ensure!(
                 ResumeThread(thread.0) != u32::MAX,
-                "could not resume IFC converter"
+                "could not resume render process"
             );
             Ok(result)
         }
     }
 
-    pub(super) fn poll(&mut self) -> Result<Option<u32>> {
+    pub fn poll(&mut self) -> Result<Option<u32>> {
         unsafe {
             match WaitForSingleObject(self.process.0, 0) {
                 WAIT_OBJECT_0 => {

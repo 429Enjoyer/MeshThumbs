@@ -83,7 +83,7 @@ impl Drop for Worker {
     }
 }
 
-fn worker_path() -> anyhow::Result<PathBuf> {
+pub(super) fn worker_path() -> anyhow::Result<PathBuf> {
     let mut module = HMODULE::default();
     let mut path = vec![0u16; 32768];
     let length = unsafe {

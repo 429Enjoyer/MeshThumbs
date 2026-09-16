@@ -29,6 +29,12 @@ Download the `.msi` installer from the latest release and run it to install or u
 
 Uninstall through **Windows Settings → Apps → Installed apps**.
 
+## Generate PNG thumbnails
+
+Right-click models → **MeshThumbs** → choose a PNG size (256, 512, or 1024).
+On Windows 11, use **Show more options**. PNGs are saved beside the models,
+replacing existing files with the same name.
+
 ## License
 
 [MIT](LICENSE) · Fork of [3DThumbnails](https://github.com/While402/3DThumbnails) · [Legal & Credits](docs/LEGAL.md)

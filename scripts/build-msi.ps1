@@ -13,20 +13,20 @@ $ProductWxs = Join-Path $Root "wix\Product.wxs"
 $InstallerUiWxs = Join-Path $Root "wix\InstallerUI.wxs"
 $RestartExplorerSource = Get-Content -LiteralPath (Join-Path $Root "scripts\restart-explorer.ps1") -Raw
 $RestartExplorerCommand = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($RestartExplorerSource))
-$OutputMsi = Join-Path $Root "MeshThumbs-1.1.4-x64.msi"
+$OutputMsi = Join-Path $Root "MeshThumbs-1.1.5-x64.msi"
 $LocalWix = Join-Path $Root ".tools\wix314"
 
 if (-not $SkipBuild) {
     & (Join-Path $PSScriptRoot "build-step.ps1") -Configuration $Configuration -OutputDir (Join-Path $TargetDir "step")
     & (Join-Path $PSScriptRoot "build-scene.ps1") -Configuration $Configuration -OutputDir (Join-Path $TargetDir "scene")
     & (Join-Path $PSScriptRoot "prepare-ifc.ps1") -Configuration $Configuration -OutputDir (Join-Path $TargetDir "ifc")
-    $CargoArgs = @("build", "--manifest-path", (Join-Path $Root "Cargo.toml"), "-p", "thumbnail_provider", "-p", "thumbgen")
+    $CargoArgs = @("build", "--manifest-path", (Join-Path $Root "Cargo.toml"), "-p", "thumbnail_provider", "-p", "thumbgen", "-p", "png_export")
     if ($Configuration -eq "release") { $CargoArgs += "--release" }
     & cargo @CargoArgs
     if ($LASTEXITCODE -ne 0) { throw "Thumbnail provider build failed." }
 }
-if (-not (Test-Path (Join-Path $TargetDir "thumbnail_provider.dll")) -or -not (Test-Path (Join-Path $TargetDir "thumbgen.exe"))) {
-    throw "Build both thumbnail_provider.dll and thumbgen.exe in $TargetDir."
+if (-not (Test-Path (Join-Path $TargetDir "thumbnail_provider.dll")) -or -not (Test-Path (Join-Path $TargetDir "thumbgen.exe")) -or -not (Test-Path (Join-Path $TargetDir "meshthumbs-export.exe"))) {
+    throw "Build thumbnail_provider.dll, thumbgen.exe and meshthumbs-export.exe in $TargetDir."
 }
 
 New-Item -ItemType Directory -Force -Path $WixObj | Out-Null
@@ -125,6 +125,36 @@ $($IfcComponents -join "`n")
 </ComponentGroup></Fragment></Wix>
 "@ | Set-Content -LiteralPath $IfcWxs -Encoding utf8
 
+# Use the renderer's supported-extension list for the Explorer command too.
+$RendererSource = Get-Content -LiteralPath (Join-Path $Root "crates\renderer\src\lib.rs") -Raw
+$ExtensionBlock = [regex]::Match($RendererSource, '(?s)pub const SUPPORTED_EXTENSIONS:.*?= &\[(.*?)\];').Groups[1].Value
+$MenuExtensions = @([regex]::Matches($ExtensionBlock, '"([a-z0-9]+)"') | ForEach-Object { $_.Groups[1].Value })
+if ($MenuExtensions.Count -eq 0 -or ($MenuExtensions | Sort-Object -Unique).Count -ne $MenuExtensions.Count) { throw "Invalid supported-extension list" }
+$MenuClass = "{2C7A8D3E-72CA-4B24-9D8C-426DDC3A1515}"
+$MenuKeys = foreach ($Extension in $MenuExtensions) {
+    @"
+<RegistryKey Root="HKCR" Key="SystemFileAssociations\.$Extension\shell\MeshThumbs.GenerateThumbnailPNG">
+  <RegistryValue Name="MUIVerb" Type="string" Value="MeshThumbs" />
+  <RegistryValue Name="ExplorerCommandHandler" Type="string" Value="$MenuClass" />
+  <RegistryValue Name="MultiSelectModel" Type="string" Value="Player" />
+</RegistryKey>
+"@
+}
+$MenuWxs = Join-Path $WixObj "ExportMenu.wxs"
+@"
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"><Fragment>
+<ComponentGroup Id="ExportMenuComponents" Directory="INSTALLFOLDER">
+<Component Id="ExportContextMenu" Guid="*" Win64="yes">
+<RegistryKey Root="HKCR" Key="CLSID\$MenuClass">
+  <RegistryValue Type="string" Value="MeshThumbs PNG Export Command" KeyPath="yes" />
+  <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[INSTALLFOLDER]thumbnail_provider.dll" />
+    <RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
+</RegistryKey>
+$($MenuKeys -join "`n")
+</Component></ComponentGroup></Fragment></Wix>
+"@ | Set-Content -LiteralPath $MenuWxs -Encoding utf8
+
 $candle = Get-Command candle.exe -ErrorAction SilentlyContinue
 $light = Get-Command light.exe -ErrorAction SilentlyContinue
 if (-not $candle -and (Test-Path (Join-Path $LocalWix "candle.exe"))) {
@@ -153,7 +183,9 @@ if ($candle -and $light) {
     if ($LASTEXITCODE -ne 0) { throw "Scene runtime WiX compilation failed." }
     & $candle.FullName -arch x64 -out (Join-Path $WixObj "IfcRuntime.wixobj") $IfcWxs
     if ($LASTEXITCODE -ne 0) { throw "IFC runtime WiX compilation failed." }
-    & $light.FullName -ext $UiAdapter -cultures:en-us -out $OutputMsi (Join-Path $WixObj "Product.wixobj") (Join-Path $WixObj "InstallerUI.wixobj") (Join-Path $WixObj "StepRuntime.wixobj") (Join-Path $WixObj "SceneRuntime.wixobj") (Join-Path $WixObj "IfcRuntime.wixobj")
+    & $candle.FullName -arch x64 -out (Join-Path $WixObj "ExportMenu.wixobj") $MenuWxs
+    if ($LASTEXITCODE -ne 0) { throw "Export menu WiX compilation failed." }
+    & $light.FullName -ext $UiAdapter -cultures:en-us -out $OutputMsi (Join-Path $WixObj "Product.wixobj") (Join-Path $WixObj "InstallerUI.wixobj") (Join-Path $WixObj "StepRuntime.wixobj") (Join-Path $WixObj "SceneRuntime.wixobj") (Join-Path $WixObj "IfcRuntime.wixobj") (Join-Path $WixObj "ExportMenu.wixobj")
     exit $LASTEXITCODE
 }
 

@@ -30,7 +30,7 @@ cmake --build occt-build --config Release --parallel
 cmake --install occt-build --config Release
 ```
 
-Use the same compiler ABI as the installed DLLs. The distributed 1.0.8 MSI uses
+Use the same compiler ABI as the installed DLLs. The Windows release uses
 MinGW-w64 GCC 13's POSIX-thread compiler; the included `mingw-toolchain.cmake`
 supports cross-compilation with that compiler from Linux. Its GCC, C++, and
 pthread runtime DLLs are distributed in the same directory. End users do not

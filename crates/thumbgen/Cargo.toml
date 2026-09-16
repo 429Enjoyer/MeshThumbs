@@ -8,3 +8,4 @@ license.workspace = true
 anyhow = "1"
 image = { version = "0.25", default-features = false, features = ["png"] }
 renderer = { path = "../renderer" }
+png_export = { path = "../png_export" }

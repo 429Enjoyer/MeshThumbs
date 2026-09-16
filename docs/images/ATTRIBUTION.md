@@ -1,7 +1,7 @@
 # Preview credits
 
 `meshthumbs-preview.png` contains thirty-one examples rendered by MeshThumbs
-in a 1920×1080 layout (eight, eight, eight, and seven centered examples per row). Each
+in a 1920×1080 layout. Each
 model was rendered at 768×768 before resizing for the contact sheet. Ten use
 CC0 models from the Khronos glTF Sample Assets collection; the USD-family,
 3MF, VRM, downloaded native-format examples, and two procedural fallbacks are credited below.

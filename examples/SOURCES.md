@@ -31,8 +31,8 @@ The earlier Khronos, 3MF, and VRM assets retain their existing pinned credits.
 | LWS | `move_x.lws` with `simple_cube.lwo` | Assimp test collection, BSD-3-Clause |
 | DXF | `wuson.dxf` | Assimp test collection, BSD-3-Clause |
 
-These replace fifteen procedural preview tiles. All selected models were
-rendered from the distributed files with MeshThumbs 1.1.4 at 768×768. The
+The README preview was rendered from the distributed files with MeshThumbs 1.1.4
+at 768×768 per tile. The
 1920×1080 README sheet shows the selected showcase models; `PlanarSurface.3dm`
 remains an additional example outside the sheet. The source files are unchanged except the MD2
 skin-name record, documented in the inventory. Renames and aliases do not change
@@ -67,7 +67,7 @@ The uncached curved Brep in `02.3dm` and the SubD sample remain unsupported.
 | MD5MESH | [Assimp BoarMan notice](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models-nonbsd/MD5/BoarMan.source.txt) | Says Creative Commons attribution/share-alike but omits a license version/link; not adopted without clearer terms. |
 
 These are results of this search, not a claim that online assets do not exist
-for the two remaining formats. No new procedural model was generated.
+for the two remaining formats.
 
 ## Rebuild the preview
 

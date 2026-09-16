@@ -2,6 +2,10 @@
 
 [Back to MeshThumbs](../README.md)
 
+## 1.1.5
+
+- Add MeshThumbs context menu for PNG thumbnail export.
+
 ## 1.1.4
 
 - Add IFC4 support.

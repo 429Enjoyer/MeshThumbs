@@ -155,7 +155,8 @@ fn convert(path: &Path, budget: usize) -> Result<crate::Scene> {
         "IfcSpace".into(),
         "IfcOpeningElement".into(),
     ];
-    let mut process = isolated::Process::spawn(&executable, &args, workspace.path())?;
+    let mut process =
+        crate::process::Process::spawn(&executable, &args, workspace.path(), 768 * 1024 * 1024)?;
     let deadline = Instant::now() + Duration::from_secs(4);
     loop {
         if let Ok(metadata) = std::fs::metadata(&output) {
@@ -211,9 +212,6 @@ fn convert(path: &Path, budget: usize) -> Result<crate::Scene> {
     );
     Ok(scene)
 }
-
-#[cfg(windows)]
-mod isolated;
 
 #[cfg(test)]
 mod tests {

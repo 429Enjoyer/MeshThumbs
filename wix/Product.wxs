@@ -4,7 +4,7 @@
     Id="*"
     Name="MeshThumbs"
     Language="1033"
-    Version="1.1.4"
+    Version="1.1.5"
     Manufacturer="MeshThumbs"
     UpgradeCode="5d411f35-6764-41dd-ae2b-20792d111c23">
 
@@ -58,6 +58,7 @@
       <ComponentGroupRef Id="StepRuntimeComponents" />
       <ComponentGroupRef Id="SceneRuntimeComponents" />
       <ComponentGroupRef Id="IfcRuntimeComponents" />
+      <ComponentGroupRef Id="ExportMenuComponents" />
       <ComponentRef Id="ProgramDataLogDir" />
     </Feature>
 
@@ -84,6 +85,7 @@
       <Component Id="ThumbnailProviderDll" Guid="dedfa04d-b418-4403-b323-bf2e5b23ac3e" Win64="yes">
         <File Id="ThumbDll" Source="$(var.TargetDir)\thumbnail_provider.dll" KeyPath="yes" />
         <File Id="ThumbnailWorker" Source="$(var.TargetDir)\thumbgen.exe" />
+        <File Id="PngExporter" Source="$(var.TargetDir)\meshthumbs-export.exe" />
         <File Id="ClearCacheScript" Source="$(var.ProjectDir)\scripts\clear-explorer-cache.ps1" />
         <File Id="ThirdPartyNotices" Source="$(var.ProjectDir)\docs\THIRD-PARTY-NOTICES.txt" />
         <File Id="ProjectLicense" Source="$(var.ProjectDir)\LICENSE" />

@@ -1,6 +1,6 @@
 # IFC4 helper sources
 
-MeshThumbs 1.1.4 uses a separate **MinGW build of IfcConvert 0.8.5**, limited to
+MeshThumbs uses a separate **MinGW build of IfcConvert 0.8.5**, limited to
 IFC4 geometry and self-contained GLB output. IFC2x3 retains Assimp. Users need
 no Blender, Python, or Visual C++ Redistributable installation. The helper is
 not loaded into Explorer and performs no runtime downloads.

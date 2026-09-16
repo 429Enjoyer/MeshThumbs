@@ -3,11 +3,12 @@ members = [
     "crates/renderer",
     "crates/thumbgen",
     "crates/thumbnail_provider",
+    "crates/png_export",
 ]
 resolver = "2"
 
 [workspace.package]
 edition = "2021"
 license = "MIT"
-version = "1.1.4"
+version = "1.1.5"
 authors = ["MeshThumbs"]

@@ -1,5 +1,7 @@
 mod blend;
 mod loaders;
+#[cfg(windows)]
+pub mod process;
 mod raster;
 
 use std::path::Path;

@@ -2,372 +2,273 @@
 
 [Back to MeshThumbs](../README.md)
 
-Run the commands below from the repository root.
+[Install](#install-and-upgrade) · [Export PNG](#export-png-thumbnails) ·
+[CLI](#cli) · [Build](#build) · [Troubleshooting](#rendering--troubleshooting) ·
+[Format limits](#format-limits)
 
 ## Install and upgrade
 
-The 1.1.4 MSI upgrades earlier releases, including 1.1.0 and local 1.0.10 builds. Matching
-versions are also treated as upgrades. The previous release is removed inside
-the upgrade transaction after the new shared components are installed.
+Run the latest MSI to install, upgrade, or replace a matching version.
+Uninstall through **Windows Settings → Apps → Installed apps**.
 
-The interactive installer uses the standard WiX Minimal welcome/license,
-progress, completion, and repair/remove dialogs. The license page displays the
-project MIT license. Only the files-in-use dialog is customized to add the
-Restart Explorer button.
+If setup reports Explorer files in use, finish any copies or moves, click
+**Restart Explorer**, wait for the desktop to return, then click **Retry**.
+Closing folder windows alone may leave Explorer running. The button forcibly
+closes the current user's Explorer windows; close other listed apps separately.
+If setup requests a Windows restart, restart to finish replacing locked files.
 
-If the installer lists **Windows Explorer** as using a file, closing folder
-windows may not be enough: Explorer also runs the desktop and taskbar. In the
-interactive installer, click **Restart Explorer**, wait for the desktop to
-return, then click **Retry**. This forcibly closes Explorer's folder windows
-and interrupts its file operations; finish copies/moves before using it.
-The button only targets the current user's Windows Explorer processes in the
-current session. It waits for Windows recovery before using one fallback launch,
-so it does not deliberately open another Explorer when one has already returned.
-Other applications in the list must be closed separately.
+The installer refreshes file associations without automatically restarting
+Explorer. Upgrading from original 1.0.8 or earlier packages can still invoke
+their older uninstall/restart behavior.
 
-The restart script is embedded in the MSI and works before the old installation
-is replaced. It only runs on a button click; silent/basic-UI deployments do not
-execute it. Double-click the rebuilt MSI for the custom dialog (or use `/qf`).
-`/qb` uses Windows Installer's built-in dialog without the extra button; `/qn`
-remains unattended. If an older installer dialog is already open, cancel it
-and reopen the rebuilt MSI. The **Ignore** option may require a Windows restart.
+For deployment: `/qf` uses the full UI with **Restart Explorer**; `/qb` uses
+basic Windows Installer UI; `/qn` runs silently. Handle exit code **3010** as
+a required restart. The MSI uses `MSIRESTARTMANAGERCONTROL=DisableShutdown`
+and does not suppress reboot requests.
 
-The installer uses `MSIRESTARTMANAGERCONTROL=DisableShutdown`: Restart Manager
-still detects files in use, but the package does not ask it to automatically
-shut down Explorer. If a DLL remains locked, Windows Installer may request a
-Windows restart to complete file replacement. Honor that request before judging
-the new thumbnails; the old DLL can remain active until then. Reboot requests
-are not suppressed. Silent deployments should handle MSI exit code 3010.
+## Export PNG thumbnails
 
-This avoids the failed shutdown/restart path observed in Windows event logs
-(Restart Manager 10006 and 10010, including an application/conductor SID mismatch).
-The provider now permits COM to unload its DLL after the last factory, provider
-object, and server lock is released; an active thumbnail request keeps it loaded.
-Unloading is controlled by Windows and is not guaranteed to happen immediately.
+Select supported model files, right-click → **MeshThumbs**, and choose
+**PNG 256 × 256**, **PNG 512 × 512**, or **PNG 1024 × 1024**. On Windows 11, use
+**Show more options** first. Folders and selections containing unsupported files
+do not show the menu. The MSI installs and removes the menu automatically.
 
-The refresh action only removes stale current-user overrides and sends a shell
-association notification. It does not stop/start Explorer or delete open cache
-databases. The explicit Restart Explorer button is a separate UI action and
-does not delete caches or registry entries. Old-product removal skips the
-refresh notification during an upgrade.
-The cached uninstaller of a previous build still carries its own policy; in
-particular, original 1.0.8 and earlier builds can run their old restart script.
-The new package cannot rewrite those cached actions. A first transition from
-an older package may still require a reboot or encounter its restart behavior.
+Each PNG is saved beside its model: `Chair.fbx` → `Chair.png`.
+**Any existing matching PNG is replaced without confirmation**, including a
+same-named texture. For models such as `boxuv.lwo` with `boxuv.png` as a texture,
+use the [CLI](#cli) to choose a different output name.
 
-For an explicit manual deep cache reset, `scripts/clear-explorer-cache.ps1`
-still clears cache files and restarts Explorer in the current session only.
-It first waits for Windows' automatic recovery and starts Explorer only if it
-remains absent. `-NoRestartExplorer` suppresses that manual recovery;
-`-RefreshOnly` performs notification and stale override cleanup without any
-process/cache-file changes. The MSI always uses `-RefreshOnly`.
+Files run in filename order. Models with the same basename share one output;
+the last successful export wins. A failed or cancelled render preserves the old
+PNG. Read-only destinations produce an error without elevation.
 
-This follows Microsoft's guidance for
-[shell handler notification](https://learn.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shchangenotify)
-and [Restart Manager control](https://learn.microsoft.com/en-us/windows/win32/msi/msirestartmanagercontrol).
+One dialog shows progress and offers **Cancel**. Completed PNGs remain; individual
+failures do not stop the batch and are listed in the final summary. Rendering
+runs outside Explorer. Each file has a 30-second deadline and a 2 GiB worker
+memory limit; IFC4 keeps its shorter converter limits below. Selections are
+limited to 10,000 files and 16 MiB of path data.
 
 ## CLI
 
-Generate a PNG thumbnail from a model file. The final argument sets the image size in pixels.
+From the installation folder, render to a chosen filename:
 
 ```powershell
-cargo run -p thumbgen -- model.glb preview.png 256
+.\thumbgen.exe model.glb model-preview.png 512
 ```
+
+The optional size defaults to 256 and is clamped to 32–1024 pixels.
+To export beside multiple models using the same replacement rules as the menu:
+
+```powershell
+.\thumbgen.exe --export-png 512 "C:\Models\Chair.fbx" "C:\Models\Table.obj"
+```
+
+Batch mode accepts 256, 512, or 1024, prints progress and errors, and returns
+a nonzero exit code if any file fails. `meshthumbs-export.exe` is the menu's GUI
+helper; use `thumbgen.exe` for command-line work.
 
 ## Build
 
-Requires Windows x64, Rust 1.96+, an x64 C++ compiler, CMake 3.20+, and WiX 3.14.
-Include `WixUIExtension.dll` beside the WiX tools; packaging uses the Windows
-.NET Framework 4 C# compiler for the small UI build adapter. See
-[installer UI sources](WIX-UI-SOURCE.md) for the pinned library and licenses.
-The native backends need Git and a C++17 compiler; MinGW builds require its POSIX-thread
-variant. The first build downloads the pinned Open CASCADE 7.9.3 source and
-compiles it, which takes substantially longer than incremental Rust builds.
-The scene backend also downloads pinned Alembic, Imath, and openNURBS sources.
-IFC4 uses a minimal IfcConvert build compiled with MinGW through WSL Ubuntu
-(`scripts/prepare-ifc.ps1`). Build prerequisites and optional cache/SDK reuse
-are documented in [IFC-SOURCE.md](IFC-SOURCE.md). Its notices, patches, source
-archive and build manifest accompany the MSI; no Microsoft runtime is bundled.
+Run build commands from the repository root. Requirements:
+
+- Windows x64, Rust 1.96+, Git, CMake 3.20+, and an x64 C++17 compiler.
+- WiX 3.14.1 with `WixUIExtension.dll`; packaging also uses Windows' .NET
+  Framework 4 C# compiler. See [installer UI sources](WIX-UI-SOURCE.md).
+- WSL Ubuntu and POSIX-thread MinGW compilers for the IFC4 helper.
+  See [IFC build prerequisites and cache options](IFC-SOURCE.md#rebuild).
 
 ```powershell
 .\scripts\build-msi.ps1
 ```
 
-The MSI installer is written to the repository root.
+The first build downloads and compiles pinned native sources; later builds reuse
+them. The MSI is written to the repository root. `-SkipBuild` packages already
+staged files, which must match the current source and documentation.
 
-For CLI development, run `scripts/build-step.ps1` once to put the CAD backend
-in `target/release/step`, then build/run `thumbgen` with `--release`. Use
-`scripts/build-step.ps1 -Configuration debug` for the default debug CLI build.
-Keep the `step` directory beside `thumbgen.exe` when copying a build. Other
-formats remain usable when the optional development backend has not been built;
-the MSI always includes it. Run `scripts/build-scene.ps1` (or add
-`-Configuration debug`) for the Alembic/3DM backend, and keep its `scene` directory
-beside `thumbgen.exe` too. See [scene backend sources](SCENE-SOURCE.md).
-The backends can also be cross-compiled from Linux
-using `native/step/mingw-toolchain.cmake`. See [OCCT source and rebuild notes](OCCT-SOURCE.md).
+For CLI development:
 
-When adding a format, update its renderer, CLI, Explorer registration, installer,
-and documentation together. Include an actual render in the 1920×1080 README
-preview, check its source license, and update the asset credits and changelog.
-Keep the matching models, required textures, and license texts in `examples/`.
-Check dependency notices whenever the dependency graph changes.
+```powershell
+cargo run -p thumbgen -- model.glb preview.png 256
+```
+
+Build native backends as needed with `scripts/build-step.ps1`,
+`scripts/build-scene.ps1`, and `scripts/prepare-ifc.ps1`. Use `-Configuration debug`
+for a debug CLI build; their default is release. Build STEP before the scene
+backend, which needs the matching OCCT SDK.
+
+Keep `thumbnail_provider.dll`, `thumbgen.exe`, and `meshthumbs-export.exe`
+(package `png_export`) together. Keep the `step`, `scene`, and `ifc` folders
+beside them for CAD, Alembic/Rhino, and IFC4 previews. The MSI includes all three.
+See [CAD rebuild notes](OCCT-SOURCE.md) and [scene rebuild notes](SCENE-SOURCE.md)
+for compiler/ABI requirements and Linux cross-builds.
+
+When adding a format, update the loader, CLI, Explorer registration, installer,
+and docs together. Test a licensed internet example first, keep its files and
+credits in `examples/`, and refresh the 1920×1080 README preview and changelog.
+Update dependency notices when dependencies or compilers change.
 
 ## Manual registration
 
-Keep `thumbnail_provider.dll` and `thumbgen.exe` together for manual registration.
-Include the accompanying `step` directory for STEP previews.
-Include `scene` for Alembic/3DM; IGES uses `step` as well.
-Run `scripts/prepare-ifc.ps1` for IFC4 and keep the resulting `ifc` directory
-beside `thumbgen.exe`. It contains a bundled executable, not a Python dependency.
-Registration scripts are available for the [current user](../scripts/register-current-user.ps1)
-or [all users](../scripts/register-machine.ps1).
+For development, register thumbnails for the [current user](../scripts/register-current-user.ps1)
+or [all users](../scripts/register-machine.ps1). Keep the binaries and backend
+folders together as described above. These scripts register thumbnail providers;
+use the MSI to install the PNG context menu.
 
 ## Rendering & Troubleshooting
 
-CPU rendering runs in a separate worker, with a **5-second timeout**, a
-**300 MiB file limit**, and a **5-million-triangle limit**. Unsupported, corrupt,
-or oversized models may not produce a thumbnail.
+Automatic Explorer previews render in a separate CPU worker with a **5-second
+timeout**, **300 MiB file limit**, and **5-million-triangle limit**. Corrupt,
+unsupported, or complex models may have no preview. PNG export uses the same
+renderer and format limits, with the longer deadline described above.
 
-VRM previews show avatars in their rest pose using base colors and textures;
-MToon outlines, animation, and physics are not rendered. Advanced 3MF properties
-such as composite materials, beam lattices, and slice-only models are unsupported.
-Expanded 3MF package data is also limited to 300 MiB.
+- Keep referenced textures and scene objects in their original relative folders.
+  Missing textures generally fall back to material colors; missing geometry
+  references may prevent a preview.
+- For BLEND, save an embedded preview in Blender. MeshThumbs reads that image
+  without needing Blender installed.
+- For curved 3DM surfaces or SubD, save render meshes in Rhino or export meshes.
+- After an upgrade, complete any Windows restart requested by setup.
+- Check `C:\ProgramData\MeshThumbs\meshthumbs.log` for thumbnail-provider errors.
 
-BLEND files use their saved preview image; Blender does not need to be installed.
-Files without an embedded preview show no thumbnail. Little-endian legacy and
-Blender 5.0+ headers are supported, including gzip and Zstandard compression.
-Previews are resized with their original framing and aspect ratio; scenes are
-not re-rendered.
+For a manual cache reset, `scripts/clear-explorer-cache.ps1` clears thumbnails
+and restarts the current user's Explorer. Finish file operations first.
+`-NoRestartExplorer` skips restarting; `-RefreshOnly` only refreshes associations
+and stale overrides, as the MSI does.
 
-X3D supports static XML mesh/primitive scenes, DEF/USE instances, materials, and
-local image textures. Animation and scripts are not executed. Text geometry,
-Inline scenes, prototypes, remote textures, and non-XML encodings are unsupported. Keep local textures
-beside the model or in their referenced relative folders.
+## Format limits
 
-OFF supports ASCII OFF, COFF, NOFF, and CNOFF files, including RGB/RGBA vertex
-colors in 0–1 or 0–255 ranges. Binary OFF, per-face colors, and other header
-variants are unsupported. Line-only and point-only files have no mesh thumbnail.
+Previews show static geometry and basic materials. Animation playback, simulation,
+and full application-specific rendering are not reproduced.
 
-WRL and VRML support UTF-8 VRML 2.0 / VRML97 scenes: Group, Transform, Shape,
-IndexedFaceSet, Box, Sphere, Cylinder, Cone, DEF/USE instances, materials,
-vertex/face colors and normals, and local ImageTexture/TextureTransform nodes.
-Camera, lighting, background, and navigation nodes are parsed but do not control
-the thumbnail. VRML 1.0, compressed VRML, PROTO/EXTERNPROTO, Inline, scripts,
-ROUTE/animation, Switch/LOD, text, lines, points, and other node types are
-unsupported. Unsupported scene nodes cause the preview to fail rather than
-silently omit geometry. Parsing is bounded to 64 nested nodes, 100,000 nodes,
-and 300 MiB of expanded data; DEF/USE expansion also has node and depth limits.
-Keep local textures beside the model or in their referenced relative folders.
-Both extensions require a filesystem-backed item in Explorer to resolve textures.
+### VRM, PMX, and 3MF
 
-STEP and STP read self-contained ISO 10303-21 text files using Open CASCADE
-7.9.3. CAD solids, trimmed surfaces, and assembly placements are tessellated
-with a chord tolerance of 0.1% of the model's largest bounding-box dimension
-(minimum 0.0000001 model units). Meshes use smooth surface normals and a neutral
-material; CAD colors, textures, PMI/annotations, and wire-only geometry are not
-rendered. External assembly files are not followed, so only geometry stored in
-the main file is shown. Compressed STEP and STEP XML are unsupported.
-The CAD reader retains exception checks, rejects more than 100,000 roots/faces,
-and shares the worker's five-second deadline and five-million-triangle limit.
-Large or difficult CAD assemblies can exceed that deadline and show no preview.
-Both extensions support file, item, and anonymous stream initialization.
-Recentered double-precision CAD coordinates are converted to the thumbnail
-renderer's coordinate system before rendering, treating CAD Z as up.
+VRM and PMX 2.0/2.1 show rest-pose geometry, base colors, and supported textures.
+Toon outlines, physics, IK, animated morphs, and sphere maps are not applied.
+Keep PMX texture folders beside the model; PMD and VMD are not supported.
+3MF composite materials, beam lattices, and slice-only models are unsupported;
+expanded package data is limited to 300 MiB.
 
-USD, USDA, USDC, and USDZ are read directly, without an external USD application.
-Previews use the stage's start time and support polygon meshes, Cube/Sphere/
-Cylinder/Cone primitives, transforms, local references, material subsets,
-display colors, and UsdPreviewSurface base-color textures. USDZ contents and
-referenced source assets share a 300 MiB read budget. Missing optional textures
-fall back to material colors; unresolved scene references may prevent a preview.
-Explorer uses the original file path for USD/USDA/USDC and X3D so relative assets
-remain resolvable. These formats require a filesystem-backed item; USDZ can also
-be read from an anonymous stream because its resources are packaged together.
-Subdivision uses the control mesh. Skinning, simulation, scene lighting,
-PointInstancer geometry, and nested USDZ packages are unsupported. Other shader
-graphs, including MaterialX, use an untextured fallback; this is not a full PBR render.
+### BLEND
 
-Logs: `C:\ProgramData\MeshThumbs\meshthumbs.log`.
+Uses the saved preview image, preserving its framing and aspect ratio. Supports
+little-endian legacy and Blender 5.0+ headers, gzip, and Zstandard compression.
+Files without an embedded preview have no thumbnail; scenes are not re-rendered.
 
-## Formats added in 1.0.8
+### X3D, WRL / VRML, and OFF
 
-Alembic (`.abc`) reads **Ogawa** archives. It uses the earliest authored animated
-sampling time (zero for static archives), sampling every property at or before
-that time. Polygon meshes, local transform hierarchies, transform inheritance,
-visibility, indexed normals, and subdivision control cages with holes are
-supported. Missing normals use face normals. Subdivision refinement, curves,
-points, NURBS patches, materials/textures, and HDF5 archives are unsupported.
-The reader treats Alembic coordinates as Y-up and converts clockwise polygon
-winding for rendering. Non-mesh objects do not contribute thumbnail geometry.
-Repeated consecutive/closing polygon corners are removed before triangulation,
-retaining the surviving corners' normals and colors. Collapsed faces with fewer
-than three distinct consecutive corners do not contribute triangles.
+X3D reads static XML meshes/primitives, DEF/USE instances, materials, and local
+textures. Non-XML encodings, Inline scenes, prototypes, text, scripts, animation,
+and remote textures are unsupported.
 
-IGES (`.igs`, `.iges`) uses Open CASCADE to read surfaces, solids, and their
-placements. It shares STEP's tessellation, neutral material, precision handling,
-face/triangle limits, and Z-up convention. Curves/points alone have no thumbnail;
-annotations, CAD colors, textures, and externally referenced files are not rendered.
+WRL/VRML reads UTF-8 VRML 2.0 / VRML97 meshes/primitives, transforms, DEF/USE,
+colors, normals, and local textures. VRML 1.0, compression, prototypes, Inline,
+Switch/LOD, scripts, animation, text, lines, and points are unsupported.
+Unsupported scene nodes fail the preview; source cameras and lights do not
+control it.
 
-Rhino (`.3dm`) reads mesh objects and saved render meshes on Breps/extrusions.
-When no usable mesh is saved, it can also mesh **extrusions and planar Brep
-faces/surfaces**. Curved extrusion profiles are sampled adaptively; caps retain
-inner holes, open profiles remain uncapped, and mitered end planes are respected.
-Each Brep face prefers its saved mesh and only missing planar faces are generated.
-The source file is never modified. Local blocks, visibility, mirrored/scaled
-transforms, object/layer colors, vertex colors and Z-up coordinates are preserved.
-Default black layer wireframe colors use the neutral thumbnail material.
+OFF reads ASCII OFF, COFF, NOFF, and CNOFF, including vertex colors and normals.
+Binary OFF, per-face colors, and line/point-only files are unsupported.
 
-Uncached curved Breps/NURBS surfaces and SubD are still unsupported and fail the
-preview rather than silently dropping visible geometry. Save their render meshes
-in Rhino or export mesh objects. Linked blocks, textures, per-instance inherited
-colors, curves, points and annotations are not rendered. Curve tessellation is
-bounded (positive rational weights, degree ≤32, 4,096 points per boundary,
-64 loops per face/profile group and 32,768 boundary points per object).
-The global geometry budget and Explorer worker deadline still apply.
+### USD / USDA / USDC / USDZ
 
-IFC (`.ifc`) supports **IFC2x3 and IFC4**. IFC2x3 retains the existing Assimp
-reader, with common extrusions/profiles, faceted geometry, placements and colors.
-IFC4 uses a bundled MinGW build of IfcConvert 0.8.5 and Open CASCADE 7.9.3 to
-tessellate geometry, including tessellated face sets, swept solids, BReps and
-boolean openings. Surface materials are carried through a temporary GLB.
-Spaces and separate opening volumes are excluded. Indexed face-color maps,
-textures, annotations and full BIM metadata are not represented by this preview.
-Unsupported upstream geometry may be omitted; this is not a full BIM viewer.
-IFC4.3, IFCZIP and IFCXML are not enabled in this release.
+Reads meshes, basic primitives, transforms, local references, material subsets,
+display colors, and UsdPreviewSurface base-color textures at the stage's start
+time. USDZ assets are read directly from the package. Referenced assets share a
+300 MiB read budget.
 
-No separate application or Python installation is required. The IFC4 converter
-runs hidden in a Windows job with a four-second conversion deadline and a
-768 MiB process-memory limit; converted meshes are limited to 300 MiB and the
-renderer triangle budget. Explorer keeps its overall five-second deadline.
-Large or complex IFC4 models may therefore have no thumbnail. Converter
-processes are stopped on timeout or worker exit. The COM host owns and cleans
-intermediate files even when it terminates its worker. CLI intermediates are
-normally removed on completion/failure; externally killing a CLI process can
-leave its temporary directory behind. The converter makes no runtime downloads.
+Subdivision shows the control mesh. Skinning, simulation, PointInstancer,
+nested USDZ packages, and full shader graphs are unsupported. MaterialX and
+other shaders use an untextured fallback. Missing scene references may fail.
+
+### STEP / STP and IGES / IGS
+
+Open CASCADE reads self-contained STEP text and IGES surfaces/solids with assembly
+placements, smooth normals, and a neutral material. Tessellation tolerance is
+0.1% of the model's largest dimension. CAD colors, textures, annotations,
+external assemblies, and curve/point-only geometry are not rendered. Compressed
+STEP and STEP XML are unsupported. Large assemblies may exceed the render limits.
+
+### Alembic
+
+Reads Ogawa archives at the earliest authored sample: polygon meshes,
+transforms, visibility, indexed normals, and subdivision control cages with holes.
+Repeated polygon corners are removed before triangulation. Subdivision refinement,
+curves, points, NURBS patches, materials/textures, and HDF5 archives are unsupported.
+
+### Rhino 3DM
+
+Reads mesh objects and saved render meshes. Without a saved mesh, extrusions and
+planar Brep faces/surfaces can be meshed in memory, including curved profiles,
+holes, open profiles, and mitered ends. Local blocks, visibility, transforms,
+object/layer colors, and vertex colors are supported. Source files are unchanged.
+
+Uncached curved Breps/NURBS and SubD fail the preview. Linked blocks, textures,
+per-instance inherited colors, curves, points, and annotations are not rendered.
+Default black layer colors use the neutral material. Complex profile boundaries
+may exceed tessellation limits. See [scene backend notes](SCENE-SOURCE.md).
+
+### IFC
+
+IFC2x3 uses Assimp. IFC4 uses the bundled IfcConvert helper for tessellated meshes,
+swept solids, Breps, boolean openings, and surface materials. Spaces and separate
+opening volumes are excluded. Textures, indexed face-color maps, annotations,
+and BIM metadata are not represented; unsupported upstream geometry may be omitted.
+IFC4.3, IFCZIP, and IFCXML are not enabled.
+
+The IFC4 converter has a **4-second deadline** and **768 MiB memory limit**,
+within the overall render deadline. No separate application, Python, or runtime
+download is needed. Temporary files are cleaned on completion, failure, or menu
+cancellation; externally killing a standalone CLI process can leave them behind.
 See [converter sources and licenses](IFC-SOURCE.md).
 
-ABC, IGS, IGES, 3DM, and IFC accept file, item, or anonymous stream initialization.
-The native scene reader limits hierarchy depth to 64, visits to 100,000, polygons
-to 4,096 corners, and expanded polygon storage to 300 MiB. All formats retain
-the Explorer worker's five-second deadline and five-million-triangle ceiling;
-complex models can exceed those limits and produce no thumbnail.
+### VOX
 
+Reads MagicaVoxel 150/200 with palette colors, exposed voxel faces, groups,
+instances, integer transforms, and hidden nodes/layers. Animated scenes use the
+earliest authored frame; older PACK files show their first model. Material
+effects, glass/refraction, lighting, and animation playback are not rendered.
+Large or heavily instanced voxel scenes may exceed the geometry limits.
 
-## PMX, VOX, and LWO
+### LWO, LXO, LWS, and ASE
 
-PMX (`.pmx`) uses the bundled Assimp reader for PMX 2.0/2.1 model geometry in
-its rest pose, diffuse colors, opacity, normals, UVs, and local diffuse textures.
-MMD does not need to be installed. Motion files, morph animation, IK, physics,
-toon shading/outlines, and sphere maps are not applied. PMD and VMD are not
-registered. Keep the model's texture folders beside it.
+- **LWO:** LWOB/LWO2 meshes, layers, surface/vertex colors, UVs, and local diffuse
+  textures. Subdivision shows the control mesh; procedural/node materials are omitted.
+- **LXO:** LXOB polygon mesh layers, pivots, colors, normals, UVs, and supported
+  diffuse textures. Scene-item transforms, instances, deformation, procedural
+  geometry, and full shader graphs are not evaluated.
+- **LWS:** UTF-8 LWSC 3–5 scenes referencing local LWOB/LWO2/LXOB objects.
+  Supports parenting, pivots, and initial channel transforms. Objects are resolved
+  beside the scene or up to two parent folders for Scenes/Objects layouts.
+  Missing objects or invalid hierarchies fail. LWO3, LWSC 1/2, nested scenes,
+  plugins, visibility/dissolve settings, and animation playback are unsupported.
+- **ASE:** static mesh geometry, transforms, colors, UVs, and diffuse textures.
+  Accepts plain text, UTF-8 BOM, and UTF-16 LE/BE BOM. Skeletal deformation,
+  animation, and procedural materials are not rendered.
 
-MagicaVoxel (`.vox`) uses a native Rust reader for versions 150 and 200, with
-the default or embedded RGBA palette. It emits only exposed voxel faces and
-supports scene groups, instances, integer rotations/translations, and hidden
-nodes/layers. Each animated transform or shape uses its earliest authored
-frame; older PACK animation files show their first model. Model pivots and
-Z-up coordinates are converted for rendering. MATL/MATT shading, emission,
-glass/refraction, cameras, lighting, and animation playback are not rendered;
-palette RGBA determines thumbnail color. Parsing rejects invalid coordinates,
-references, cycles, counts, and truncated data. Limits include eight million
-stored voxels, 32 million instanced voxels, 256 million expanded grid cells,
-100,000 chunks/node visits, and 64 hierarchy levels, plus the shared triangle
-limit and Explorer deadline. MagicaVoxel does not need to be installed.
+Keep local object and texture paths intact. The source applications are not required.
 
-LightWave (`.lwo`) uses Assimp for polygon meshes, layers, surface/vertex colors,
-normals, UVs, and local diffuse image textures. LWOB and LWO2 samples were
-checked. Subdivision surfaces show their control mesh, not a subdivided result.
-Procedural/node materials and animation are not reproduced. Separate LWS scenes
-and LXO mesh files are described below. LightWave does not need to be installed.
+### SMD, MD2, MD3, and MD5MESH
 
-PMX and LWO require file or filesystem-backed item initialization in Explorer
-so relative textures retain their original paths. Anonymous streams are not
-advertised for these two formats. VOX is self-contained and accepts all three
-initialization methods. Missing optional textures fall back to material colors.
+- **SMD:** version 1 reference meshes; skeleton/animation-only files have no preview.
+- **MD2:** version 8, first vertex-animation frame and first declared skin.
+- **MD3:** version 15, first frame and optional `<model>_default.skin` mapping.
+  Head/upper/lower files are not assembled; tags and shader scripts are ignored.
+- **MD5MESH:** version 10, weighted bind-pose geometry and local diffuse textures.
+  MD5ANIM and MD5CAMERA are not loaded.
 
+Keep textures beside the model or in relative subfolders. Extensionless image
+names try TGA, PNG, JPEG, DDS, BMP, then PCX; MD5 uses Assimp's `<name>_d.tga`
+convention. PCX v5 supports 8-bit indexed or three-plane RGB, raw or RLE.
+Game archives, VMT/VTF materials, shader effects, and normal/specular maps are
+not resolved. Extract geometry and supported textures first.
 
-## SMD, MD2, MD3, and MD5MESH
+### DXF
 
-These game-model formats use the bundled Assimp reader; a game or modeling
-application does not need to be installed. All four require a file or
-filesystem-backed item in Explorer to resolve local textures. Anonymous streams
-are not advertised. The same file, triangle, and Explorer timeout limits apply.
+Reads ASCII 3DFACE and POLYLINE polyface meshes, with local BLOCK/INSERT
+hierarchies, transforms, arrays, and layer/ByBlock/true-color materials.
+Off/frozen layers, invisible entities, and paper-space geometry are omitted.
 
-- **SMD:** version 1 reference mesh geometry, stored normals, and UVs. Model-space
-  Z-up coordinates are converted to Y-up. Skeleton-only/animation-only SMDs have
-  no preview; bone animation, VTA morphs, and animation-list autoloading are disabled.
-- **MD2:** version 8 geometry, normals, UVs, the first vertex-animation frame,
-  and the first declared skin. Later frames and GL-command rendering are not used.
-- **MD3:** version 15 surfaces, normals, UVs, and the first vertex-animation frame.
-  Local `<model>_default.skin` mappings may override surface image names. Each
-  selected file is rendered independently: adjacent head/upper/lower files are
-  not assembled, and tags, animation, and Quake shader scripts are not rendered.
-- **MD5MESH:** version 10 mesh geometry reconstructed from joint transforms and
-  weighted vertex offsets in the bind pose, with UVs and local diffuse textures.
-  LF and CRLF line endings are accepted. MD5ANIM and MD5CAMERA are not registered
-  or automatically loaded.
-
-Keep referenced textures beside the model or in its relative subfolders. Exact
-paths are tried first, with a filename-only fallback beside the model. Image
-names without extensions try TGA, PNG, JPEG, DDS, BMP, then PCX. An extensionless
-MD5 shader name uses Assimp's `<name>_d.tga` diffuse convention. PCX v5 supports
-8-bit indexed images with a trailing 256-color palette, or three 8-bit RGB planes,
-with raw or scanline RLE pixels; limits are 64 MiB input/decoded scanlines,
-8192 pixels per dimension, and 16,777,216 pixels. Other PCX variants are unsupported.
-PCX is a texture decoder, not an additional model extension.
-
-Missing or unsupported textures fall back to material colors. Game installations,
-PAK/PK3/PK4 archives, VMT/VTF materials, Doom material declarations, shader effects,
-and normal/specular maps are not resolved. Extract geometry and supported image
-textures before requesting a thumbnail.
-
-
-## ASE, LXO, LWS, and DXF
-
-ASE, LXO, and LWS use the bundled Assimp reader; DXF uses a native Rust reader.
-No 3ds Max, Modo, LightWave, or CAD application is required.
-
-- **ASE:** static mesh exports, object transforms, materials, vertex colors,
-  UVs, and local diffuse textures. Plain text, UTF-8 BOM, and UTF-16 LE/BE BOM
-  inputs are supported. Geometry uses the reference mesh; animation, skeletal
-  deformation, cameras, lights, and procedural material graphs are not rendered.
-- **LXO:** polygon mesh layers stored in Modo's LXOB container, with layer
-  pivots, vertex colors, normals, UVs, and supported diffuse image materials.
-  This is a mesh-layer preview: Modo ITEM/CHAN scene-item transforms, instances,
-  deformation, procedural geometry, and full shader graphs are not evaluated.
-  Subdivision surfaces show their control mesh. Tested with real LXOB exports.
-- **LWS:** UTF-8 LWSC 3–5 scenes referencing local LWOB/LWO2/LXOB `.lwo` objects,
-  including LoadObject/LoadObjectLayer, object parenting, pivots, and transforms
-  from the initial authored channel keys. Local object paths are resolved beside
-  the scene or up to two parent folders for packaged Scenes/Objects layouts.
-  Texture paths are rebased against each object before merging, so same-named
-  textures in different folders remain distinct. Missing objects, nested scene
-  references, invalid parenting, and truncated object containers fail the preview.
-  Plugins are skipped; animation playback, LWO3 objects, LWSC 1/2, external scene
-  nesting, object visibility/dissolve settings, and full LightWave rendering are unsupported.
-  Limits are 1,024 object references, 4,096 nodes, 64 nested blocks/parent levels,
-  100,000 source lines, and 300 MiB of collected/normalized package data.
-- **DXF:** ASCII 3DFACE and POLYLINE polyface meshes, including local BLOCK/INSERT
-  hierarchies. Block base points, translation, rotation, non-uniform/negative
-  scale, extrusion/OCS axes, and INSERT row/column arrays are applied in order.
-  Array spacing rotates with the insert without being multiplied by its scale.
-  Nested transforms may include shear. Mirrored faces retain outward normals.
-  Coordinates remain double precision through transformation and recentering.
-  Layer 0 inherits the insertion layer; ByLayer and ByBlock colors resolve through
-  nested inserts. Indexed colors, true-color RGB, and polyface color overrides
-  are supported. Off/frozen layers, invisible entities, and paper-space entities
-  are omitted. Indexed colors use a fixed preview palette; viewport/plot styles
-  and transparency are not reproduced.
-  Missing/cyclic block references, XREF blocks, ACIS solids, REGION/BODY/SURFACE,
-  modern MESH, SOLID, and HATCH surfaces are rejected. Curves, text and attributes
-  are not tessellated; a line-only drawing has no thumbnail. Binary DXF, external
-  references, textures, XCLIP, and dynamic-block evaluation remain unsupported.
-  Limits: ten million group pairs, one million records and one million expanded
-  entities/faces, 100,000 instances, 64 block levels, 10,000 blocks/layers each, and 300 MiB of
-  stored geometry, in addition to the shared file/triangle limits. The EOF record
-  and complete sections/polyface sequences are required.
-
-ASE, LXO, and LWS use file or filesystem-backed item initialization in Explorer
-to retain their sidecar paths. Keep referenced objects and textures in place.
-DXF geometry is self-contained and also supports anonymous streams. The shared
-five-second Explorer deadline and five-million-triangle ceiling still apply.
+Binary DXF, XREFs, ACIS solids, REGION/BODY/SURFACE, modern MESH, SOLID, and HATCH
+are unsupported. Curves/text are not tessellated; line-only drawings have no
+thumbnail. Missing/cyclic references and incomplete sections fail. Textures,
+transparency, plot styles, XCLIP, and dynamic blocks are not evaluated.
