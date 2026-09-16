@@ -7,7 +7,6 @@ license.workspace = true
 [dependencies]
 anyhow = "1"
 asset-importer = { version = "0.8", features = ["static-link"] }
-bytemuck = "1"
 flate2 = "1"
 glam = "0.29"
 gltf = { version = "1.4", features = ["import", "KHR_texture_transform", "KHR_materials_unlit"] }

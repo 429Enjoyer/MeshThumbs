@@ -4,6 +4,37 @@
 
 Run the commands below from the repository root.
 
+## Install and upgrade
+
+The rebuilt 1.0.8 MSI can replace an earlier 1.0.8 MSI installation; Windows
+Installer treats matching versions as upgrades for this package.
+
+The rebuilt 1.0.8 installer's refresh actions notify Windows that thumbnail associations
+changed; they do not stop or start Explorer or delete its open cache databases.
+Windows Installer's Restart Manager remains responsible for applications using
+the old DLL, including shutdown/recovery when needed. Windows may instead ask
+for a reboot if a file cannot be released. File replacement and registration
+continue through the normal MSI upgrade transaction.
+
+The uninstall refresh is skipped when removing a package as part of an upgrade.
+The first upgrade **from the original 1.0.8 build or an earlier release** may
+still restart Explorer through
+the old installer's cached uninstall action; the new MSI cannot change that
+already-installed action. Later upgrades between fixed versions do not run it.
+Windows may restore previously open folder windows; the refresh script does
+not create new ones.
+
+For an explicit manual deep cache reset, `scripts/clear-explorer-cache.ps1`
+still clears cache files and restarts Explorer in the current session only.
+It first waits for Windows' automatic recovery and starts Explorer only if it
+remains absent. `-NoRestartExplorer` suppresses that manual recovery;
+`-RefreshOnly` performs notification and stale override cleanup without any
+process/cache-file changes. The MSI always uses `-RefreshOnly`.
+
+This follows Microsoft's guidance for
+[shell handler notification](https://learn.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shchangenotify)
+and [Restart Manager integration](https://learn.microsoft.com/en-us/windows/win32/msi/using-windows-installer-with-restart-manager).
+
 ## CLI
 
 Generate a PNG thumbnail from a model file. The final argument sets the image size in pixels.
@@ -15,9 +46,10 @@ cargo run -p thumbgen -- model.glb preview.png 256
 ## Build
 
 Requires Windows x64, Rust 1.96+, an x64 C++ compiler, CMake 3.20+, and WiX 3.14.
-The STEP backend needs a C++17 compiler; MinGW builds require its POSIX-thread
+The native backends need Git and a C++17 compiler; MinGW builds require its POSIX-thread
 variant. The first build downloads the pinned Open CASCADE 7.9.3 source and
 compiles it, which takes substantially longer than incremental Rust builds.
+The scene backend also downloads pinned Alembic, Imath, and openNURBS sources.
 
 ```powershell
 .\scripts\build-msi.ps1
@@ -30,7 +62,10 @@ in `target/release/step`, then build/run `thumbgen` with `--release`. Use
 `scripts/build-step.ps1 -Configuration debug` for the default debug CLI build.
 Keep the `step` directory beside `thumbgen.exe` when copying a build. Other
 formats remain usable when the optional development backend has not been built;
-the MSI always includes it. The backend can also be cross-compiled from Linux
+the MSI always includes it. Run `scripts/build-scene.ps1` (or add
+`-Configuration debug`) for the Alembic/3DM backend, and keep its `scene` directory
+beside `thumbgen.exe` too. See [scene backend sources](SCENE-SOURCE.md).
+The backends can also be cross-compiled from Linux
 using `native/step/mingw-toolchain.cmake`. See [OCCT source and rebuild notes](OCCT-SOURCE.md).
 
 When adding a format, update its renderer, CLI, Explorer registration, installer,
@@ -43,6 +78,7 @@ Check dependency notices whenever the dependency graph changes.
 
 Keep `thumbnail_provider.dll` and `thumbgen.exe` together for manual registration.
 Include the accompanying `step` directory for STEP previews.
+Include `scene` for Alembic/3DM; IGES uses `step` as well.
 Registration scripts are available for the [current user](../scripts/register-current-user.ps1)
 or [all users](../scripts/register-machine.ps1).
 
@@ -112,3 +148,40 @@ PointInstancer geometry, and nested USDZ packages are unsupported. Other shader
 graphs, including MaterialX, use an untextured fallback; this is not a full PBR render.
 
 Logs: `C:\ProgramData\MeshThumbs\meshthumbs.log`.
+
+## Formats added in 1.0.8
+
+Alembic (`.abc`) reads **Ogawa** archives. It uses the earliest authored animated
+sampling time (zero for static archives), sampling every property at or before
+that time. Polygon meshes, local transform hierarchies, transform inheritance,
+visibility, indexed normals, and subdivision control cages with holes are
+supported. Missing normals use face normals. Subdivision refinement, curves,
+points, NURBS patches, materials/textures, and HDF5 archives are unsupported.
+The reader treats Alembic coordinates as Y-up and converts clockwise polygon
+winding for rendering. Non-mesh objects do not contribute thumbnail geometry.
+
+IGES (`.igs`, `.iges`) uses Open CASCADE to read surfaces, solids, and their
+placements. It shares STEP's tessellation, neutral material, precision handling,
+face/triangle limits, and Z-up convention. Curves/points alone have no thumbnail;
+annotations, CAD colors, textures, and externally referenced files are not rendered.
+
+Rhino (`.3dm`) reads mesh objects and **saved render meshes** on Breps and
+extrusions. Local block instances, object/layer visibility, object/layer colors,
+vertex colors, normals, and Z-up coordinates are supported. Default black layer
+wireframe colors use the neutral thumbnail material. It does not calculate new
+NURBS/SubD meshes: a visible surface without the required cached mesh causes
+the preview to fail. Save with render meshes in Rhino or export mesh objects.
+Linked external blocks, textures, per-instance inherited colors, curves, points,
+and annotations are unsupported. Mesh files from Rhino 5, 7, and 8 were checked.
+
+IFC (`.ifc`) uses Assimp's **IFC2x3** reader, with product placements, common
+swept-solid/profile and faceted building geometry, and basic surface colors.
+Space representations are omitted. This is a building geometry preview, not a
+complete BIM viewer: unsupported representation types may be omitted. IFC4/4.3,
+IFCZIP, IFCXML, annotations, and full material/texture graphs are unsupported.
+
+All five new extensions accept file, item, or anonymous stream initialization.
+The native scene reader limits hierarchy depth to 64, visits to 100,000, polygons
+to 4,096 corners, and expanded polygon storage to 300 MiB. All formats retain
+the Explorer worker's five-second deadline and five-million-triangle ceiling;
+complex models can exceed those limits and produce no thumbnail.

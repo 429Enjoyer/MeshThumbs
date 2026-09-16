@@ -427,7 +427,7 @@ fn mesh(
     Ok(())
 }
 
-fn triangulate(ids: &[usize], points: &[Vec3]) -> Result<Vec<[usize; 3]>> {
+pub(super) fn triangulate(ids: &[usize], points: &[Vec3]) -> Result<Vec<[usize; 3]>> {
     if ids.len() == 3 {
         return Ok(vec![[0, 1, 2]]);
     }
@@ -493,7 +493,7 @@ fn triangulate(ids: &[usize], points: &[Vec3]) -> Result<Vec<[usize; 3]>> {
                 break;
             }
         }
-        let (index, triangle) = ear.context("USD polygon cannot be triangulated")?;
+        let (index, triangle) = ear.context("polygon cannot be triangulated")?;
         triangles.push(triangle);
         remaining.remove(index);
     }

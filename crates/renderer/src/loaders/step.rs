@@ -14,7 +14,7 @@ pub(super) fn load(path: &Path, budget: usize) -> anyhow::Result<crate::Scene> {
 }
 
 #[cfg(windows)]
-mod windows {
+pub(super) mod windows {
     use crate::{Scene, Triangle, Vertex};
     use anyhow::{bail, ensure, Context, Result};
     use glam::{Vec2, Vec3};
@@ -30,7 +30,7 @@ mod windows {
         fn GetProcAddress(module: *mut c_void, name: *const c_char) -> *mut c_void;
         fn FreeLibrary(module: *mut c_void) -> i32;
     }
-    struct Backend(*mut c_void);
+    pub(crate) struct Backend(*mut c_void);
     impl Drop for Backend {
         fn drop(&mut self) {
             unsafe {
@@ -40,12 +40,15 @@ mod windows {
     }
     impl Backend {
         fn open() -> Result<Self> {
+            Self::open_module("step", "meshthumbs_step.dll")
+        }
+        pub(crate) fn open_module(directory: &str, filename: &str) -> Result<Self> {
             let executable = std::env::current_exe()?;
             let dll = executable
                 .parent()
                 .context("missing executable directory")?
-                .join("step")
-                .join("meshthumbs_step.dll");
+                .join(directory)
+                .join(filename);
             let path = dll
                 .as_os_str()
                 .encode_wide()
@@ -56,17 +59,17 @@ mod windows {
             let handle = unsafe { LoadLibraryExW(path.as_ptr(), std::ptr::null_mut(), 0x1100) };
             ensure!(
                 !handle.is_null(),
-                "cannot load STEP backend {}: {}",
+                "cannot load native backend {}: {}",
                 dll.display(),
                 std::io::Error::last_os_error()
             );
             Ok(Self(handle))
         }
-        fn symbol(&self, name: &CStr) -> Result<*mut c_void> {
+        pub(crate) fn symbol(&self, name: &CStr) -> Result<*mut c_void> {
             let address = unsafe { GetProcAddress(self.0, name.as_ptr()) };
             ensure!(
                 !address.is_null(),
-                "STEP backend is missing {}",
+                "native backend is missing {}",
                 name.to_string_lossy()
             );
             Ok(address)
@@ -119,7 +122,15 @@ mod windows {
         let backend = Backend::open()?;
         let abi: Abi = unsafe { std::mem::transmute(backend.symbol(c"meshthumbs_step_abi")?) };
         ensure!(unsafe { abi() } == 1, "incompatible STEP backend ABI");
-        let load: Load = unsafe { std::mem::transmute(backend.symbol(c"meshthumbs_step_load")?) };
+        let entry = if path
+            .extension()
+            .is_some_and(|e| e.eq_ignore_ascii_case("igs") || e.eq_ignore_ascii_case("iges"))
+        {
+            c"meshthumbs_iges_load"
+        } else {
+            c"meshthumbs_step_load"
+        };
+        let load: Load = unsafe { std::mem::transmute(backend.symbol(entry)?) };
         let path = path
             .as_os_str()
             .encode_wide()

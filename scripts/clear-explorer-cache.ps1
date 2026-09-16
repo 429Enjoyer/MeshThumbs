@@ -1,8 +1,52 @@
 param(
-    [switch]$NoRestartExplorer
+    [switch]$NoRestartExplorer,
+    # MSI owns file-in-use shutdown/restart through Restart Manager. Its refresh
+    # must not kill Explorer, delete open cache files, or start another window.
+    [switch]$RefreshOnly
 )
 
 $ErrorActionPreference = "SilentlyContinue"
+
+function Send-ShellAssociationChange {
+    if (-not ("MeshThumbs.ShellNotification" -as [type])) {
+        Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+namespace MeshThumbs {
+    public static class ShellNotification {
+        [DllImport("shell32.dll")]
+        private static extern void SHChangeNotify(int eventId, uint flags, IntPtr item1, IntPtr item2);
+
+        public static void AssociationsChanged() {
+            // SHCNE_ASSOCCHANGED, SHCNF_IDLIST | SHCNF_FLUSHNOWAIT:
+            // start delivering cache/handler invalidation before exiting,
+            // without waiting on a busy Explorer window. No Explorer launch.
+            SHChangeNotify(0x08000000, 0x3000, IntPtr.Zero, IntPtr.Zero);
+        }
+    }
+}
+'@ -ErrorAction Stop
+    }
+    [MeshThumbs.ShellNotification]::AssociationsChanged()
+}
+
+function Get-CurrentSessionExplorer {
+    $SessionId = [System.Diagnostics.Process]::GetCurrentProcess().SessionId
+    Get-Process -Name explorer -ErrorAction SilentlyContinue |
+        Where-Object { $_.SessionId -eq $SessionId }
+}
+
+function Restore-ExplorerIfNeeded {
+    # Winlogon normally brings the desktop back automatically. Give it time,
+    # then launch only if no Explorer process exists in this user's session.
+    for ($Attempt = 0; $Attempt -lt 20; $Attempt++) {
+        if (Get-CurrentSessionExplorer) { return }
+        Start-Sleep -Milliseconds 250
+    }
+    if (-not (Get-CurrentSessionExplorer)) {
+        Start-Process -FilePath (Join-Path $env:WINDIR "explorer.exe") -WindowStyle Hidden
+    }
+}
 
 function Remove-CacheFiles {
     param([string[]]$Paths)
@@ -40,7 +84,12 @@ $providerClsids = @(
     "{991F57D3-64BA-42C9-A65C-19530FF5C176}",
     "{D84B7C81-992B-480A-9108-17321DCF1410}",
     "{4C93500D-0E9B-46EC-9E14-831C72A0B34C}",
-    "{EFE86458-F28C-43FE-BD01-FD661C662344}"
+    "{EFE86458-F28C-43FE-BD01-FD661C662344}",
+    "{C20FDBFB-A119-402B-9DF4-87768E6FB3AB}",
+    "{3604F66F-141E-4741-BB85-6B5D1853C553}",
+    "{C370DCC3-81F8-4B5A-9562-957D3588222B}",
+    "{5EABC4CA-0201-41A3-B6BC-F325AEFB5030}",
+    "{422DE617-9A3A-41AE-96B9-19E0ED555129}"
 )
 
 function Remove-ThumbnailKeyIfOurs {
@@ -53,7 +102,7 @@ function Remove-ThumbnailKeyIfOurs {
 }
 
 function Remove-CurrentUserShellOverrides {
-    foreach ($ext in ".obj", ".fbx", ".glb", ".gltf", ".stl", ".dae", ".ply", ".3ds", ".3mf", ".vrm", ".blend", ".x3d", ".off", ".usd", ".usda", ".usdc", ".usdz", ".wrl", ".vrml", ".step", ".stp") {
+    foreach ($ext in ".obj", ".fbx", ".glb", ".gltf", ".stl", ".dae", ".ply", ".3ds", ".3mf", ".vrm", ".blend", ".x3d", ".off", ".usd", ".usda", ".usdc", ".usdz", ".wrl", ".vrml", ".step", ".stp", ".abc", ".igs", ".iges", ".3dm", ".ifc") {
         Remove-ThumbnailKeyIfOurs "HKCU:\Software\Classes\$ext\shellex\$thumbHandler"
         Remove-ThumbnailKeyIfOurs "HKCU:\Software\Classes\SystemFileAssociations\$ext\shellex\$thumbHandler"
 
@@ -68,12 +117,25 @@ function Remove-CurrentUserShellOverrides {
     }
 }
 
-Write-Host "Stopping Explorer thumbnail hosts..."
-Get-Process explorer,dllhost -ErrorAction SilentlyContinue | Stop-Process -Force
-Start-Sleep -Milliseconds 800
-
 Write-Host "Removing stale current-user shell overrides..."
 Remove-CurrentUserShellOverrides
+
+if ($RefreshOnly) {
+    Write-Host "Notifying Windows of updated thumbnail handlers..."
+    Send-ShellAssociationChange
+    Write-Host "Done. Windows Installer manages any required application restart."
+    return
+}
+
+# Explicit manual cache reset only. Never stop other sessions or unrelated COM
+# surrogate processes; the installer always takes the RefreshOnly branch above.
+$Explorers = @(Get-CurrentSessionExplorer)
+$ExplorerWasRunning = $Explorers.Count -gt 0
+if ($ExplorerWasRunning) {
+    Write-Host "Stopping Explorer in the current session..."
+    $Explorers | Stop-Process -Force
+    Start-Sleep -Milliseconds 800
+}
 
 Write-Host "Clearing Explorer thumbnail and icon cache databases..."
 Remove-CacheFiles @($explorerCacheDir)
@@ -86,9 +148,10 @@ if (Test-Path -LiteralPath $ie4uinit) {
     & $ie4uinit -show | Out-Null
 }
 
-if (-not $NoRestartExplorer) {
-    Write-Host "Starting Explorer..."
-    Start-Process explorer.exe
+Send-ShellAssociationChange
+if ($ExplorerWasRunning -and -not $NoRestartExplorer) {
+    Write-Host "Restoring Explorer if Windows has not already restarted it..."
+    Restore-ExplorerIfNeeded
 }
 
 Write-Host "Done. Reopen the model folder and switch the view size once if Explorer still shows stale thumbnails."

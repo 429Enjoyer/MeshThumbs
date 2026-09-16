@@ -1,7 +1,7 @@
 # Example models
 
-These are the fifteen models shown in the [README preview](../docs/images/meshthumbs-preview.png).
-There are **20 model files**, including the USD encodings and VRML/STEP aliases.
+These are the nineteen models shown in the [README preview](../docs/images/meshthumbs-preview.png).
+There are **25 model files**, including the USD encodings and VRML/STEP/IGES aliases.
 All models are in this directory so they can be viewed together in Explorer.
 Keep `assets/`, `textures/`, and `Avocado.mtl` beside them; those files supply
 textures and materials. FBX, GLB, VRM, 3MF, and USDZ include their required assets.
@@ -23,6 +23,10 @@ textures and materials. FBX, GLB, VRM, 3MF, and USDZ include their required asse
 | [GlamVelvetSofa](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/GlamVelvetSofa/README.md) | [Sofa.usd](Sofa.usd), [Sofa.usda](Sofa.usda), [Sofa.usdc](Sofa.usdc), [Sofa.usdz](Sofa.usdz) | Eric Chadwick; © 2021 Wayfair, LLC | [CC BY 4.0](LICENSES/CC-BY-4.0.txt) |
 | CircuitBoard | [CircuitBoard.wrl](CircuitBoard.wrl), [CircuitBoard.vrml](CircuitBoard.vrml) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
 | Bracket | [Bracket.step](Bracket.step), [Bracket.stp](Bracket.stp) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
+| Knot | [Knot.abc](Knot.abc) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
+| Gear | [Gear.igs](Gear.igs), [Gear.iges](Gear.iges) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
+| Vase | [Vase.3dm](Vase.3dm) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
+| House | [House.ifc](House.ifc) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
 
 ## Changes and licensing
 
@@ -53,6 +57,14 @@ Bracket combines CAD boxes and cylinders with boolean cuts and was exported
 as STEP using Open CASCADE. `.vrml` and `.stp` are identical copies of their
 `.wrl` and `.step` counterparts. The four USD encodings render identically.
 
+Knot is a procedural trefoil tube exported from Blender as an Ogawa Alembic
+archive, with rotation samples at frames 1–12; its thumbnail shows frame 1.
+Gear combines cylindrical and box CAD solids with a central cut, exported with
+Open CASCADE; `.igs` and `.iges` contain the same data. Vase is a procedural
+quad mesh with vertex normals, stored as Rhino 8 3DM. House is an original
+IFC2x3 scene of colored extruded profiles. These four models use no third-party
+geometry or textures and retain the MIT terms in `LICENSES/MIT.txt`.
+
 The project's MIT license does **not** relicense third-party models or textures.
 `assets/FlightHelmet/` belongs to FlightHelmet; the Avocado, BarramundiFish, and
 Lantern files in `assets/` retain their corresponding CC0 terms. `textures/`
@@ -68,6 +80,7 @@ With MeshThumbs built, run from the repository root:
 .\target\release\thumbgen.exe .\examples\Bracket.step .\preview.png 768
 ```
 
-STEP requires the bundled `step` backend beside `thumbgen.exe`. See the
+STEP and IGES require the bundled `step` backend beside `thumbgen.exe`.
+Alembic and 3DM require the `scene` backend. See the
 [build instructions](../docs/USAGE.md). These examples are repository assets
 and are not installed by the MSI.

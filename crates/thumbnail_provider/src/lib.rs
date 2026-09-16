@@ -62,13 +62,19 @@ const CLSID_VRML_PROVIDER: GUID = GUID::from_u128(0xd84b7c81_992b_480a_9108_1732
 const CLSID_STEP_PROVIDER: GUID = GUID::from_u128(0x4c93500d_0e9b_46ec_9e14_831c72a0b34c);
 const CLSID_STP_PROVIDER: GUID = GUID::from_u128(0xefe86458_f28c_43fe_bd01_fd661c662344);
 
+const CLSID_ABC_PROVIDER: GUID = GUID::from_u128(0xc20fdbfb_a119_402b_9df4_87768e6fb3ab);
+const CLSID_IGS_PROVIDER: GUID = GUID::from_u128(0x3604f66f_141e_4741_bb85_6b5d1853c553);
+const CLSID_IGES_PROVIDER: GUID = GUID::from_u128(0xc370dcc3_81f8_4b5a_9562_957d3588222b);
+const CLSID_3DM_PROVIDER: GUID = GUID::from_u128(0x5eabc4ca_0201_41a3_b6bc_f325aefb5030);
+const CLSID_IFC_PROVIDER: GUID = GUID::from_u128(0x422de617_9a3a_41ae_96b9_19e0ed555129);
+
 #[derive(Clone, Copy)]
 struct ProviderInfo {
     clsid: GUID,
     extension: &'static str,
 }
 
-const PROVIDERS: [ProviderInfo; 21] = [
+const PROVIDERS: [ProviderInfo; 26] = [
     ProviderInfo {
         clsid: CLSID_OBJ_PROVIDER,
         extension: ".obj",
@@ -152,6 +158,26 @@ const PROVIDERS: [ProviderInfo; 21] = [
     ProviderInfo {
         clsid: CLSID_STP_PROVIDER,
         extension: ".stp",
+    },
+    ProviderInfo {
+        clsid: CLSID_ABC_PROVIDER,
+        extension: ".abc",
+    },
+    ProviderInfo {
+        clsid: CLSID_IGS_PROVIDER,
+        extension: ".igs",
+    },
+    ProviderInfo {
+        clsid: CLSID_IGES_PROVIDER,
+        extension: ".iges",
+    },
+    ProviderInfo {
+        clsid: CLSID_3DM_PROVIDER,
+        extension: ".3dm",
+    },
+    ProviderInfo {
+        clsid: CLSID_IFC_PROVIDER,
+        extension: ".ifc",
     },
 ];
 
