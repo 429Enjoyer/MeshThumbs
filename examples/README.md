@@ -1,7 +1,7 @@
 # Example models
 
-These are the twenty-two models shown in the [README preview](../docs/images/meshthumbs-preview.png).
-There are **28 model files**, including the USD encodings and VRML/STEP/IGES aliases.
+These are the twenty-six models shown in the [README preview](../docs/images/meshthumbs-preview.png).
+There are **32 model files**, including the USD encodings and VRML/STEP/IGES aliases.
 All models are in this directory so they can be viewed together in Explorer.
 Keep `assets/`, `textures/`, and `Avocado.mtl` beside them; those files supply
 textures and materials. FBX, GLB, VRM, 3MF, and USDZ include their required assets.
@@ -30,6 +30,10 @@ textures and materials. FBX, GLB, VRM, 3MF, and USDZ include their required asse
 | Island | [Island.vox](Island.vox) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
 | Satellite | [Satellite.lwo](Satellite.lwo) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
 | House | [House.ifc](House.ifc) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
+| Turret | [Turret.smd](Turret.smd), [texture](assets/Turret.png) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
+| Crate | [Crate.md2](Crate.md2), [PCX skin](assets/Crate.pcx) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
+| Drone | [Drone.md3](Drone.md3), [texture](assets/Drone.png) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
+| Mech | [Mech.md5mesh](Mech.md5mesh), [diffuse texture](assets/Mech_d.tga) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
 
 ## Changes and licensing
 
@@ -76,6 +80,15 @@ panels and a central body. All three models and the badge texture are original
 MIT assets with no third-party geometry, characters, or textures. Recreate them
 with `python scripts/generate-pmx-vox-lwo-examples.py` (Python 3.10+ and Pillow)
 from the repository root. PMX and LWO do not require a separate native backend.
+
+Turret, Crate, Drone, and Mech are original procedural game-format examples,
+© 2026 MeshThumbs contributors, licensed under MIT along with their four textures.
+They contain no third-party game characters, models, or artwork. Turret is an
+SMD reference mesh, Crate has an indexed PCX skin and two MD2 frames, Drone has
+four MD3 surfaces and two frames, and Mech has two weighted joints in MD5MESH.
+The previews show the reference/bind pose or first frame. Recreate these assets
+with `python scripts/generate-game-examples.py` (Python 3.10+ and Pillow); it
+reuses the original mesh-building helpers in the PMX/VOX/LWO example generator.
 
 The project's MIT license does **not** relicense third-party models or textures.
 `assets/FlightHelmet/` belongs to FlightHelmet; the Avocado, BarramundiFish, and

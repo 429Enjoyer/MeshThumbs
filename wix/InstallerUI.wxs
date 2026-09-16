@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <!-- Original FilesInUse replacement. All other dialogs, navigation, fonts
+         and artwork come from the unmodified WiX 3.14.1 WixUI_Minimal library. -->
+    <UI Id="MeshThumbsUI">
+      <Dialog Id="FilesInUse" Width="370" Height="270" Title="[ProductName] Setup" KeepModeless="yes">
+        <Control Id="Retry" Type="PushButton" X="128" Y="243" Width="65" Height="17" Default="yes" Text="Retry">
+          <Publish Event="EndDialog" Value="Retry">1</Publish>
+        </Control>
+        <Control Id="Restart" Type="PushButton" X="15" Y="243" Width="105" Height="17" Text="Restart Explorer">
+          <Publish Event="DoAction" Value="RestartExplorerFromUI">1</Publish>
+        </Control>
+        <Control Id="Ignore" Type="PushButton" X="202" Y="243" Width="65" Height="17" Text="Ignore">
+          <Publish Event="EndDialog" Value="Ignore">1</Publish>
+        </Control>
+        <Control Id="Cancel" Type="PushButton" X="276" Y="243" Width="79" Height="17" Cancel="yes" Text="Cancel">
+          <Publish Event="EndDialog" Value="Exit">1</Publish>
+        </Control>
+        <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="yes" Text="WixUI_Bmp_Banner" />
+        <Control Id="Heading" Type="Text" X="15" Y="6" Width="310" Height="15" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}Files in use" />
+        <Control Id="Description" Type="Text" X="15" Y="23" Width="310" Height="18" Transparent="yes" NoPrefix="yes" Text="Close these applications to continue." />
+        <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+        <Control Id="Explanation" Type="Text" X="20" Y="55" Width="330" Height="30" Text="These applications are using files that setup needs to replace. Explorer may still run after all folder windows are closed." />
+        <Control Id="Processes" Type="ListBox" X="20" Y="89" Width="330" Height="80" Property="FileInUseProcess" Sunken="yes" TabSkip="yes" />
+        <Control Id="RestartNote" Type="Text" X="20" Y="180" Width="330" Height="42" Text="Restart Explorer force-closes your folder windows and interrupts Explorer file operations. The desktop and taskbar briefly disappear. Wait for them to return, then click Retry." />
+        <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+      </Dialog>
+    </UI>
+  </Fragment>
+</Wix>

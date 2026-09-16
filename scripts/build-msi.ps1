@@ -10,7 +10,10 @@ $TargetRoot = if ($env:CARGO_TARGET_DIR) { $env:CARGO_TARGET_DIR } else { Join-P
 $TargetDir = Join-Path $TargetRoot $Configuration
 $WixObj = Join-Path $Root "wix\obj"
 $ProductWxs = Join-Path $Root "wix\Product.wxs"
-$OutputMsi = Join-Path $Root "MeshThumbs-1.0.9-x64.msi"
+$InstallerUiWxs = Join-Path $Root "wix\InstallerUI.wxs"
+$RestartExplorerSource = Get-Content -LiteralPath (Join-Path $Root "scripts\restart-explorer.ps1") -Raw
+$RestartExplorerCommand = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($RestartExplorerSource))
+$OutputMsi = Join-Path $Root "MeshThumbs-1.1.0-x64.msi"
 $LocalWix = Join-Path $Root ".tools\wix314"
 
 if (-not $SkipBuild) {
@@ -26,6 +29,26 @@ if (-not (Test-Path (Join-Path $TargetDir "thumbnail_provider.dll")) -or -not (T
 }
 
 New-Item -ItemType Directory -Force -Path $WixObj | Out-Null
+
+# Feed the project's actual license to the standard WiX welcome/license page.
+$LicenseText = Get-Content -LiteralPath (Join-Path $Root "LICENSE") -Raw
+$LicenseText += "`r`nThird-party components retain their own terms. See THIRD-PARTY-NOTICES.txt for notices and source information.`r`n"
+$LicenseRtf = $LicenseText.Replace('\', '\\').Replace('{', '\{').Replace('}', '\}')
+$LicenseRtf = $LicenseRtf -replace '\r?\n', '\par '
+$LicenseRtf = [regex]::Replace($LicenseRtf, '[^\x00-\x7F]', { param($match) '\u' + [int][char]$match.Value + '?' })
+[IO.File]::WriteAllText((Join-Path $WixObj "License.rtf"), ('{\rtf1\ansi\deff0{\fonttbl{\f0 Segoe UI;}}\f0\fs18 ' + $LicenseRtf + '}'), [Text.Encoding]::ASCII)
+
+# Accompany the compiled UI with this build's original installer authoring.
+Add-Type -AssemblyName System.IO.Compression
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+$InstallerSourcePath = Join-Path $WixObj "meshthumbs-installer-source.zip"
+$SourceStream = [IO.File]::Open($InstallerSourcePath, [IO.FileMode]::Create)
+$SourceZip = New-Object IO.Compression.ZipArchive($SourceStream, [IO.Compression.ZipArchiveMode]::Create)
+try {
+    foreach ($Relative in @("wix/Product.wxs", "wix/InstallerUI.wxs", "wix/MeshThumbsWixUIExtension.cs", "scripts/build-msi.ps1", "scripts/restart-explorer.ps1", "scripts/clear-explorer-cache.ps1", "LICENSE", "docs/WIX-UI-SOURCE.md")) {
+        [void][IO.Compression.ZipFileExtensions]::CreateEntryFromFile($SourceZip, (Join-Path $Root $Relative), $Relative)
+    }
+} finally { $SourceZip.Dispose(); $SourceStream.Dispose() }
 
 $StepDir = Join-Path $TargetDir "step"
 $StepManifest = Join-Path $StepDir "runtime-files.txt"
@@ -86,13 +109,24 @@ if (-not $light -and (Test-Path (Join-Path $LocalWix "light.exe"))) {
     $light = Get-Item (Join-Path $LocalWix "light.exe")
 }
 if ($candle -and $light) {
-    & $candle.FullName -arch x64 "-dTargetDir=$TargetDir" "-dProjectDir=$Root" -out (Join-Path $WixObj "Product.wixobj") $ProductWxs
+    $UiExtension = Join-Path (Split-Path -Parent $light.FullName) "WixUIExtension.dll"
+    if (-not (Test-Path -LiteralPath $UiExtension)) { throw "WixUIExtension.dll is required beside light.exe." }
+    # WiX auto-includes its FilesInUse dialog. Filter that one library section
+    # while keeping the standard Minimal dialogs/navigation and assets intact.
+    $Csc = Join-Path $env:WINDIR "Microsoft.NET\Framework64\v4.0.30319\csc.exe"
+    $WixSdk = Join-Path (Split-Path -Parent $light.FullName) "wix.dll"
+    $UiAdapter = Join-Path $WixObj "MeshThumbsWixUIExtension.dll"
+    & $Csc /nologo /target:library "/reference:$WixSdk" "/reference:$UiExtension" "/out:$UiAdapter" (Join-Path $Root "wix\MeshThumbsWixUIExtension.cs")
+    if ($LASTEXITCODE -ne 0) { throw "WiX UI adapter compilation failed." }
+    & $candle.FullName -arch x64 "-dTargetDir=$TargetDir" "-dProjectDir=$Root" "-dRestartExplorerCommand=$RestartExplorerCommand" -out (Join-Path $WixObj "Product.wixobj") $ProductWxs
     if ($LASTEXITCODE -ne 0) { throw "WiX compilation failed." }
+    & $candle.FullName -arch x64 -out (Join-Path $WixObj "InstallerUI.wixobj") $InstallerUiWxs
+    if ($LASTEXITCODE -ne 0) { throw "Installer UI compilation failed." }
     & $candle.FullName -arch x64 -out (Join-Path $WixObj "StepRuntime.wixobj") $StepWxs
     if ($LASTEXITCODE -ne 0) { throw "STEP runtime WiX compilation failed." }
     & $candle.FullName -arch x64 -out (Join-Path $WixObj "SceneRuntime.wixobj") $SceneWxs
     if ($LASTEXITCODE -ne 0) { throw "Scene runtime WiX compilation failed." }
-    & $light.FullName -out $OutputMsi (Join-Path $WixObj "Product.wixobj") (Join-Path $WixObj "StepRuntime.wixobj") (Join-Path $WixObj "SceneRuntime.wixobj")
+    & $light.FullName -ext $UiAdapter -cultures:en-us -out $OutputMsi (Join-Path $WixObj "Product.wixobj") (Join-Path $WixObj "InstallerUI.wixobj") (Join-Path $WixObj "StepRuntime.wixobj") (Join-Path $WixObj "SceneRuntime.wixobj")
     exit $LASTEXITCODE
 }
 

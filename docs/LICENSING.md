@@ -56,7 +56,12 @@ the existing Assimp dependency; no new Rust dependency is added.
 When updating dependencies, compare the locked Windows dependency graph with
 the notice inventory and retain the applicable license texts and source links.
 When changing compilers, update the runtime notices as well. This inventory
-corresponds to the Rust 1.98.1 / MinGW build of MeshThumbs 1.0.8.
+corresponds to the Rust 1.98.1 / MinGW build of MeshThumbs 1.1.0.
+
+The standard WiX 3.14.1 installer dialogs and artwork retain MS-RL. Their
+unmodified sources, license, and this build's original installer authoring
+accompany the MSI as two source archives. See [installer UI sources](WIX-UI-SOURCE.md).
+The independent MeshThumbs application code remains MIT.
 
 ## Preview assets
 
@@ -71,6 +76,8 @@ family, a BSD-2-Clause 3MF sample, a VRM Public License 1.0 avatar with its
 embedded usage settings, and original MIT-licensed circuit board and bracket
 models for VRML and STEP, plus original MIT-licensed knot, gear, vase, and house
 models for Alembic, IGES, 3DM, and IFC.
+The original robot, island, satellite, turret, crate, drone, and mech examples
+and their textures for PMX, VOX, LWO, SMD, MD2, MD3, and MD5MESH are also MIT.
 The [examples](../examples/README.md) directory redistributes the corresponding
 model files and required textures under those same licenses. It includes license
 texts, credits, conversion notes, and the unmodified VRM sample's license settings.

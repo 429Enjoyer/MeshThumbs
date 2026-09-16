@@ -1,7 +1,7 @@
 param(
     [switch]$NoRestartExplorer,
-    # MSI owns file-in-use shutdown/restart through Restart Manager. Its refresh
-    # must not kill Explorer, delete open cache files, or start another window.
+    # MSI handles locked files and any required reboot. Its refresh must not
+    # kill Explorer, delete open cache files, or start another window.
     [switch]$RefreshOnly
 )
 
@@ -92,7 +92,11 @@ $providerClsids = @(
     "{422DE617-9A3A-41AE-96B9-19E0ED555129}",
     "{C0036F44-536A-4952-9F4C-9F088FFB5241}",
     "{DBD5A742-3E62-4AA6-88B8-8ABEA8DD3B27}",
-    "{8B08C226-6E4B-4D15-9629-A724BC4B753B}"
+    "{8B08C226-6E4B-4D15-9629-A724BC4B753B}",
+    "{07064A7A-86C6-43A2-86E8-E389CE69F157}",
+    "{DDA72EDB-1092-43CF-B3D6-5C96A5151477}",
+    "{4F1C159E-6B46-4CC9-B992-44DC908EC1FC}",
+    "{4BAC9304-92F2-4177-82ED-FB4A9989CAAA}"
 )
 
 function Remove-ThumbnailKeyIfOurs {
@@ -105,7 +109,7 @@ function Remove-ThumbnailKeyIfOurs {
 }
 
 function Remove-CurrentUserShellOverrides {
-    foreach ($ext in ".obj", ".fbx", ".glb", ".gltf", ".stl", ".dae", ".ply", ".3ds", ".3mf", ".vrm", ".blend", ".x3d", ".off", ".usd", ".usda", ".usdc", ".usdz", ".wrl", ".vrml", ".step", ".stp", ".abc", ".igs", ".iges", ".3dm", ".ifc", ".pmx", ".vox", ".lwo") {
+    foreach ($ext in ".obj", ".fbx", ".glb", ".gltf", ".stl", ".dae", ".ply", ".3ds", ".3mf", ".vrm", ".blend", ".x3d", ".off", ".usd", ".usda", ".usdc", ".usdz", ".wrl", ".vrml", ".step", ".stp", ".abc", ".igs", ".iges", ".3dm", ".ifc", ".pmx", ".vox", ".lwo", ".smd", ".md2", ".md3", ".md5mesh") {
         Remove-ThumbnailKeyIfOurs "HKCU:\Software\Classes\$ext\shellex\$thumbHandler"
         Remove-ThumbnailKeyIfOurs "HKCU:\Software\Classes\SystemFileAssociations\$ext\shellex\$thumbHandler"
 
@@ -126,7 +130,7 @@ Remove-CurrentUserShellOverrides
 if ($RefreshOnly) {
     Write-Host "Notifying Windows of updated thumbnail handlers..."
     Send-ShellAssociationChange
-    Write-Host "Done. Windows Installer manages any required application restart."
+    Write-Host "Done. Windows Installer reports any required reboot for locked files."
     return
 }
 

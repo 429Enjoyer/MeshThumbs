@@ -10,7 +10,7 @@ pub const MAX_MODEL_BYTES: u64 = 300 * 1024 * 1024;
 pub const SUPPORTED_EXTENSIONS: &[&str] = &[
     "obj", "fbx", "glb", "gltf", "stl", "dae", "ply", "3ds", "3mf", "vrm", "blend", "x3d", "off",
     "usd", "usda", "usdc", "usdz", "wrl", "vrml", "step", "stp", "abc", "igs", "iges", "3dm",
-    "ifc", "pmx", "vox", "lwo",
+    "ifc", "pmx", "vox", "lwo", "smd", "md2", "md3", "md5mesh",
 ];
 
 #[derive(Clone, Debug)]

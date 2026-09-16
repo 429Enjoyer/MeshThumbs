@@ -9,6 +9,7 @@ use crate::{RenderError, Scene, Texture, Triangle, Vertex, WrapMode};
 mod legacy;
 mod native_scene;
 mod off;
+mod pcx;
 mod step;
 mod threemf;
 mod usd;
@@ -38,7 +39,8 @@ pub(crate) fn load_scene(path: &Path, max_triangles: usize) -> Result<Scene, Ren
             usd::load(path, max_triangles).map_err(RenderError::Load)
         }
         "fbx" => load_fbx(path).map_err(RenderError::Load),
-        "stl" | "ply" | "dae" | "3ds" | "x3d" | "off" | "wrl" | "vrml" | "ifc" | "pmx" | "lwo" => {
+        "stl" | "ply" | "dae" | "3ds" | "x3d" | "off" | "wrl" | "vrml" | "ifc" | "pmx" | "lwo"
+        | "smd" | "md2" | "md3" | "md5mesh" => {
             legacy::load(path, max_triangles).map_err(RenderError::Load)
         }
         _ => Err(RenderError::UnsupportedFormat),

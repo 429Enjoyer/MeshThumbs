@@ -6,24 +6,54 @@ Run the commands below from the repository root.
 
 ## Install and upgrade
 
-The rebuilt 1.0.8 MSI can replace an earlier 1.0.8 MSI installation; Windows
-Installer treats matching versions as upgrades for this package.
+The 1.1.0 MSI upgrades earlier releases, including local 1.0.10 builds. Matching
+versions are also treated as upgrades. The previous release is removed inside
+the upgrade transaction after the new shared components are installed.
 
-Starting with the rebuilt 1.0.8, the installer's refresh actions notify Windows
-that thumbnail associations changed; they do not stop or start Explorer or
-delete its open cache databases.
-Windows Installer's Restart Manager remains responsible for applications using
-the old DLL, including shutdown/recovery when needed. Windows may instead ask
-for a reboot if a file cannot be released. File replacement and registration
-continue through the normal MSI upgrade transaction.
+The interactive installer uses the standard WiX Minimal welcome/license,
+progress, completion, and repair/remove dialogs. The license page displays the
+project MIT license. Only the files-in-use dialog is customized to add the
+Restart Explorer button.
 
-The uninstall refresh is skipped when removing a package as part of an upgrade.
-The first upgrade **from the original 1.0.8 build or an earlier release** may
-still restart Explorer through
-the old installer's cached uninstall action; the new MSI cannot change that
-already-installed action. Later upgrades between fixed versions do not run it.
-Windows may restore previously open folder windows; the refresh script does
-not create new ones.
+If the installer lists **Windows Explorer** as using a file, closing folder
+windows may not be enough: Explorer also runs the desktop and taskbar. In the
+interactive installer, click **Restart Explorer**, wait for the desktop to
+return, then click **Retry**. This forcibly closes Explorer's folder windows
+and interrupts its file operations; finish copies/moves before using it.
+The button only targets the current user's Windows Explorer processes in the
+current session. It waits for Windows recovery before using one fallback launch,
+so it does not deliberately open another Explorer when one has already returned.
+Other applications in the list must be closed separately.
+
+The restart script is embedded in the MSI and works before the old installation
+is replaced. It only runs on a button click; silent/basic-UI deployments do not
+execute it. Double-click the rebuilt MSI for the custom dialog (or use `/qf`).
+`/qb` uses Windows Installer's built-in dialog without the extra button; `/qn`
+remains unattended. If an older installer dialog is already open, cancel it
+and reopen the rebuilt MSI. The **Ignore** option may require a Windows restart.
+
+The installer uses `MSIRESTARTMANAGERCONTROL=DisableShutdown`: Restart Manager
+still detects files in use, but the package does not ask it to automatically
+shut down Explorer. If a DLL remains locked, Windows Installer may request a
+Windows restart to complete file replacement. Honor that request before judging
+the new thumbnails; the old DLL can remain active until then. Reboot requests
+are not suppressed. Silent deployments should handle MSI exit code 3010.
+
+This avoids the failed shutdown/restart path observed in Windows event logs
+(Restart Manager 10006 and 10010, including an application/conductor SID mismatch).
+The provider now permits COM to unload its DLL after the last factory, provider
+object, and server lock is released; an active thumbnail request keeps it loaded.
+Unloading is controlled by Windows and is not guaranteed to happen immediately.
+
+The refresh action only removes stale current-user overrides and sends a shell
+association notification. It does not stop/start Explorer or delete open cache
+databases. The explicit Restart Explorer button is a separate UI action and
+does not delete caches or registry entries. Old-product removal skips the
+refresh notification during an upgrade.
+The cached uninstaller of a previous build still carries its own policy; in
+particular, original 1.0.8 and earlier builds can run their old restart script.
+The new package cannot rewrite those cached actions. A first transition from
+an older package may still require a reboot or encounter its restart behavior.
 
 For an explicit manual deep cache reset, `scripts/clear-explorer-cache.ps1`
 still clears cache files and restarts Explorer in the current session only.
@@ -34,7 +64,7 @@ process/cache-file changes. The MSI always uses `-RefreshOnly`.
 
 This follows Microsoft's guidance for
 [shell handler notification](https://learn.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shchangenotify)
-and [Restart Manager integration](https://learn.microsoft.com/en-us/windows/win32/msi/using-windows-installer-with-restart-manager).
+and [Restart Manager control](https://learn.microsoft.com/en-us/windows/win32/msi/msirestartmanagercontrol).
 
 ## CLI
 
@@ -47,6 +77,9 @@ cargo run -p thumbgen -- model.glb preview.png 256
 ## Build
 
 Requires Windows x64, Rust 1.96+, an x64 C++ compiler, CMake 3.20+, and WiX 3.14.
+Include `WixUIExtension.dll` beside the WiX tools; packaging uses the Windows
+.NET Framework 4 C# compiler for the small UI build adapter. See
+[installer UI sources](WIX-UI-SOURCE.md) for the pinned library and licenses.
 The native backends need Git and a C++17 compiler; MinGW builds require its POSIX-thread
 variant. The first build downloads the pinned Open CASCADE 7.9.3 source and
 compiles it, which takes substantially longer than incremental Rust builds.
@@ -219,3 +252,39 @@ PMX and LWO require file or filesystem-backed item initialization in Explorer
 so relative textures retain their original paths. Anonymous streams are not
 advertised for these two formats. VOX is self-contained and accepts all three
 initialization methods. Missing optional textures fall back to material colors.
+
+
+## SMD, MD2, MD3, and MD5MESH
+
+These game-model formats use the bundled Assimp reader; a game or modeling
+application does not need to be installed. All four require a file or
+filesystem-backed item in Explorer to resolve local textures. Anonymous streams
+are not advertised. The same file, triangle, and Explorer timeout limits apply.
+
+- **SMD:** version 1 reference mesh geometry, stored normals, and UVs. Model-space
+  Z-up coordinates are converted to Y-up. Skeleton-only/animation-only SMDs have
+  no preview; bone animation, VTA morphs, and animation-list autoloading are disabled.
+- **MD2:** version 8 geometry, normals, UVs, the first vertex-animation frame,
+  and the first declared skin. Later frames and GL-command rendering are not used.
+- **MD3:** version 15 surfaces, normals, UVs, and the first vertex-animation frame.
+  Local `<model>_default.skin` mappings may override surface image names. Each
+  selected file is rendered independently: adjacent head/upper/lower files are
+  not assembled, and tags, animation, and Quake shader scripts are not rendered.
+- **MD5MESH:** version 10 mesh geometry reconstructed from joint transforms and
+  weighted vertex offsets in the bind pose, with UVs and local diffuse textures.
+  LF and CRLF line endings are accepted. MD5ANIM and MD5CAMERA are not registered
+  or automatically loaded.
+
+Keep referenced textures beside the model or in its relative subfolders. Exact
+paths are tried first, with a filename-only fallback beside the model. Image
+names without extensions try TGA, PNG, JPEG, DDS, BMP, then PCX. An extensionless
+MD5 shader name uses Assimp's `<name>_d.tga` diffuse convention. PCX v5 supports
+8-bit indexed images with a trailing 256-color palette, or three 8-bit RGB planes,
+with raw or scanline RLE pixels; limits are 64 MiB input/decoded scanlines,
+8192 pixels per dimension, and 16,777,216 pixels. Other PCX variants are unsupported.
+PCX is a texture decoder, not an additional model extension.
+
+Missing or unsupported textures fall back to material colors. Game installations,
+PAK/PK3/PK4 archives, VMT/VTF materials, Doom material declarations, shader effects,
+and normal/specular maps are not resolved. Extract geometry and supported image
+textures before requesting a thumbnail.

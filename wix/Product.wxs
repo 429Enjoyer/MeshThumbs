@@ -4,7 +4,7 @@
     Id="*"
     Name="MeshThumbs"
     Language="1033"
-    Version="1.0.9"
+    Version="1.1.0"
     Manufacturer="MeshThumbs"
     UpgradeCode="5d411f35-6764-41dd-ae2b-20792d111c23">
 
@@ -15,8 +15,22 @@
       Platform="x64"
       Description="Windows Explorer thumbnails for 3D models" />
 
-    <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="A newer version of MeshThumbs is already installed." />
+    <!-- Install shared components before retiring the old product. Removing the
+         old package first exposes a missing/mixed worker while Explorer is live. -->
+    <MajorUpgrade AllowSameVersionUpgrades="yes" Schedule="afterInstallExecute" DowngradeErrorMessage="A newer version of MeshThumbs is already installed." />
+    <!-- RM can fail to close/restart the desktop across installer/user contexts.
+         Retain file-in-use detection; let MSI request a reboot for locked files
+         instead of automatically shutting down Explorer. Do not suppress reboot. -->
+    <Property Id="MSIRESTARTMANAGERCONTROL" Value="DisableShutdown" Secure="yes" />
     <MediaTemplate EmbedCab="yes" />
+    <UIRef Id="MeshThumbsUI" />
+    <UIRef Id="WixUI_Minimal" />
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.ProjectDir)\wix\obj\License.rtf" />
+    <!-- Available before InstallFiles: embed the exact script in this MSI,
+         never depend on the older copy installed on the user's computer. -->
+    <Property Id="MeshThumbsExplorerScript" Value="$(var.RestartExplorerCommand)" Hidden="yes" />
+    <CustomAction Id="RestartExplorerFromUI" Directory="TARGETDIR" Execute="immediate" Return="ignore"
+      ExeCommand="&quot;[System64Folder]WindowsPowerShell\v1.0\powershell.exe&quot; -NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -EncodedCommand [MeshThumbsExplorerScript]" />
 
     <CustomAction
       Id="ClearExplorerCacheOnInstall"
@@ -34,8 +48,8 @@
 
     <InstallExecuteSequence>
       <Custom Action="ClearExplorerCacheOnInstall" After="InstallFinalize">NOT REMOVE="ALL"</Custom>
-      <!-- The new package refreshes after upgrade. Keep Restart Manager enabled
-           so Windows Installer can release in-use DLLs and restore applications. -->
+      <!-- Only the new package refreshes after upgrade. Shared components remain
+           installed during old-product removal; no custom Explorer restart. -->
       <Custom Action="ClearExplorerCacheOnUninstall" Before="RemoveFiles">REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
     </InstallExecuteSequence>
 
@@ -59,6 +73,12 @@
     </Directory>
 
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Component Id="WixUiSources" Guid="*" Win64="yes">
+        <File Id="WixUiSource" Source="$(var.ProjectDir)\docs\third-party\wix-source-3.14.1.zip" KeyPath="yes" />
+      </Component>
+      <Component Id="InstallerSources" Guid="*" Win64="yes">
+        <File Id="InstallerSource" Source="$(var.ProjectDir)\wix\obj\meshthumbs-installer-source.zip" KeyPath="yes" />
+      </Component>
       <Component Id="ThumbnailProviderDll" Guid="dedfa04d-b418-4403-b323-bf2e5b23ac3e" Win64="yes">
         <File Id="ThumbDll" Source="$(var.TargetDir)\thumbnail_provider.dll" KeyPath="yes" />
         <File Id="ThumbnailWorker" Source="$(var.TargetDir)\thumbgen.exe" />
@@ -372,6 +392,50 @@
         </RegistryKey>
         <RegistryKey Root="HKCR" Key="CLSID\{8B08C226-6E4B-4D15-9629-A724BC4B753B}">
           <RegistryValue Type="string" Value="MeshThumbs Thumbnail Provider LWO" />
+          <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
+          <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key=".smd\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
+          <RegistryValue Type="string" Value="{07064A7A-86C6-43A2-86E8-E389CE69F157}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="SystemFileAssociations\.smd\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
+          <RegistryValue Type="string" Value="{07064A7A-86C6-43A2-86E8-E389CE69F157}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="CLSID\{07064A7A-86C6-43A2-86E8-E389CE69F157}">
+          <RegistryValue Type="string" Value="MeshThumbs Thumbnail Provider SMD" />
+          <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
+          <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key=".md2\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
+          <RegistryValue Type="string" Value="{DDA72EDB-1092-43CF-B3D6-5C96A5151477}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="SystemFileAssociations\.md2\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
+          <RegistryValue Type="string" Value="{DDA72EDB-1092-43CF-B3D6-5C96A5151477}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="CLSID\{DDA72EDB-1092-43CF-B3D6-5C96A5151477}">
+          <RegistryValue Type="string" Value="MeshThumbs Thumbnail Provider MD2" />
+          <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
+          <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key=".md3\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
+          <RegistryValue Type="string" Value="{4F1C159E-6B46-4CC9-B992-44DC908EC1FC}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="SystemFileAssociations\.md3\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
+          <RegistryValue Type="string" Value="{4F1C159E-6B46-4CC9-B992-44DC908EC1FC}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="CLSID\{4F1C159E-6B46-4CC9-B992-44DC908EC1FC}">
+          <RegistryValue Type="string" Value="MeshThumbs Thumbnail Provider MD3" />
+          <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
+          <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key=".md5mesh\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
+          <RegistryValue Type="string" Value="{4BAC9304-92F2-4177-82ED-FB4A9989CAAA}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="SystemFileAssociations\.md5mesh\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
+          <RegistryValue Type="string" Value="{4BAC9304-92F2-4177-82ED-FB4A9989CAAA}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="CLSID\{4BAC9304-92F2-4177-82ED-FB4A9989CAAA}">
+          <RegistryValue Type="string" Value="MeshThumbs Thumbnail Provider MD5MESH" />
           <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
           <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
         </RegistryKey>

@@ -2,62 +2,51 @@
 
 [Back to MeshThumbs](../README.md)
 
+## 1.1.0
+
+- Add SMD, MD2, MD3, and MD5MESH support.
+- Add PCX texture support.
+- Fix SMD and MD5MESH previews.
+- Fix texture mapping.
+
 ## 1.0.9
 
-- Add PMX 2.0/2.1 rest-pose previews with diffuse colors and local textures.
-- Add MagicaVoxel VOX previews with palette colors, exposed voxel surfaces,
-  scene transforms, instances, hidden layers, and initial animation frames.
-- Add LightWave LWO mesh previews with surface colors, vertex colors, and local textures.
+- Add PMX, VOX, and LWO support.
 
 ## 1.0.8
 
-- Add Alembic Ogawa previews using the initial authored time, scene transforms,
-  visibility, polygon meshes, and subdivision control meshes.
-- Add IGES surface and solid previews through the existing Open CASCADE backend.
-- Add Rhino 3DM mesh and saved render-mesh previews, including local block instances.
-- Add IFC2x3 building geometry previews through Assimp.
+- Add ABC, IGS, IGES, 3DM, and IFC support.
 
 ## 1.0.7
 
-- Add STEP and STP previews with Open CASCADE tessellation of CAD solids,
-  surfaces, and self-contained assemblies, without a separate CAD application.
-- Load the CAD backend only for STEP files and include replaceable libraries,
-  corresponding source, and license notices in the installer.
+- Add STEP and STP support.
 
 ## 1.0.6
 
-- Add static VRML 2.0 / VRML97 previews for WRL and VRML files, including meshes,
-  primitives, DEF/USE instances, transforms, colors, and local textures.
-- Validate face indices and skip empty groups before importing VRML and X3D.
+- Add WRL and VRML support.
+- Fix VRML and X3D previews.
 
 ## 1.0.5
 
-- Add USD, USDA, USDC, and USDZ previews using a native Rust reader.
-- Support static meshes, basic primitives, scene transforms, local references,
-  vertex colors, material subsets, and UsdPreviewSurface base-color textures.
-- Read USDZ package assets without extracting them to disk or requiring Blender.
-- Preserve original paths for USD and X3D sidecar textures and scene references.
+- Add USD, USDA, USDC, and USDZ support.
+- Fix X3D textures.
 
 ## 1.0.4
 
-- Add static XML X3D previews with DEF/USE instances, materials, and local textures.
-- Add ASCII OFF, COFF, NOFF, and CNOFF meshes with polygon triangulation and vertex colors.
+- Add X3D and OFF support.
 
 ## 1.0.3
 
-- Add BLEND embedded previews without requiring Blender.
-- Support uncompressed, gzip, and Zstandard files, including Blender 5.0+ headers.
+- Add BLEND support.
 
 ## 1.0.2
 
-- Add 3MF meshes, component assemblies, colors, and textures.
-- Add VRM 0.x/1.0 avatar previews.
-- Fix fully transparent texels obscuring geometry behind them.
+- Add 3MF and VRM support.
+- Fix transparent textures.
 
 ## 1.0.1
 
-- Fix dotted PLY previews by rendering mesh surfaces in full.
-- Reject models above five million triangles instead of removing faces.
+- Fix PLY previews.
 
 ## 1.0.0
 

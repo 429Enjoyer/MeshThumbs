@@ -4,7 +4,10 @@ use std::{
     io::Write,
     path::PathBuf,
     ptr::null_mut,
-    sync::{Arc, Mutex},
+    sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc, Mutex,
+    },
 };
 
 use once_cell::sync::Lazy;
@@ -15,8 +18,8 @@ use windows::{
     core::{implement, Error, IUnknown, Interface, Result, GUID, HRESULT, PCWSTR},
     Win32::{
         Foundation::{
-            BOOL, CLASS_E_CLASSNOTAVAILABLE, CLASS_E_NOAGGREGATION, E_FAIL, E_POINTER, S_FALSE,
-            S_OK,
+            BOOL, CLASS_E_CLASSNOTAVAILABLE, CLASS_E_NOAGGREGATION, E_FAIL, E_POINTER,
+            E_UNEXPECTED, S_FALSE, S_OK,
         },
         Graphics::Gdi::{
             CreateDIBSection, BITMAPINFO, BITMAPINFOHEADER, BI_RGB, DIB_RGB_COLORS, HBITMAP,
@@ -72,13 +75,18 @@ const CLSID_PMX_PROVIDER: GUID = GUID::from_u128(0xc0036f44536a49529f4c9f088ffb5
 const CLSID_VOX_PROVIDER: GUID = GUID::from_u128(0xdbd5a7423e624aa688b88abea8dd3b27);
 const CLSID_LWO_PROVIDER: GUID = GUID::from_u128(0x8b08c2266e4b4d159629a724bc4b753b);
 
+const CLSID_SMD_PROVIDER: GUID = GUID::from_u128(0x07064a7a_86c6_43a2_86e8_e389ce69f157);
+const CLSID_MD2_PROVIDER: GUID = GUID::from_u128(0xdda72edb_1092_43cf_b3d6_5c96a5151477);
+const CLSID_MD3_PROVIDER: GUID = GUID::from_u128(0x4f1c159e_6b46_4cc9_b992_44dc908ec1fc);
+const CLSID_MD5MESH_PROVIDER: GUID = GUID::from_u128(0x4bac9304_92f2_4177_82ed_fb4a9989caaa);
+
 #[derive(Clone, Copy)]
 struct ProviderInfo {
     clsid: GUID,
     extension: &'static str,
 }
 
-const PROVIDERS: [ProviderInfo; 29] = [
+const PROVIDERS: [ProviderInfo; 33] = [
     ProviderInfo {
         clsid: CLSID_OBJ_PROVIDER,
         extension: ".obj",
@@ -195,9 +203,45 @@ const PROVIDERS: [ProviderInfo; 29] = [
         clsid: CLSID_LWO_PROVIDER,
         extension: ".lwo",
     },
+    ProviderInfo {
+        clsid: CLSID_SMD_PROVIDER,
+        extension: ".smd",
+    },
+    ProviderInfo {
+        clsid: CLSID_MD2_PROVIDER,
+        extension: ".md2",
+    },
+    ProviderInfo {
+        clsid: CLSID_MD3_PROVIDER,
+        extension: ".md3",
+    },
+    ProviderInfo {
+        clsid: CLSID_MD5MESH_PROVIDER,
+        extension: ".md5mesh",
+    },
 ];
 
 static LOG_LOCK: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
+
+static LIVE_OBJECTS: AtomicUsize = AtomicUsize::new(0);
+static SERVER_LOCKS: AtomicUsize = AtomicUsize::new(0);
+
+// Keep this guard last in each COM object's fields so its resources (including
+// temporary inputs) are dropped before the module becomes eligible for unload.
+struct ModuleObject;
+
+impl ModuleObject {
+    fn new() -> Self {
+        LIVE_OBJECTS.fetch_add(1, Ordering::SeqCst);
+        Self
+    }
+}
+
+impl Drop for ModuleObject {
+    fn drop(&mut self) {
+        LIVE_OBJECTS.fetch_sub(1, Ordering::SeqCst);
+    }
+}
 
 #[implement(
     IInitializeWithFile,
@@ -208,6 +252,7 @@ static LOG_LOCK: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
 struct ThumbnailProvider {
     extension_hint: &'static str,
     path: Mutex<Option<Arc<ModelInput>>>,
+    _module: ModuleObject,
 }
 
 struct ModelInput {
@@ -229,6 +274,7 @@ impl ThumbnailProvider {
         Self {
             extension_hint,
             path: Mutex::new(None),
+            _module: ModuleObject::new(),
         }
     }
 }
@@ -395,6 +441,7 @@ impl IThumbnailProvider_Impl for FileThumbnailProvider_Impl {
 #[implement(IClassFactory)]
 struct ClassFactory {
     provider: ProviderInfo,
+    _module: ModuleObject,
 }
 
 #[allow(non_snake_case)]
@@ -417,7 +464,11 @@ impl IClassFactory_Impl for ClassFactory_Impl {
         let state = ThumbnailProvider::new(self.provider.extension);
         let unknown: IUnknown = if matches!(
             self.provider.extension,
-            ".pmx"
+            ".smd"
+                | ".md2"
+                | ".md3"
+                | ".md5mesh"
+                | ".pmx"
                 | ".lwo"
                 | ".obj"
                 | ".fbx"
@@ -443,7 +494,16 @@ impl IClassFactory_Impl for ClassFactory_Impl {
         }
     }
 
-    fn LockServer(&self, _flock: BOOL) -> Result<()> {
+    fn LockServer(&self, flock: BOOL) -> Result<()> {
+        SERVER_LOCKS
+            .fetch_update(Ordering::SeqCst, Ordering::SeqCst, |count| {
+                if flock.as_bool() {
+                    count.checked_add(1)
+                } else {
+                    count.checked_sub(1)
+                }
+            })
+            .map_err(|_| Error::from(E_UNEXPECTED))?;
         Ok(())
     }
 }
@@ -478,7 +538,11 @@ pub unsafe extern "system" fn DllGetClassObject(
         "v{PROVIDER_VERSION} DllGetClassObject OK {}",
         provider.extension
     ));
-    let factory: IClassFactory = ClassFactory { provider }.into();
+    let factory: IClassFactory = ClassFactory {
+        provider,
+        _module: ModuleObject::new(),
+    }
+    .into();
     let hr = unsafe { factory.query(riid, ppv) };
     if hr.is_ok() {
         S_OK
@@ -489,7 +553,11 @@ pub unsafe extern "system" fn DllGetClassObject(
 
 #[no_mangle]
 pub extern "system" fn DllCanUnloadNow() -> HRESULT {
-    S_FALSE
+    if LIVE_OBJECTS.load(Ordering::SeqCst) == 0 && SERVER_LOCKS.load(Ordering::SeqCst) == 0 {
+        S_OK
+    } else {
+        S_FALSE
+    }
 }
 
 unsafe fn create_hbitmap(pixels: &[u8], width: u32, height: u32) -> Result<HBITMAP> {
@@ -627,4 +695,60 @@ fn write_stream_to_temp_model(stream: &IStream, extension_hint: &str) -> Result<
         path: temporary.to_path_buf(),
         _temporary: Some(temporary),
     })
+}
+
+#[cfg(test)]
+mod lifetime_tests {
+    use super::*;
+
+    unsafe fn factory(clsid: &GUID) -> IClassFactory {
+        let mut raw = null_mut();
+        assert_eq!(
+            DllGetClassObject(clsid, &IClassFactory::IID, &mut raw),
+            S_OK
+        );
+        IClassFactory::from_raw(raw)
+    }
+
+    // One test owns the module-wide counters; no other lifetime tests may run
+    // concurrently against these globals. Exercise both provider wrappers.
+    #[test]
+    fn com_objects_and_server_locks_control_unloading() {
+        unsafe {
+            assert_eq!(DllCanUnloadNow(), S_OK);
+            for clsid in [&CLSID_GLTF_PROVIDER, &CLSID_GLB_PROVIDER] {
+                let factory = factory(clsid);
+                assert_eq!(DllCanUnloadNow(), S_FALSE);
+                let provider: IUnknown = factory.CreateInstance(None).unwrap();
+                let extra = provider.clone();
+                drop(factory);
+                assert_eq!(DllCanUnloadNow(), S_FALSE);
+                drop(provider);
+                assert_eq!(DllCanUnloadNow(), S_FALSE);
+                drop(extra);
+                assert_eq!(DllCanUnloadNow(), S_OK);
+            }
+
+            let factory = factory(&CLSID_GLB_PROVIDER);
+            factory.LockServer(true).unwrap();
+            factory.LockServer(true).unwrap();
+            drop(factory);
+            assert_eq!(DllCanUnloadNow(), S_FALSE);
+            let factory = self::factory(&CLSID_GLB_PROVIDER);
+            factory.LockServer(false).unwrap();
+            drop(factory);
+            assert_eq!(DllCanUnloadNow(), S_FALSE);
+            let factory = self::factory(&CLSID_GLB_PROVIDER);
+            factory.LockServer(false).unwrap();
+            assert!(factory.LockServer(false).is_err()); // Do not underflow.
+            drop(factory);
+            assert_eq!(DllCanUnloadNow(), S_OK);
+
+            let mut raw = null_mut();
+            let unsupported = GUID::from_u128(0xb573f490_8d82_414e_9a76_97033f9f1afe);
+            assert!(DllGetClassObject(&CLSID_GLB_PROVIDER, &unsupported, &mut raw).is_err());
+            assert!(raw.is_null());
+            assert_eq!(DllCanUnloadNow(), S_OK);
+        }
+    }
 }
