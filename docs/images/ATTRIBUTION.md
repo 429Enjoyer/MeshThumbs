@@ -1,11 +1,40 @@
 # Preview credits
 
-The 3MF and VRM thumbnails in `meshthumbs-preview.png` were rendered with
-MeshThumbs from these sample models. The other eight thumbnails are retained
-from the previous README preview.
+`meshthumbs-preview.png` contains ten examples rendered by MeshThumbs. The eight
+earlier models whose provenance was undocumented have been replaced with CC0
+models from the Khronos glTF Sample Assets collection.
+
+## CC0 examples
+
+These sources are pinned to Khronos revision
+`90d7ede14c7e280af263824604b427a1ca02cb66`. Each linked model page identifies its
+authors and [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/)
+dedication. They retain that status; the project MIT license does not replace it.
+
+| Preview | Source model | Credit |
+| --- | --- | --- |
+| 3DS | [Suzanne](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/Suzanne/README.md) | Norbert Nopper / UX3D |
+| DAE | [Lantern](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/Lantern/README.md) | Microsoft (sbtron); Frank Galligan |
+| FBX | [ToyCar](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/ToyCar/README.md) | Guido Odendahl; Eric Chadwick |
+| GLB | [BoomBox](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/BoomBox/README.md) | Microsoft |
+| glTF | [FlightHelmet](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/FlightHelmet/README.md) | Gary Hsu |
+| OBJ | [Avocado](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/Avocado/README.md) | Microsoft |
+| PLY | [BoxVertexColors](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/BoxVertexColors/README.md) | Marco Hutter |
+| STL | [WaterBottle](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/WaterBottle/README.md) | Microsoft |
+
+Changes: models were converted to the displayed file formats where necessary,
+triangulated, framed, rendered, and resized. The ToyCar preview omits the fabric
+and glass props. Suzanne uses a uniform diffuse color; STL omits materials.
+Avocado's base-color texture was extracted and assigned to its OBJ material.
+
+## Other examples
 
 - **3MF:** [dodeca_chain_loop_color.3mf](https://github.com/3MFConsortium/3mf-samples/blob/master/examples/material/dodeca_chain_loop_color.3mf), 3MF Consortium. BSD 2-Clause license, reproduced below.
 - **VRM:** [VRM1_Constraint_Twist_Sample](https://github.com/vrm-c/vrm-specification/tree/master/samples/VRM1_Constraint_Twist_Sample), © 2022 pixiv Inc. [VRM Public License 1.0](https://vrm.dev/licenses/1.0/), with the usage permissions embedded in the sample.
+
+The 3MF and VRM previews retain their previous rendering and are resized for
+the contact sheet. Original model files are not distributed in this repository
+or installer. Source links above identify the original assets and terms.
 
 ## 3MF sample license
 

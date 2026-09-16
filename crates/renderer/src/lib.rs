@@ -1,3 +1,4 @@
+mod blend;
 mod loaders;
 mod raster;
 
@@ -7,7 +8,7 @@ pub use raster::RgbaBitmap;
 
 pub const MAX_MODEL_BYTES: u64 = 300 * 1024 * 1024;
 pub const SUPPORTED_EXTENSIONS: &[&str] = &[
-    "obj", "fbx", "glb", "gltf", "stl", "dae", "ply", "3ds", "3mf", "vrm",
+    "obj", "fbx", "glb", "gltf", "stl", "dae", "ply", "3ds", "3mf", "vrm", "blend",
 ];
 
 #[derive(Clone, Debug)]
@@ -57,6 +58,9 @@ pub fn render_thumbnail(
         return Err(RenderError::Load(anyhow::anyhow!(
             "model exceeds the 300 MiB limit"
         )));
+    }
+    if extension.eq_ignore_ascii_case("blend") {
+        return blend::render(path, options.size.clamp(32, 1024)).map_err(RenderError::Load);
     }
     if options.max_triangles == 0 {
         return Err(RenderError::EmptyModel);

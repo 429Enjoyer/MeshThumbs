@@ -8,6 +8,7 @@ license.workspace = true
 anyhow = "1"
 asset-importer = { version = "0.8", features = ["static-link"] }
 bytemuck = "1"
+flate2 = "1"
 glam = "0.29"
 gltf = { version = "1.4", features = ["import", "KHR_texture_transform", "KHR_materials_unlit"] }
 image = { version = "0.25", default-features = false, features = ["png", "jpeg", "bmp", "tga", "dds"] }
@@ -19,6 +20,7 @@ ufbx = "0.10"
 urlencoding = "2"
 # Reuse the flate2 backend already enabled by PNG decoding; no archive encoders.
 zip = { version = "8.6", default-features = false, features = ["deflate-flate2"] }
+zstd = { version = "0.14", default-features = false }
 
 # asset-importer-sys 0.8 links bundled zlib for MSVC but omits it on MinGW.
 [target.'cfg(all(windows, target_env = "gnu"))'.dependencies]

@@ -6,7 +6,7 @@ use renderer::{render_thumbnail, RenderOptions};
 fn main() -> anyhow::Result<()> {
     let args = std::env::args_os().skip(1).collect::<Vec<_>>();
     if args.len() < 2 {
-        bail!("usage: thumbgen <model.obj|fbx|glb|gltf|stl|dae|ply|3ds|3mf|vrm> <out.png> [size]");
+        bail!("usage: thumbgen <model.obj|fbx|glb|gltf|stl|dae|ply|3ds|3mf|vrm|blend> <out.png> [size]");
     }
 
     let input = PathBuf::from(&args[0]);
