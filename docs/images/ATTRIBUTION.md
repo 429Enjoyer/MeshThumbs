@@ -39,7 +39,7 @@ its materials and sheen effects are omitted.
 - **ASE:** `Arcade.ase`, an original procedural arcade cabinet with an original screen image (`assets/ArcadeScreen.png`), © 2026 MeshThumbs contributors, [MIT](../../LICENSE). No game artwork or characters are used.
 - **LXO:** `Camera.lxo`, an original procedural camera mesh written in the LXOB container, © 2026 MeshThumbs contributors, [MIT](../../LICENSE). No Modo application or third-party geometry was used.
 - **LWS:** `Orbit.lws`, an original LWSC 3 scene with three transformed instances of the original `Satellite.lwo` example, © 2026 MeshThumbs contributors, [MIT](../../LICENSE). Keep the referenced object beside the scene file.
-- **DXF:** `Pavilion.dxf`, an original procedural pavilion exported as ASCII 3DFACE geometry with indexed colors, © 2026 MeshThumbs contributors, [MIT](../../LICENSE). These four examples can be recreated with [the scene example generator](../../scripts/generate-scene-examples.py) and were rendered by MeshThumbs at 768×768 before resizing.
+- **DXF:** `Pavilion.dxf`, an original modular pavilion assembly using ASCII DXF 3DFACE geometry, nested blocks, rotated/mirrored/scaled inserts, and inherited layer/block colors, © 2026 MeshThumbs contributors, [MIT](../../LICENSE). These four examples can be recreated with [the scene example generator](../../scripts/generate-scene-examples.py) and were rendered by MeshThumbs at 768×768 before resizing.
 
 
 - **SMD:** `Turret.smd`, an original procedural turret with two reference bones and an original color atlas (`assets/Turret.png`), © 2026 MeshThumbs contributors, [MIT](../../LICENSE). Rendered as reference geometry with Z-up converted to Y-up.

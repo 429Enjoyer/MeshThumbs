@@ -33,6 +33,7 @@ pub(crate) fn load_scene(path: &Path, max_triangles: usize) -> Result<Scene, Ren
         "vrm" => vrm::load(path).map_err(RenderError::Load),
         "3mf" => threemf::load(path, max_triangles).map_err(RenderError::Load),
         "vox" => vox::load(path, max_triangles).map_err(RenderError::Load),
+        "dxf" => dxf::load(path, max_triangles).map_err(RenderError::Load),
         "abc" | "3dm" => native_scene::load(path, max_triangles).map_err(RenderError::Load),
         "step" | "stp" | "igs" | "iges" => {
             step::load(path, max_triangles).map_err(RenderError::Load)
@@ -42,7 +43,7 @@ pub(crate) fn load_scene(path: &Path, max_triangles: usize) -> Result<Scene, Ren
         }
         "fbx" => load_fbx(path).map_err(RenderError::Load),
         "stl" | "ply" | "dae" | "3ds" | "x3d" | "off" | "wrl" | "vrml" | "ifc" | "pmx" | "lwo"
-        | "smd" | "md2" | "md3" | "md5mesh" | "ase" | "lxo" | "lws" | "dxf" => {
+        | "smd" | "md2" | "md3" | "md5mesh" | "ase" | "lxo" | "lws" => {
             legacy::load(path, max_triangles).map_err(RenderError::Load)
         }
         _ => Err(RenderError::UnsupportedFormat),

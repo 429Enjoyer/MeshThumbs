@@ -98,8 +98,10 @@ reuses the original mesh-building helpers in the PMX/VOX/LWO example generator.
 Arcade, Camera, Orbit, and Pavilion are original MIT examples with no third-party
 geometry or artwork. Arcade is an ASE mesh with an original screen image;
 Camera is a minimal LXOB polygon mesh; Orbit is an LWSC 3 scene that instances
-the original Satellite object with three placements; Pavilion uses DXF 3DFACE
-geometry and indexed colors. Recreate them with
+the original Satellite object with three placements; Pavilion is a modular
+DXF assembly with nested Post/Frame/PavilionModule blocks, a nonzero block base,
+rotated and mirrored/non-uniformly scaled inserts, and ByLayer/ByBlock true colors.
+Its surfaces remain 3DFACE geometry. Recreate them with
 `python scripts/generate-scene-examples.py` (Python 3.10+ and Pillow).
 
 The project's MIT license does **not** relicense third-party models or textures.

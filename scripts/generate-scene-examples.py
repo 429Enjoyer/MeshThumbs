@@ -4,7 +4,6 @@ Python 3.10+ and Pillow; no downloaded geometry or textures.
 """
 from pathlib import Path
 import importlib.util
-import math
 import sys
 from PIL import Image, ImageDraw
 
@@ -52,12 +51,43 @@ def lws(path):
     path.write_text('\n'.join(lines)+'\n',encoding='utf8')
 
 
-def dxf(mesh,path):
-    pairs=[(0,'SECTION'),(2,'HEADER'),(9,'$ACADVER'),(1,'AC1009'),(0,'ENDSEC'),(0,'SECTION'),(2,'ENTITIES')]
-    for points,mat in mesh.faces:
-        pairs += [(0,'3DFACE'),(8,'Pavilion'),(62,[8,145,33,7][mat])]
-        for i,p in enumerate(points+[points[-1]]):
-            for j,v in enumerate(zup(p)): pairs.append((10+10*j+i,f'{v:.7f}'))
+def dxf(path):
+    def faces(mesh,layer,color=256,offset=(0,0,0)):
+        result=[]
+        for points,_ in mesh.faces:
+            result += [(0,'3DFACE'),(8,layer),(62,color)]
+            for i,p in enumerate(points+[points[-1]]):
+                for j,v in enumerate(zup(p)): result.append((10+10*j+i,f'{v+offset[j]:.7f}'))
+        return result
+    def block(name,base,entities):
+        return [(0,'BLOCK'),(8,'0'),(2,name),(70,0),(10,base[0]),(20,base[1]),(30,base[2])]+entities+[(0,'ENDBLK'),(8,'0')]
+    def insert(name,position,layer='0',scale=(1,1,1),angle=0,color=256):
+        return [(0,'INSERT'),(8,layer),(2,name),(62,color),(10,position[0]),(20,position[1]),(30,position[2]),(41,scale[0]),(42,scale[1]),(43,scale[2]),(50,angle)]
+    pairs=[(0,'SECTION'),(2,'HEADER'),(9,'$ACADVER'),(1,'AC1018'),(0,'ENDSEC'),(0,'SECTION'),(2,'TABLES'),(0,'TABLE'),(2,'LAYER'),(70,6)]
+    for name,rgb in [('0',0xffffff),('Supports',0xd1dbe5),('Beam',0xbfa172),('RoofBlue',0x438591),('RoofRust',0xb97150),('Platform',0x747c80)]:
+        pairs += [(0,'LAYER'),(2,name),(70,0),(62,7),(420,rgb),(6,'CONTINUOUS')]
+    pairs += [(0,'ENDTAB'),(0,'ENDSEC'),(0,'SECTION'),(2,'BLOCKS')]
+    post=Mesh(); post.box((0,.95,0),(.22,1.9,.22),0)
+    # Nonzero block base points, nested instances, Layer 0 inheritance, and
+    # roof ByBlock colors all affect the visible geometry in this example.
+    base=(5,-2,1)
+    pairs += block('Post',base,faces(post,'0',offset=base))
+    frame=[]
+    for x in [-1.45,1.45]:
+        for y in [-.95,.95]: frame += insert('Post',(x,y,0))
+    pairs += block('Frame',(0,0,0),frame)
+    beam=Mesh(); beam.box((0,1.92,0),(3.4,.15,2.5),0)
+    roof=Mesh()
+    for side in [-1,1]:
+        points=[(-1.9,2,side*1.45),(1.9,2,side*1.45),(1.9,2.8,0),(-1.9,2.8,0)]
+        roof.face(points if side>0 else points[::-1],0)
+    module=insert('Frame',(0,0,0),'Supports')+faces(beam,'Beam')+faces(roof,'0',color=0)
+    pairs += block('PavilionModule',(0,0,0),module)
+    pairs += [(0,'ENDSEC'),(0,'SECTION'),(2,'ENTITIES')]
+    platform=Mesh(); platform.box((0,.04,0),(7.7,.16,4.2),0)
+    pairs += faces(platform,'Platform')
+    pairs += insert('PavilionModule',(-1.9,0,.12),'RoofBlue',(.78,.85,.85),15)
+    pairs += insert('PavilionModule',(1.9,.2,.12),'RoofRust',(-.72,.78,.72),-20)
     pairs += [(0,'ENDSEC'),(0,'EOF')]
     path.write_text(''.join(f'{code}\n{value}\n' for code,value in pairs),encoding='ascii')
 
@@ -83,14 +113,7 @@ def main():
     geometry.lwo(camera,OUT/'Camera.lxo',[(.19,.23,.28),(.53,.58,.62),(.10,.43,.58)])
     data=bytearray((OUT/'Camera.lxo').read_bytes()); data[8:12]=b'LXOB'; (OUT/'Camera.lxo').write_bytes(data)
     lws(OUT/'Orbit.lws')
-    pavilion=Mesh(); pavilion.box((0,.1,0),(3.7,.2,2.8),0)
-    for x in [-1.45,1.45]:
-        for z in [-.95,.95]: pavilion.box((x,1.05,z),(.22,1.8,.22),3)
-    pavilion.box((0,1.92,0),(3.4,.15,2.5),2)
-    for side in [-1,1]:
-        a=[(-1.9,2,side*1.45),(1.9,2,side*1.45),(1.9,2.8,0),(-1.9,2.8,0)]
-        pavilion.face(a if side>0 else a[::-1],1)
-    dxf(pavilion,OUT/'Pavilion.dxf')
+    dxf(OUT/'Pavilion.dxf')
     print('Generated ASE, LXO, LWS, DXF and the original Arcade screen texture (MIT)')
 
 

@@ -174,6 +174,9 @@ fn draw_triangle(
     if area.abs() < 0.00001 {
         return;
     }
+    let inv_z0 = 1.0 / p[0].z.max(0.0001);
+    let inv_z1 = 1.0 / p[1].z.max(0.0001);
+    let inv_z2 = 1.0 / p[2].z.max(0.0001);
 
     for y in min_y..=max_y {
         for x in min_x..=max_x {
@@ -185,15 +188,14 @@ fn draw_triangle(
                 continue;
             }
 
-            let z = p[0].z * w0 + p[1].z * w1 + p[2].z * w2;
+            // Screen barycentrics interpolate reciprocal camera depth. Linear
+            // camera-Z interpolation lets rear faces punch through sloped ones.
+            let inv_z = inv_z0 * w0 + inv_z1 * w1 + inv_z2 * w2;
+            let z = inv_z.recip();
             let di = (y as u32 * size + x as u32) as usize;
             if z >= depth[di] {
                 continue;
             }
-            let inv_z0 = 1.0 / p[0].z.max(0.0001);
-            let inv_z1 = 1.0 / p[1].z.max(0.0001);
-            let inv_z2 = 1.0 / p[2].z.max(0.0001);
-            let inv_z = inv_z0 * w0 + inv_z1 * w1 + inv_z2 * w2;
             let tex_uv = if inv_z > 0.0 {
                 (uv[0] * inv_z0 * w0 + uv[1] * inv_z1 * w1 + uv[2] * inv_z2 * w2) / inv_z
             } else {
@@ -336,4 +338,58 @@ fn sample_bitmap(pixels: &[u8], size: u32, p: Vec2) -> [u8; 4] {
 fn bitmap_pixel(pixels: &[u8], size: u32, x: u32, y: u32) -> [u8; 4] {
     let i = ((y * size + x) * 4) as usize;
     [pixels[i], pixels[i + 1], pixels[i + 2], pixels[i + 3]]
+}
+
+#[cfg(test)]
+mod depth_tests {
+    use super::*;
+    #[test]
+    fn perspective_depth_keeps_front_surface_in_either_draw_order() {
+        let vertex = crate::Vertex {
+            position: Vec3::ZERO,
+            normal: Vec3::Z,
+            uv: Vec2::ZERO,
+            color: [255; 4],
+        };
+        let front = Triangle {
+            vertices: [vertex; 3],
+            color: [0, 255, 0, 255],
+            texture: None,
+        };
+        let back = Triangle {
+            vertices: [vertex; 3],
+            color: [255, 0, 0, 255],
+            texture: None,
+        };
+        let a = [
+            Vec3::new(0., 0., 1.),
+            Vec3::new(10., 0., 10.),
+            Vec3::new(0., 10., 10.),
+        ];
+        let b = a.map(|p| Vec3::new(p.x, p.y, 3.));
+        for reverse in [false, true] {
+            let mut pixels = vec![0; 12 * 12 * 4];
+            let mut depth = vec![f32::INFINITY; 12 * 12];
+            let draws = if reverse {
+                [(b, &back), (a, &front)]
+            } else {
+                [(a, &front), (b, &back)]
+            };
+            for (positions, triangle) in draws {
+                draw_triangle(
+                    &mut pixels,
+                    &mut depth,
+                    12,
+                    positions,
+                    [Vec3::Z; 3],
+                    [Vec2::ZERO; 3],
+                    triangle,
+                    Vec3::Z,
+                );
+            }
+            let i = 2 * 12 + 2;
+            assert_eq!(&pixels[i * 4..i * 4 + 4], &[0, 255, 0, 255]);
+            assert!((depth[i] - 1. / 0.55).abs() < 1e-5);
+        }
+    }
 }

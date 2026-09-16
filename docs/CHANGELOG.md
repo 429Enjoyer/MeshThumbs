@@ -2,6 +2,12 @@
 
 [Back to MeshThumbs](../README.md)
 
+## 1.1.2
+
+- Add DXF BLOCK/INSERT support.
+- Fix DXF transforms and layer colors.
+- Fix preview depth.
+
 ## 1.1.1
 
 - Add ASE, LXO, LWS, and DXF support.

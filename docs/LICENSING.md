@@ -56,7 +56,7 @@ the existing Assimp dependency; no new Rust dependency is added.
 When updating dependencies, compare the locked Windows dependency graph with
 the notice inventory and retain the applicable license texts and source links.
 When changing compilers, update the runtime notices as well. This inventory
-corresponds to the Rust 1.98.1 / MinGW build of MeshThumbs 1.1.1.
+corresponds to the Rust 1.98.1 / MinGW build of MeshThumbs 1.1.2.
 
 The standard WiX 3.14.1 installer dialogs and artwork retain MS-RL. Their
 unmodified sources, license, and this build's original installer authoring
@@ -79,7 +79,9 @@ models for Alembic, IGES, 3DM, and IFC.
 The original robot, island, satellite, turret, crate, drone, and mech examples
 and their textures for PMX, VOX, LWO, SMD, MD2, MD3, and MD5MESH are also MIT.
 Arcade, Camera, Orbit, and Pavilion for ASE, LXO, LWS, and DXF, including the
-Arcade screen image, are original MIT assets as well.
+Arcade screen image, are original MIT assets as well. Pavilion now demonstrates
+nested DXF blocks and inherited colors; its geometry and license remain original
+to MeshThumbs. The native Rust DXF reader adds no runtime dependency.
 The [examples](../examples/README.md) directory redistributes the corresponding
 model files and required textures under those same licenses. It includes license
 texts, credits, conversion notes, and the unmodified VRM sample's license settings.

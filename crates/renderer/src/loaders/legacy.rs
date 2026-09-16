@@ -40,7 +40,6 @@ pub(super) fn load(path: &Path, budget: usize) -> anyhow::Result<Scene> {
         "x3d" => Some((super::x3d::normalize(path)?, "x3d")),
         "wrl" | "vrml" => Some((super::vrml::normalize(path)?, "x3d")),
         "md5mesh" => Some((normalize_md5(path)?, "md5mesh")),
-        "dxf" => Some((super::dxf::read(path)?, "dxf")),
         "ase" => Some((normalize_ase(&std::fs::read(path)?)?, "ase")),
         _ => None,
     };

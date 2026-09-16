@@ -6,7 +6,7 @@ Run the commands below from the repository root.
 
 ## Install and upgrade
 
-The 1.1.1 MSI upgrades earlier releases, including 1.1.0 and local 1.0.10 builds. Matching
+The 1.1.2 MSI upgrades earlier releases, including 1.1.0 and local 1.0.10 builds. Matching
 versions are also treated as upgrades. The previous release is removed inside
 the upgrade transaction after the new shared components are installed.
 
@@ -292,8 +292,8 @@ textures before requesting a thumbnail.
 
 ## ASE, LXO, LWS, and DXF
 
-These four extensions use the bundled Assimp reader. No 3ds Max, Modo,
-LightWave, or CAD application is required.
+ASE, LXO, and LWS use the bundled Assimp reader; DXF uses a native Rust reader.
+No 3ds Max, Modo, LightWave, or CAD application is required.
 
 - **ASE:** static mesh exports, object transforms, materials, vertex colors,
   UVs, and local diffuse textures. Plain text, UTF-8 BOM, and UTF-16 LE/BE BOM
@@ -315,13 +315,25 @@ LightWave, or CAD application is required.
   nesting, object visibility/dissolve settings, and full LightWave rendering are unsupported.
   Limits are 1,024 object references, 4,096 nodes, 64 nested blocks/parent levels,
   100,000 source lines, and 300 MiB of collected/normalized package data.
-- **DXF:** ASCII 3DFACE and POLYLINE polyface meshes, with indexed entity/vertex
-  colors and Z-up conversion. Block INSERTs, ACIS solids, REGION/BODY/SURFACE,
-  modern MESH, SOLID and HATCH entities are rejected; explode or export surfaces
-  as 3DFACE/polyfaces first. Lines, curves and annotations are not tessellated;
-  line-only drawings have no thumbnail. Binary DXF, textures, true-color/layer
-  material inheritance, and full CAD document rendering are unsupported. Parsing
-  is limited to ten million group-code pairs and requires the EOF record.
+- **DXF:** ASCII 3DFACE and POLYLINE polyface meshes, including local BLOCK/INSERT
+  hierarchies. Block base points, translation, rotation, non-uniform/negative
+  scale, extrusion/OCS axes, and INSERT row/column arrays are applied in order.
+  Array spacing rotates with the insert without being multiplied by its scale.
+  Nested transforms may include shear. Mirrored faces retain outward normals.
+  Coordinates remain double precision through transformation and recentering.
+  Layer 0 inherits the insertion layer; ByLayer and ByBlock colors resolve through
+  nested inserts. Indexed colors, true-color RGB, and polyface color overrides
+  are supported. Off/frozen layers, invisible entities, and paper-space entities
+  are omitted. Indexed colors use a fixed preview palette; viewport/plot styles
+  and transparency are not reproduced.
+  Missing/cyclic block references, XREF blocks, ACIS solids, REGION/BODY/SURFACE,
+  modern MESH, SOLID, and HATCH surfaces are rejected. Curves, text and attributes
+  are not tessellated; a line-only drawing has no thumbnail. Binary DXF, external
+  references, textures, XCLIP, and dynamic-block evaluation remain unsupported.
+  Limits: ten million group pairs, one million records and one million expanded
+  entities/faces, 100,000 instances, 64 block levels, 10,000 blocks/layers each, and 300 MiB of
+  stored geometry, in addition to the shared file/triangle limits. The EOF record
+  and complete sections/polyface sequences are required.
 
 ASE, LXO, and LWS use file or filesystem-backed item initialization in Explorer
 to retain their sidecar paths. Keep referenced objects and textures in place.
