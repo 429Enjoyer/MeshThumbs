@@ -358,7 +358,7 @@ mod tests {
         let name = "Satellite 日本語.lwo";
         std::fs::write(
             dir.0.join(name),
-            include_bytes!("../../../../examples/Satellite.lwo"),
+            include_bytes!("../../tests/fixtures/Satellite.lwo"),
         )
         .unwrap();
         let path = dir.0.join("scene.lws");

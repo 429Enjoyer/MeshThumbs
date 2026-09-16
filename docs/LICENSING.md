@@ -71,20 +71,15 @@ README image, its source, license, and the changes made for display. Earlier
 preview images and previously published installers are not updated by this
 documentation change.
 
-The 1080p preview uses ten CC0 examples, a CC BY 4.0 sofa representing the USD
-family, a BSD-2-Clause 3MF sample, a VRM Public License 1.0 avatar with its
-embedded usage settings, and original MIT-licensed circuit board and bracket
-models for VRML and STEP, plus original MIT-licensed knot, gear, vase, and house
-models for Alembic, IGES, 3DM, and IFC.
-The original robot, island, satellite, turret, crate, drone, and mech examples
-and their textures for PMX, VOX, LWO, SMD, MD2, MD3, and MD5MESH are also MIT.
-Arcade, Camera, Orbit, and Pavilion for ASE, LXO, LWS, and DXF, including the
-Arcade screen image, are original MIT assets as well. Pavilion now demonstrates
-nested DXF blocks and inherited colors; its geometry and license remain original
-to MeshThumbs. The native Rust DXF reader adds no runtime dependency.
-The [examples](../examples/README.md) directory redistributes the corresponding
-model files and required textures under those same licenses. It includes license
-texts, credits, conversion notes, and the unmodified VRM sample's license settings.
-The sofa credit includes its author, copyright holder,
-source, license link, and rendering changes. Asset revisions are pinned in the
-credits; their licenses remain separate from the project MIT license.
+The 1080p preview contains internet-sourced models under CC0, CC BY 4.0,
+BSD, MIT, the Irrlicht notice, McNeel's permissive terms, CC BY-SA 3.0/4.0,
+and the VRM Public License 1.0 with its embedded settings. Three original MIT
+fallbacks remain for Alembic, IGES, and MD5MESH. Refer to the per-model credits
+for exact copyright holders, revisions, and changes; do not treat the entire
+asset collection as MIT. Share-alike rendered adaptations retain their source
+license. The KiCad library exception and attribution are included.
+
+The [examples](../examples/README.md) directory includes corresponding files,
+required textures, offline license texts, and [source checksums](../examples/sources.json)
+for the new downloads. These example assets are not installed by the MSI.
+The [search log](../examples/SOURCES.md) records candidates that are not yet suitable.

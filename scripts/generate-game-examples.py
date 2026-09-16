@@ -10,7 +10,7 @@ import sys
 from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'examples'
+OUT = ROOT / 'target' / 'procedural-examples'
 P = struct.pack
 sys.dont_write_bytecode = True
 spec = importlib.util.spec_from_file_location('preview_geometry', ROOT/'scripts/generate-pmx-vox-lwo-examples.py')

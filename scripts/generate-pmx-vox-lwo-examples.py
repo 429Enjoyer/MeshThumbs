@@ -1,4 +1,4 @@
-"""Recreate the original MIT Robot, Island, and Satellite preview assets.
+"""Recreate the original MIT Robot, Island, and Satellite regression assets.
 
 Run from any directory with Python 3.10+ and Pillow. No downloaded models.
 """
@@ -8,7 +8,7 @@ import struct
 from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'examples'
+OUT = ROOT / 'target' / 'procedural-examples'
 P = struct.pack
 
 
@@ -155,7 +155,7 @@ def vox(path):
 
 
 def main():
-    (OUT/'assets').mkdir(exist_ok=True)
+    (OUT/'assets').mkdir(parents=True,exist_ok=True)
     badge=Image.new('RGB',(64,64),(230,241,243)); d=ImageDraw.Draw(badge)
     d.rounded_rectangle((8,8,56,56),radius=10,fill=(44,163,165))
     d.rectangle((28,18,36,46),fill=(247,207,72)); d.rectangle((18,28,46,36),fill=(247,207,72))

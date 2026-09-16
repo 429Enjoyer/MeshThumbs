@@ -1,0 +1,229 @@
+{
+  "checked": "2026-09-16",
+  "policy": "Search for redistributable online assets before creating procedural examples.",
+  "assets": [
+    {
+      "file": "ThreeCubesGreen.ASE",
+      "source": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/ASE/ThreeCubesGreen.ASE",
+      "credit": "Assimp contributors (upstream test collection)",
+      "license": "Assimp-BSD-3-Clause.txt",
+      "terms": "BSD-3-Clause",
+      "changes": "Unchanged file.",
+      "evidence": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/LICENSE",
+      "source_sha256": "44624fc9ac196addc5feaf89b4e643654f101ae0a393f6cea7de6eb5f2b12040",
+      "sha256": "44624fc9ac196addc5feaf89b4e643654f101ae0a393f6cea7de6eb5f2b12040"
+    },
+    {
+      "file": "CrazyEngine.lxo",
+      "source": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/LWO/LXOB_Modo/CrazyEngine.lxo",
+      "credit": "Assimp contributors (upstream test collection)",
+      "license": "Assimp-BSD-3-Clause.txt",
+      "terms": "BSD-3-Clause",
+      "changes": "Unchanged file.",
+      "evidence": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/LICENSE",
+      "source_sha256": "d9c295b7a4608878c72245dc4b698b10dd94e11295e429c8862efffe0fbd4304",
+      "sha256": "d9c295b7a4608878c72245dc4b698b10dd94e11295e429c8862efffe0fbd4304"
+    },
+    {
+      "file": "boxuv.lwo",
+      "source": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/LWO/LWO2/boxuv.lwo",
+      "credit": "Assimp contributors (upstream test collection)",
+      "license": "Assimp-BSD-3-Clause.txt",
+      "terms": "BSD-3-Clause",
+      "changes": "Unchanged file.",
+      "evidence": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/LICENSE",
+      "source_sha256": "a2e2f7aba857df5c88bf0116a0189eb0acac451cd7e72740cb82c16a9c6f184b",
+      "sha256": "a2e2f7aba857df5c88bf0116a0189eb0acac451cd7e72740cb82c16a9c6f184b"
+    },
+    {
+      "file": "boxuv.png",
+      "source": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/LWO/LWO2/boxuv.png",
+      "credit": "Assimp contributors (upstream test collection)",
+      "license": "Assimp-BSD-3-Clause.txt",
+      "terms": "BSD-3-Clause",
+      "changes": "Unchanged file.",
+      "evidence": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/LICENSE",
+      "source_sha256": "cdd4480ee6441a2f17f719bb4b1ae0db38ddcfca069e5a6d18a18bcc87542f62",
+      "sha256": "cdd4480ee6441a2f17f719bb4b1ae0db38ddcfca069e5a6d18a18bcc87542f62"
+    },
+    {
+      "file": "move_x.lws",
+      "source": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/LWS/move_x.lws",
+      "credit": "Assimp contributors (upstream test collection)",
+      "license": "Assimp-BSD-3-Clause.txt",
+      "terms": "BSD-3-Clause",
+      "changes": "Unchanged file.",
+      "evidence": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/LICENSE",
+      "source_sha256": "34aa54b472dca0212ca883337896f3c8c20adfb17c6137c8d65a65a606bbd6fc",
+      "sha256": "34aa54b472dca0212ca883337896f3c8c20adfb17c6137c8d65a65a606bbd6fc"
+    },
+    {
+      "file": "simple_cube.lwo",
+      "source": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/LWS/simple_cube.lwo",
+      "credit": "Assimp contributors (upstream test collection)",
+      "license": "Assimp-BSD-3-Clause.txt",
+      "terms": "BSD-3-Clause",
+      "changes": "Unchanged file.",
+      "evidence": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/LICENSE",
+      "source_sha256": "e19be259e868c6943a05d28129b80a052468a37e82a18a4e915a778d53e5e6e3",
+      "sha256": "e19be259e868c6943a05d28129b80a052468a37e82a18a4e915a778d53e5e6e3"
+    },
+    {
+      "file": "holy_grailref.smd",
+      "source": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/SMD/holy_grailref.smd",
+      "credit": "Assimp contributors (upstream test collection)",
+      "license": "Assimp-BSD-3-Clause.txt",
+      "terms": "BSD-3-Clause",
+      "changes": "Unchanged file.",
+      "evidence": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/LICENSE",
+      "source_sha256": "b1b7a87858ca2cd5a1fceef36e67e26ac17cd28ccea64c8bc039b30ceb3c8ccd",
+      "sha256": "b1b7a87858ca2cd5a1fceef36e67e26ac17cd28ccea64c8bc039b30ceb3c8ccd"
+    },
+    {
+      "file": "holygrail.tga",
+      "source": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/SMD/holygrail.tga",
+      "credit": "Assimp contributors (upstream test collection)",
+      "license": "Assimp-BSD-3-Clause.txt",
+      "terms": "BSD-3-Clause",
+      "changes": "Unchanged file.",
+      "evidence": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/LICENSE",
+      "source_sha256": "e8b834bbf1481e8c218135650d81543aa9da820e8910d4bf211ea401b8c83e28",
+      "sha256": "e8b834bbf1481e8c218135650d81543aa9da820e8910d4bf211ea401b8c83e28"
+    },
+    {
+      "file": "wuson.dxf",
+      "source": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/DXF/wuson.dxf",
+      "credit": "Assimp contributors (upstream test collection)",
+      "license": "Assimp-BSD-3-Clause.txt",
+      "terms": "BSD-3-Clause",
+      "changes": "Unchanged file.",
+      "evidence": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/LICENSE",
+      "source_sha256": "f93619edc0a54a823b3edac752f866149a3695a0494101c2c0e9574c95268af9",
+      "sha256": "f93619edc0a54a823b3edac752f866149a3695a0494101c2c0e9574c95268af9"
+    },
+    {
+      "file": "faerie.md2",
+      "source": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/MD2/faerie.md2",
+      "credit": "Irrlicht media; upstream notice credits Nikolaus Gebhardt (2002–2007)",
+      "license": "Irrlicht-faerie.txt",
+      "terms": "Zlib",
+      "changes": "Added one MD2 skin-name record referencing the supplied faerie2.bmp; geometry, UVs, and animation samples are unchanged. MeshThumbs shows frame zero.",
+      "evidence": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/MD2/faerie-source.txt",
+      "source_sha256": "269c88ae49b744d571941ed6065fc8de598954d20fee5d532e8b12790daec779",
+      "sha256": "53b25e6e1dfdfa73f20edfae2c5ddc1ce9a48db193bdf205c1e85f98aff5a78b"
+    },
+    {
+      "file": "faerie2.bmp",
+      "source": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/MD2/faerie2.bmp",
+      "credit": "Irrlicht media; upstream notice credits Nikolaus Gebhardt (2002–2007)",
+      "license": "Irrlicht-faerie.txt",
+      "terms": "Zlib",
+      "changes": "Unchanged file.",
+      "evidence": "https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/MD2/faerie-source.txt",
+      "source_sha256": "40a790bd72ca491fec218da04dd17fd12049357f9468f05fc2c258cc29b8c9a0",
+      "sha256": "40a790bd72ca491fec218da04dd17fd12049357f9468f05fc2c258cc29b8c9a0"
+    },
+    {
+      "file": "T-Rex.vox",
+      "source": "https://github.com/ephtracy/voxel-model/blob/3bff8feaa7d94a6237f2c07dc4ca3c3d268ef06c/vox/anim/T-Rex.vox",
+      "credit": "© 2026 ephtracy",
+      "license": "ephtracy-MIT.txt",
+      "terms": "MIT",
+      "changes": "Unchanged file.",
+      "evidence": "https://github.com/ephtracy/voxel-model/blob/3bff8feaa7d94a6237f2c07dc4ca3c3d268ef06c/LICENSE",
+      "source_sha256": "f161677d05a21c2deaa3119ab46e0f3b52f0e30f788e50627fe89b19a689e90f",
+      "sha256": "f161677d05a21c2deaa3119ab46e0f3b52f0e30f788e50627fe89b19a689e90f"
+    },
+    {
+      "file": "hello_mesh.3dm",
+      "source": "https://github.com/mcneel/rhino-developer-samples/blob/786cf13c4a1ea50444fbf6471b1a8a1507b3114f/rhino3dm/js/SampleViewer/01_basic/hello_mesh.3dm",
+      "credit": "© 1993–2018 Robert McNeel & Associates",
+      "license": "McNeel.txt",
+      "terms": "McNeel permissive license",
+      "changes": "Unchanged file.",
+      "evidence": "https://github.com/mcneel/rhino-developer-samples/blob/786cf13c4a1ea50444fbf6471b1a8a1507b3114f/License.md",
+      "source_sha256": "5a22a1a79df6a6aa755adc846f0cedbfe2a047e3844cd43de691df843e2db9d3",
+      "sha256": "5a22a1a79df6a6aa755adc846f0cedbfe2a047e3844cd43de691df843e2db9d3"
+    },
+    {
+      "file": "Duplex_A_20110907.ifc",
+      "source": "https://github.com/buildingsmart-community/Community-Sample-Test-Files/blob/7ddf57a201f88a0c213d5322b02ed15e94a60a40/IFC%202.3.0.1%20(IFC%202x3)/Duplex%20Apartment/Duplex_A_20110907.ifc",
+      "credit": "BSI (2020) \"Duplex Apartment Test Files,\" buildingSMART International",
+      "license": "CC-BY-4.0.txt",
+      "terms": "CC BY 4.0",
+      "changes": "Unchanged file.",
+      "evidence": "https://github.com/buildingsmart-community/Community-Sample-Test-Files/blob/7ddf57a201f88a0c213d5322b02ed15e94a60a40/IFC%202.3.0.1%20(IFC%202x3)/Duplex%20Apartment/README.md",
+      "source_sha256": "b347a2c8aa8fff6db896a4417a9c50c22ac0ccd7c5cfc22b99b8d29336c606ed",
+      "sha256": "b347a2c8aa8fff6db896a4417a9c50c22ac0ccd7c5cfc22b99b8d29336c606ed"
+    },
+    {
+      "file": "copter.md3",
+      "source": "https://opengameart.org/content/cartoon-helicopter",
+      "credit": "Gobusto (2011), Cartoon Helicopter",
+      "license": "CC-BY-SA-3.0.txt",
+      "terms": "CC BY-SA 3.0",
+      "changes": "Extracted unchanged from fishcopter.zip; preview shows frame zero.",
+      "evidence": "https://opengameart.org/content/cartoon-helicopter",
+      "source_sha256": "ad5556c778fad27b98db58077746c5f5c04f176d282145b5ade0d1d3c0b8e51a",
+      "sha256": "ad5556c778fad27b98db58077746c5f5c04f176d282145b5ade0d1d3c0b8e51a"
+    },
+    {
+      "file": "copter.pcx",
+      "source": "https://opengameart.org/content/cartoon-helicopter",
+      "credit": "Gobusto (2011), Cartoon Helicopter",
+      "license": "CC-BY-SA-3.0.txt",
+      "terms": "CC BY-SA 3.0",
+      "changes": "Extracted unchanged from fishcopter.zip; preview shows frame zero.",
+      "evidence": "https://opengameart.org/content/cartoon-helicopter",
+      "source_sha256": "cbd1f599fd40dfecb3bade2be57fccccd51b776276aa6c27554003ca23761f52",
+      "sha256": "cbd1f599fd40dfecb3bade2be57fccccd51b776276aa6c27554003ca23761f52"
+    },
+    {
+      "file": "Airplane.pmx",
+      "source": "https://github.com/pennennennennennenem/MikuMikuDayo/releases/tag/MikuMikuDayo130",
+      "credit": "pennennennennennenem, MikuMikuDayo airplane",
+      "license": "CC0-1.0.txt",
+      "terms": "CC0",
+      "changes": "Extracted sample/ひこうき.pmx from MikuMikuDayo130.zip and renamed Airplane.pmx; model bytes unchanged.",
+      "evidence": "https://github.com/pennennennennennenem/MikuMikuDayo/blob/aa7650ad3cb140c128ae08f095235a6870560461/README.md#faq",
+      "source_sha256": "8152ab40aeb570d9ba1cedb9119e66dd963ef96529e78c7aaf7a0852c0491545",
+      "sha256": "8152ab40aeb570d9ba1cedb9119e66dd963ef96529e78c7aaf7a0852c0491545"
+    },
+    {
+      "file": "USB_Micro-B.wrl",
+      "source": "https://github.com/KiCad/kicad-packages3D/blob/b8b3cfdfad88ba66f21002b3de51dc6f7d55ba5a/Connector_USB.3dshapes/USB_Micro-B_Molex_47346-0001.wrl",
+      "credit": "Joan Obijuan; adapted for KiCad by Frank Shackmeister (Shack)",
+      "license": "CC-BY-SA-4.0.txt",
+      "terms": "CC BY-SA 4.0 with KiCad library exception",
+      "changes": "Renamed only. STEP renders with a neutral material; WRL preserves authored colors.",
+      "evidence": "https://github.com/KiCad/kicad-packages3D/blob/b8b3cfdfad88ba66f21002b3de51dc6f7d55ba5a/Connector_USB.3dshapes/CREDITS.md",
+      "source_sha256": "7ad5e269c357dbc43efc1f2141850a9b705d8b7ff2656351cbeeecbcbbe6d03f",
+      "sha256": "7ad5e269c357dbc43efc1f2141850a9b705d8b7ff2656351cbeeecbcbbe6d03f"
+    },
+    {
+      "file": "USB_Micro-B.step",
+      "source": "https://github.com/KiCad/kicad-packages3D/blob/b8b3cfdfad88ba66f21002b3de51dc6f7d55ba5a/Connector_USB.3dshapes/USB_Micro-B_Molex_47346-0001.step",
+      "credit": "Joan Obijuan; adapted for KiCad by Frank Shackmeister (Shack)",
+      "license": "CC-BY-SA-4.0.txt",
+      "terms": "CC BY-SA 4.0 with KiCad library exception",
+      "changes": "Renamed only. STEP renders with a neutral material; WRL preserves authored colors.",
+      "evidence": "https://github.com/KiCad/kicad-packages3D/blob/b8b3cfdfad88ba66f21002b3de51dc6f7d55ba5a/Connector_USB.3dshapes/CREDITS.md",
+      "source_sha256": "34a2947897a95d7d5cd3bb1565629b0a916d49cf19a0b7f5ea652fc235f4250c",
+      "sha256": "34a2947897a95d7d5cd3bb1565629b0a916d49cf19a0b7f5ea652fc235f4250c"
+    }
+  ],
+  "aliases": {
+    "USB_Micro-B.vrml": "USB_Micro-B.wrl",
+    "USB_Micro-B.stp": "USB_Micro-B.step"
+  },
+  "archives": [
+    {
+      "url": "https://opengameart.org/sites/default/files/fishcopter.zip",
+      "sha256": "5435ea912c1af19436dee6dc0e5b525b6df1f6b2ad70fb0ad51b89df155581b5"
+    },
+    {
+      "url": "https://github.com/pennennennennennenem/MikuMikuDayo/releases/download/MikuMikuDayo130/MikuMikuDayo130.zip",
+      "sha256": "7d5b9bc0183ea24f9fce24a91739346d50dace7ef022d75cd6bf265e12d0a6bb"
+    }
+  ]
+}

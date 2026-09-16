@@ -1,4 +1,4 @@
-"""Recreate original MIT ASE, LXOB/LXO, LWS and DXF preview assets.
+"""Recreate original MIT ASE, LXOB/LXO, LWS and DXF regression assets.
 
 Python 3.10+ and Pillow; no downloaded geometry or textures.
 """
@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'examples'
+OUT = ROOT / 'target' / 'procedural-examples'
 spec = importlib.util.spec_from_file_location('geometry', ROOT/'scripts/generate-pmx-vox-lwo-examples.py')
 geometry = importlib.util.module_from_spec(spec); spec.loader.exec_module(geometry)
 Mesh = geometry.Mesh

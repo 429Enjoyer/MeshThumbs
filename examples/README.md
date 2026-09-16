@@ -1,11 +1,14 @@
 # Example models
 
-These are the thirty models shown in the [README preview](../docs/images/meshthumbs-preview.png).
-There are **36 model files**, including the USD encodings and VRML/STEP/IGES aliases.
-`Orbit.lws` references `Satellite.lwo`; keep both together.
-All models are in this directory so they can be viewed together in Explorer.
-Keep `assets/`, `textures/`, and `Avocado.mtl` beside them; those files supply
-textures and materials. FBX, GLB, VRM, 3MF, and USDZ include their required assets.
+These files supply the thirty tiles in the [README preview](../docs/images/meshthumbs-preview.png).
+**27 tiles now use internet-sourced assets; three retain procedural fallbacks.**
+There are **37 model files**: the thirty preview entries, six format aliases/encodings,
+and `simple_cube.lwo`, the object referenced by `move_x.lws`.
+Keep the texture files, `assets/`, `textures/`, and `Avocado.mtl` beside the models.
+
+Search online first when adding an example. Prefer the original target format,
+verify redistribution terms, retain its textures and credits, and test it in MeshThumbs.
+See [the search results](SOURCES.md) and [source URLs/checksums](sources.json).
 
 | Model | Files | Credit | License |
 | --- | --- | --- | --- |
@@ -22,25 +25,25 @@ textures and materials. FBX, GLB, VRM, 3MF, and USDZ include their required asse
 | [BarramundiFish](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/BarramundiFish/README.md) | [BarramundiFish.x3d](BarramundiFish.x3d) | Microsoft | [CC0](LICENSES/CC0-1.0.txt) |
 | [SheenChair](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/SheenChair/README.md) | [SheenChair.off](SheenChair.off) | Eric Chadwick / Wayfair, LLC | [CC0](LICENSES/CC0-1.0.txt) |
 | [GlamVelvetSofa](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/GlamVelvetSofa/README.md) | [Sofa.usd](Sofa.usd), [Sofa.usda](Sofa.usda), [Sofa.usdc](Sofa.usdc), [Sofa.usdz](Sofa.usdz) | Eric Chadwick; © 2021 Wayfair, LLC | [CC BY 4.0](LICENSES/CC-BY-4.0.txt) |
-| CircuitBoard | [CircuitBoard.wrl](CircuitBoard.wrl), [CircuitBoard.vrml](CircuitBoard.vrml) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
-| Bracket | [Bracket.step](Bracket.step), [Bracket.stp](Bracket.stp) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
+| [ThreeCubesGreen.ASE](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/ASE/ThreeCubesGreen.ASE) | [ThreeCubesGreen.ASE](ThreeCubesGreen.ASE) | Assimp contributors (upstream test collection) | [BSD-3-Clause](LICENSES/Assimp-BSD-3-Clause.txt) |
+| [CrazyEngine.lxo](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/LWO/LXOB_Modo/CrazyEngine.lxo) | [CrazyEngine.lxo](CrazyEngine.lxo) | Assimp contributors (upstream test collection) | [BSD-3-Clause](LICENSES/Assimp-BSD-3-Clause.txt) |
+| [boxuv.lwo](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/LWO/LWO2/boxuv.lwo) | [boxuv.lwo](boxuv.lwo) | Assimp contributors (upstream test collection) | [BSD-3-Clause](LICENSES/Assimp-BSD-3-Clause.txt) |
+| [move_x.lws](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/LWS/move_x.lws) | [move_x.lws](move_x.lws) | Assimp contributors (upstream test collection) | [BSD-3-Clause](LICENSES/Assimp-BSD-3-Clause.txt) |
+| [holy_grailref.smd](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/SMD/holy_grailref.smd) | [holy_grailref.smd](holy_grailref.smd) | Assimp contributors (upstream test collection) | [BSD-3-Clause](LICENSES/Assimp-BSD-3-Clause.txt) |
+| [wuson.dxf](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/DXF/wuson.dxf) | [wuson.dxf](wuson.dxf) | Assimp contributors (upstream test collection) | [BSD-3-Clause](LICENSES/Assimp-BSD-3-Clause.txt) |
+| [faerie.md2](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/MD2/faerie.md2) | [faerie.md2](faerie.md2) | Irrlicht media; upstream notice credits Nikolaus Gebhardt (2002–2007) | [Zlib](LICENSES/Irrlicht-faerie.txt) |
+| [T-Rex.vox](https://github.com/ephtracy/voxel-model/blob/3bff8feaa7d94a6237f2c07dc4ca3c3d268ef06c/vox/anim/T-Rex.vox) | [T-Rex.vox](T-Rex.vox) | © 2026 ephtracy | [MIT](LICENSES/ephtracy-MIT.txt) |
+| [hello_mesh.3dm](https://github.com/mcneel/rhino-developer-samples/blob/786cf13c4a1ea50444fbf6471b1a8a1507b3114f/rhino3dm/js/SampleViewer/01_basic/hello_mesh.3dm) | [hello_mesh.3dm](hello_mesh.3dm) | © 1993–2018 Robert McNeel & Associates | [McNeel permissive license](LICENSES/McNeel.txt) |
+| [Duplex_A_20110907.ifc](https://github.com/buildingsmart-community/Community-Sample-Test-Files/blob/7ddf57a201f88a0c213d5322b02ed15e94a60a40/IFC%202.3.0.1%20(IFC%202x3)/Duplex%20Apartment/Duplex_A_20110907.ifc) | [Duplex_A_20110907.ifc](Duplex_A_20110907.ifc) | BSI (2020) "Duplex Apartment Test Files," buildingSMART International | [CC BY 4.0](LICENSES/CC-BY-4.0.txt) |
+| [copter.md3](https://opengameart.org/content/cartoon-helicopter) | [copter.md3](copter.md3) | Gobusto (2011), Cartoon Helicopter | [CC BY-SA 3.0](LICENSES/CC-BY-SA-3.0.txt) |
+| [Airplane.pmx](https://github.com/pennennennennennenem/MikuMikuDayo/releases/tag/MikuMikuDayo130) | [Airplane.pmx](Airplane.pmx) | pennennennennennenem, MikuMikuDayo airplane | [CC0](LICENSES/CC0-1.0.txt) |
+| [USB_Micro-B.wrl](https://github.com/KiCad/kicad-packages3D/blob/b8b3cfdfad88ba66f21002b3de51dc6f7d55ba5a/Connector_USB.3dshapes/USB_Micro-B_Molex_47346-0001.wrl) | [USB_Micro-B.wrl](USB_Micro-B.wrl) | Joan Obijuan; adapted for KiCad by Frank Shackmeister (Shack) | [CC BY-SA 4.0 with KiCad library exception](LICENSES/CC-BY-SA-4.0.txt) |
+| [USB_Micro-B.step](https://github.com/KiCad/kicad-packages3D/blob/b8b3cfdfad88ba66f21002b3de51dc6f7d55ba5a/Connector_USB.3dshapes/USB_Micro-B_Molex_47346-0001.step) | [USB_Micro-B.step](USB_Micro-B.step) | Joan Obijuan; adapted for KiCad by Frank Shackmeister (Shack) | [CC BY-SA 4.0 with KiCad library exception](LICENSES/CC-BY-SA-4.0.txt) |
 | Knot | [Knot.abc](Knot.abc) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
-| Gear | [Gear.igs](Gear.igs), [Gear.iges](Gear.iges) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
-| Vase | [Vase.3dm](Vase.3dm) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
-| Robot | [Robot.pmx](Robot.pmx), [badge texture](assets/RobotBadge.png) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
-| Island | [Island.vox](Island.vox) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
-| Satellite | [Satellite.lwo](Satellite.lwo) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
-| House | [House.ifc](House.ifc) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
-| Turret | [Turret.smd](Turret.smd), [texture](assets/Turret.png) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
-| Crate | [Crate.md2](Crate.md2), [PCX skin](assets/Crate.pcx) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
-| Drone | [Drone.md3](Drone.md3), [texture](assets/Drone.png) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
-| Mech | [Mech.md5mesh](Mech.md5mesh), [diffuse texture](assets/Mech_d.tga) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
-| Arcade | [Arcade.ase](Arcade.ase), [screen texture](assets/ArcadeScreen.png) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
-| Camera | [Camera.lxo](Camera.lxo) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
-| Orbit | [Orbit.lws](Orbit.lws), [referenced object](Satellite.lwo) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
-| Pavilion | [Pavilion.dxf](Pavilion.dxf) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
+| Gear | [Gear.igs](Gear.igs) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
+| Mech | [Mech.md5mesh](Mech.md5mesh) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
 
-## Changes and licensing
+## Existing conversions
 
 The ten CC0 models and the sofa use the pinned Khronos revision linked above.
 Models were converted with Blender 4.0.2 or small format writers where needed,
@@ -63,63 +66,31 @@ and redistribution; credit notation is optional. Antisocial or hate usage is
 prohibited. Read its license and settings before reuse; the license includes
 its disclaimer of warranties. The original settings remain in `Avatar.vrm`.
 
-CircuitBoard and Bracket are original procedural models with no third-party
-model data or textures. CircuitBoard uses boxes, cylinders, and polygonal pads.
-Bracket combines CAD boxes and cylinders with boolean cuts and was exported
-as STEP using Open CASCADE. `.vrml` and `.stp` are identical copies of their
-`.wrl` and `.step` counterparts. The four USD encodings render identically.
+## New internet examples
 
-Knot is a procedural trefoil tube exported from Blender as an Ogawa Alembic
-archive, with rotation samples at frames 1–12; its thumbnail shows frame 1.
-Gear combines cylindrical and box CAD solids with a central cut, exported with
-Open CASCADE; `.igs` and `.iges` contain the same data. Vase is a procedural
-quad mesh with vertex normals, stored as Rhino 8 3DM. House is an original
-IFC2x3 scene of colored extruded profiles. These four models use no third-party
-geometry or textures and retain the MIT terms in `LICENSES/MIT.txt`.
+The new files are original-format downloads, not meshes generated by MeshThumbs.
+`Airplane.pmx` and `USB_Micro-B.*` are renamed; `.vrml` and `.stp` are byte-identical
+aliases of `.wrl` and `.step`. `Gear.iges` remains an alias of `Gear.igs`.
+`faerie.md2` adds a skin-name record for the supplied `faerie2.bmp`; its geometry,
+UVs, and animation samples are unchanged. Keep `boxuv.png`, `holygrail.tga`,
+`copter.pcx`, and `faerie2.bmp` in this folder so the native material paths resolve.
+`move_x.lws` references `simple_cube.lwo` unchanged.
 
-Robot is an original PMX 2.0 character made from boxes and ellipsoids with a
-single rest-pose bone; `assets/RobotBadge.png` is its original diffuse texture.
-Island is a VOX 200 scene with colored terrain, trees, a cabin, and a separately
-positioned chimney model. Satellite is an LWO2 polygon model with colored solar
-panels and a central body. All three models and the badge texture are original
-MIT assets with no third-party geometry, characters, or textures. Recreate them
-with `python scripts/generate-pmx-vox-lwo-examples.py` (Python 3.10+ and Pillow)
-from the repository root. PMX and LWO do not require a separate native backend.
+The KiCad models retain [the library exception](LICENSES/KiCad-exception.md) and
+[original credits](LICENSES/KiCad-CREDITS.md), alongside CC BY-SA 4.0.
+The copter model, texture, and its rendered adaptation retain CC BY-SA 3.0;
+KiCad model renders retain CC BY-SA 4.0. These licenses do not relicense the
+other models or MeshThumbs code. Framing and resizing are changes to the preview images.
+The Duplex credit is: BSI (2020) "Duplex Apartment Test Files," buildingSMART
+International. The model is unchanged; its rendered adaptation retains CC BY 4.0.
+No source author endorses MeshThumbs.
 
-Turret, Crate, Drone, and Mech are original procedural game-format examples,
-© 2026 MeshThumbs contributors, licensed under MIT along with their four textures.
-They contain no third-party game characters, models, or artwork. Turret is an
-SMD reference mesh, Crate has an indexed PCX skin and two MD2 frames, Drone has
-four MD3 surfaces and two frames, and Mech has two weighted joints in MD5MESH.
-The previews show the reference/bind pose or first frame. Recreate these assets
-with `python scripts/generate-game-examples.py` (Python 3.10+ and Pillow); it
-reuses the original mesh-building helpers in the PMX/VOX/LWO example generator.
+## Procedural fallbacks
 
-Arcade, Camera, Orbit, and Pavilion are original MIT examples with no third-party
-geometry or artwork. Arcade is an ASE mesh with an original screen image;
-Camera is a minimal LXOB polygon mesh; Orbit is an LWSC 3 scene that instances
-the original Satellite object with three placements; Pavilion is a modular
-DXF assembly with nested Post/Frame/PavilionModule blocks, a nonzero block base,
-rotated and mirrored/non-uniformly scaled inserts, and ByLayer/ByBlock true colors.
-Its surfaces remain 3DFACE geometry. Recreate them with
-`python scripts/generate-scene-examples.py` (Python 3.10+ and Pillow).
-
-The project's MIT license does **not** relicense third-party models or textures.
-`assets/FlightHelmet/` belongs to FlightHelmet; the Avocado, BarramundiFish, and
-Lantern files in `assets/` retain their corresponding CC0 terms. `textures/`
-contains the sofa's CC BY 4.0 images, also embedded in `Sofa.usdz`.
-Full license texts are included in `LICENSES/`; source and license links also
-appear in the [preview credits](../docs/images/ATTRIBUTION.md).
-
-## Render a thumbnail
-
-With MeshThumbs built, run from the repository root:
-
-```powershell
-.\target\release\thumbgen.exe .\examples\Bracket.step .\preview.png 768
-```
-
-STEP and IGES require the bundled `step` backend beside `thumbgen.exe`.
-Alembic and 3DM require the `scene` backend. See the
-[build instructions](../docs/USAGE.md). These examples are repository assets
-and are not installed by the MSI.
+`Knot.abc` (Ogawa), `Gear.igs` / `Gear.iges` (CAD solids), and `Mech.md5mesh`
+(weighted bind pose with `assets/Mech_d.tga`) remain original MIT assets.
+The search log explains the current candidate limitations; it does not claim
+that no other online models exist. No new procedural model was created for this refresh.
+The old generation scripts now write only to `target/procedural-examples/`;
+they do not overwrite the curated examples. Two old fixtures remain under
+`crates/renderer/tests/fixtures/` for renderer regression checks.

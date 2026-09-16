@@ -405,7 +405,7 @@ mod tests {
     #[test]
     fn missing_texture_uv_property_defaults_to_channel_zero() {
         let imported = Importer::new()
-            .read_from_memory(include_bytes!("../../../../examples/Crate.md2"))
+            .read_from_memory(include_bytes!("../../tests/fixtures/Crate.md2"))
             .with_memory_hint("md2")
             .import()
             .unwrap();

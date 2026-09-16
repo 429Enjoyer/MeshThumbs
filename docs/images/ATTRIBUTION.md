@@ -4,7 +4,7 @@
 in a 1920×1080 layout (eight, eight, seven, and seven centered examples per row). Each
 model was rendered at 768×768 before resizing for the contact sheet. Ten use
 CC0 models from the Khronos glTF Sample Assets collection; the USD-family,
-3MF, VRM, and original procedural examples are credited separately below.
+3MF, VRM, downloaded native-format examples, and three procedural fallbacks are credited below.
 
 ## CC0 examples
 
@@ -34,37 +34,52 @@ BarramundiFish was converted to X3D with its base-color texture assigned to an
 ImageTexture node. SheenChair was converted to NOFF with geometry and normals;
 its materials and sheen effects are omitted.
 
-## Other examples
+## Native-format internet examples
 
-- **ASE:** `Arcade.ase`, an original procedural arcade cabinet with an original screen image (`assets/ArcadeScreen.png`), © 2026 MeshThumbs contributors, [MIT](../../LICENSE). No game artwork or characters are used.
-- **LXO:** `Camera.lxo`, an original procedural camera mesh written in the LXOB container, © 2026 MeshThumbs contributors, [MIT](../../LICENSE). No Modo application or third-party geometry was used.
-- **LWS:** `Orbit.lws`, an original LWSC 3 scene with three transformed instances of the original `Satellite.lwo` example, © 2026 MeshThumbs contributors, [MIT](../../LICENSE). Keep the referenced object beside the scene file.
-- **DXF:** `Pavilion.dxf`, an original modular pavilion assembly using ASCII DXF 3DFACE geometry, nested blocks, rotated/mirrored/scaled inserts, and inherited layer/block colors, © 2026 MeshThumbs contributors, [MIT](../../LICENSE). These four examples can be recreated with [the scene example generator](../../scripts/generate-scene-examples.py) and were rendered by MeshThumbs at 768×768 before resizing.
+Sources and byte checksums are recorded in [sources.json](../../examples/sources.json).
+The files were rendered at 768×768 and resized for this 1920×1080 collection.
 
+- **ThreeCubesGreen.ASE:** [Assimp contributors (upstream test collection)](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/ASE/ThreeCubesGreen.ASE). [BSD-3-Clause](../../examples/LICENSES/Assimp-BSD-3-Clause.txt). Unchanged file. [Upstream attribution/terms](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/LICENSE).
+- **CrazyEngine.lxo:** [Assimp contributors (upstream test collection)](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/LWO/LXOB_Modo/CrazyEngine.lxo). [BSD-3-Clause](../../examples/LICENSES/Assimp-BSD-3-Clause.txt). Unchanged file. [Upstream attribution/terms](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/LICENSE).
+- **boxuv.lwo:** [Assimp contributors (upstream test collection)](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/LWO/LWO2/boxuv.lwo). [BSD-3-Clause](../../examples/LICENSES/Assimp-BSD-3-Clause.txt). Unchanged file. [Upstream attribution/terms](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/LICENSE).
+- **move_x.lws:** [Assimp contributors (upstream test collection)](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/LWS/move_x.lws). [BSD-3-Clause](../../examples/LICENSES/Assimp-BSD-3-Clause.txt). Unchanged file. [Upstream attribution/terms](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/LICENSE).
+- **holy_grailref.smd:** [Assimp contributors (upstream test collection)](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/SMD/holy_grailref.smd). [BSD-3-Clause](../../examples/LICENSES/Assimp-BSD-3-Clause.txt). Unchanged file. [Upstream attribution/terms](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/LICENSE).
+- **wuson.dxf:** [Assimp contributors (upstream test collection)](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/DXF/wuson.dxf). [BSD-3-Clause](../../examples/LICENSES/Assimp-BSD-3-Clause.txt). Unchanged file. [Upstream attribution/terms](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/LICENSE).
+- **faerie.md2:** [Irrlicht media; upstream notice credits Nikolaus Gebhardt (2002–2007)](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/MD2/faerie.md2). [Zlib](../../examples/LICENSES/Irrlicht-faerie.txt). Added one MD2 skin-name record referencing the supplied faerie2.bmp; geometry, UVs, and animation samples are unchanged. MeshThumbs shows frame zero. [Upstream attribution/terms](https://github.com/assimp/assimp/blob/392a658f9c271be965271f45e7521a1b80ea4392/test/models/MD2/faerie-source.txt).
+- **T-Rex.vox:** [© 2026 ephtracy](https://github.com/ephtracy/voxel-model/blob/3bff8feaa7d94a6237f2c07dc4ca3c3d268ef06c/vox/anim/T-Rex.vox). [MIT](../../examples/LICENSES/ephtracy-MIT.txt). Unchanged file. [Upstream attribution/terms](https://github.com/ephtracy/voxel-model/blob/3bff8feaa7d94a6237f2c07dc4ca3c3d268ef06c/LICENSE).
+- **hello_mesh.3dm:** [© 1993–2018 Robert McNeel & Associates](https://github.com/mcneel/rhino-developer-samples/blob/786cf13c4a1ea50444fbf6471b1a8a1507b3114f/rhino3dm/js/SampleViewer/01_basic/hello_mesh.3dm). [McNeel permissive license](../../examples/LICENSES/McNeel.txt). Unchanged file. [Upstream attribution/terms](https://github.com/mcneel/rhino-developer-samples/blob/786cf13c4a1ea50444fbf6471b1a8a1507b3114f/License.md).
+- **Duplex_A_20110907.ifc:** [BSI (2020) "Duplex Apartment Test Files," buildingSMART International](https://github.com/buildingsmart-community/Community-Sample-Test-Files/blob/7ddf57a201f88a0c213d5322b02ed15e94a60a40/IFC%202.3.0.1%20(IFC%202x3)/Duplex%20Apartment/Duplex_A_20110907.ifc). [CC BY 4.0](../../examples/LICENSES/CC-BY-4.0.txt). Unchanged file. [Upstream attribution/terms](https://github.com/buildingsmart-community/Community-Sample-Test-Files/blob/7ddf57a201f88a0c213d5322b02ed15e94a60a40/IFC%202.3.0.1%20(IFC%202x3)/Duplex%20Apartment/README.md).
+- **copter.md3:** [Gobusto (2011), Cartoon Helicopter](https://opengameart.org/content/cartoon-helicopter). [CC BY-SA 3.0](../../examples/LICENSES/CC-BY-SA-3.0.txt). Extracted unchanged from fishcopter.zip; preview shows frame zero. [Upstream attribution/terms](https://opengameart.org/content/cartoon-helicopter).
+- **Airplane.pmx:** [pennennennennennenem, MikuMikuDayo airplane](https://github.com/pennennennennennenem/MikuMikuDayo/releases/tag/MikuMikuDayo130). [CC0](../../examples/LICENSES/CC0-1.0.txt). Extracted sample/ひこうき.pmx from MikuMikuDayo130.zip and renamed Airplane.pmx; model bytes unchanged. [Upstream attribution/terms](https://github.com/pennennennennennenem/MikuMikuDayo/blob/aa7650ad3cb140c128ae08f095235a6870560461/README.md#faq).
+- **USB_Micro-B.wrl:** [Joan Obijuan; adapted for KiCad by Frank Shackmeister (Shack)](https://github.com/KiCad/kicad-packages3D/blob/b8b3cfdfad88ba66f21002b3de51dc6f7d55ba5a/Connector_USB.3dshapes/USB_Micro-B_Molex_47346-0001.wrl). [CC BY-SA 4.0 with KiCad library exception](../../examples/LICENSES/CC-BY-SA-4.0.txt). Renamed only. STEP renders with a neutral material; WRL preserves authored colors. [Upstream attribution/terms](https://github.com/KiCad/kicad-packages3D/blob/b8b3cfdfad88ba66f21002b3de51dc6f7d55ba5a/Connector_USB.3dshapes/CREDITS.md).
+- **USB_Micro-B.step:** [Joan Obijuan; adapted for KiCad by Frank Shackmeister (Shack)](https://github.com/KiCad/kicad-packages3D/blob/b8b3cfdfad88ba66f21002b3de51dc6f7d55ba5a/Connector_USB.3dshapes/USB_Micro-B_Molex_47346-0001.step). [CC BY-SA 4.0 with KiCad library exception](../../examples/LICENSES/CC-BY-SA-4.0.txt). Renamed only. STEP renders with a neutral material; WRL preserves authored colors. [Upstream attribution/terms](https://github.com/KiCad/kicad-packages3D/blob/b8b3cfdfad88ba66f21002b3de51dc6f7d55ba5a/Connector_USB.3dshapes/CREDITS.md).
 
-- **SMD:** `Turret.smd`, an original procedural turret with two reference bones and an original color atlas (`assets/Turret.png`), © 2026 MeshThumbs contributors, [MIT](../../LICENSE). Rendered as reference geometry with Z-up converted to Y-up.
-- **MD2:** `Crate.md2`, an original procedural crate with two vertex frames and an original indexed PCX skin (`assets/Crate.pcx`), © 2026 MeshThumbs contributors, [MIT](../../LICENSE). Frame zero is shown.
-- **MD3:** `Drone.md3`, an original procedural drone with four colored surfaces, two vertex frames, and an original atlas (`assets/Drone.png`), © 2026 MeshThumbs contributors, [MIT](../../LICENSE). Frame zero is shown without external model parts.
-- **MD5MESH:** `Mech.md5mesh`, an original procedural mech with two weighted joints and an original diffuse atlas (`assets/Mech_d.tga`), © 2026 MeshThumbs contributors, [MIT](../../LICENSE). Rendered in its bind pose. These four assets are reproducible with [the game example generator](../../scripts/generate-game-examples.py); no third-party game assets or characters are used.
-- **PMX:** `Robot.pmx`, an original procedural robot with one rest-pose bone, colored surfaces, and an original badge texture (`assets/RobotBadge.png`), © 2026 MeshThumbs contributors, [MIT](../../LICENSE). Written as PMX 2.0; no MMD character or third-party texture was used.
-- **VOX:** `Island.vox`, an original voxel island, cabin, and trees with a separately transformed chimney, © 2026 MeshThumbs contributors, [MIT](../../LICENSE). Written as VOX 200 with embedded colors and a scene hierarchy.
-- **LWO:** `Satellite.lwo`, an original polygon satellite with colored solar panels, © 2026 MeshThumbs contributors, [MIT](../../LICENSE). Written as LWO2. These three assets can be recreated with [the example generator](../../scripts/generate-pmx-vox-lwo-examples.py) and were rendered directly by MeshThumbs at 768×768 before resizing.
+`boxuv.png`, `holygrail.tga`, and `simple_cube.lwo` come from the same Assimp
+revision under its BSD terms. `faerie2.bmp` accompanies the Irrlicht sample
+under the included Irrlicht notice; `copter.pcx` is part of Gobusto's CC BY-SA 3.0
+download. The PMX release archive was only unpacked to obtain the author's CC0
+airplane; its application and other bundled assets are not redistributed.
+
+The helicopter's rendered adaptation retains CC BY-SA 3.0, the two KiCad
+tiles retain CC BY-SA 4.0, and the Duplex render retains CC BY 4.0. Keep their
+credits, source links, license texts, and this change notice when sharing.
+The contact sheet is a collection; individual asset terms remain separate.
+The project MIT license does not replace those terms. No endorsement is implied.
+KiCad's [library exception](../../examples/LICENSES/KiCad-exception.md) and
+[original credits](../../examples/LICENSES/KiCad-CREDITS.md) are included.
+
+## Retained examples
+
 - **Alembic:** `Knot.abc`, an original procedural trefoil tube, © 2026 MeshThumbs contributors, [MIT](../../LICENSE). Exported from Blender 4.0.2 as Ogawa with rotation samples for frames 1–12. The thumbnail uses the initial authored time.
 - **IGES:** `Gear.igs` / `Gear.iges`, original cylindrical/box CAD geometry with a central cut, © 2026 MeshThumbs contributors, [MIT](../../LICENSE). Exported through Open CASCADE and rendered with a neutral material.
-- **3DM:** `Vase.3dm`, an original procedural quad mesh with vertex normals and a blue display color, © 2026 MeshThumbs contributors, [MIT](../../LICENSE). Written as Rhino 8 3DM with openNURBS; no Rhino application or external model data was used.
-- **IFC:** `House.ifc`, an original IFC2x3 scene of colored extruded building profiles, © 2026 MeshThumbs contributors, [MIT](../../LICENSE). No third-party geometry or textures are used.
-- **STEP / STP:** `Bracket.step`, an original procedural CAD model created for MeshThumbs, © 2026 MeshThumbs contributors, under the project's [MIT license](../../LICENSE). Constructed from boxes and cylinders with boolean cuts, using no third-party model data or textures. Exported to STEP, tessellated with Open CASCADE, and rendered with MeshThumbs in a neutral material before resizing. Both `.step` and `.stp` were checked. Library licenses do not change the license of this original model or its rendered image.
-- **WRL / VRML:** `CircuitBoard.wrl`, an original procedural model created for MeshThumbs, © 2026 MeshThumbs contributors, under the project's [MIT license](../../LICENSE). The board, traces, chips, connectors, and mounting pads use original geometric constructions, with no third-party models or textures. Rendered from VRML97 with MeshThumbs and resized; the same scene was checked using both `.wrl` and `.vrml` extensions. All examples were rendered again at 768×768 for this layout.
 - **USD / USDA / USDC / USDZ:** [GlamVelvetSofa](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/GlamVelvetSofa/README.md), Eric Chadwick, © 2021 Wayfair, LLC. [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/). Converted from glTF into all four USD encodings with Blender 4.0.2; the fabric base color uses the source's pale-pink variant. MeshThumbs renders base color and geometry; the original sheen, normal-map, and specular effects are omitted. All four exports produced identical thumbnail pixels; `Sofa.usdz` is shown once to represent the family. This rendered adaptation retains CC BY 4.0; the project MIT license does not replace it. No endorsement is implied.
 - **3MF:** [dodeca_chain_loop_color.3mf](https://github.com/3MFConsortium/3mf-samples/blob/665e20dc4d7777fd4c9702bca86a2d4028440337/examples/material/dodeca_chain_loop_color.3mf), © 2018 3MF Consortium. BSD 2-Clause license, reproduced below.
 - **VRM:** [VRM1_Constraint_Twist_Sample](https://github.com/vrm-c/vrm-specification/tree/821c11b250d8c70d5804ee13431e42bee56ea9c0/samples/VRM1_Constraint_Twist_Sample), © 2022 pixiv Inc. [VRM Public License 1.0](https://vrm.dev/licenses/1.0/), with the usage permissions embedded in sample version 1.0.1. Its metadata allows commercial use by corporations, use by everyone, redistribution, and modification/redistribution; credit notation is optional. Antisocial or hate usage is prohibited. The neutral model preview shown here follows those settings; the model itself is unchanged.
+- **MD5MESH:** `Mech.md5mesh` and `assets/Mech_d.tga`, original procedural weighted mesh and diffuse texture, © 2026 MeshThumbs contributors, [MIT](../../LICENSE). Rendered in its bind pose.
 
-The 3MF and VRM examples were also rendered again at 768×768 and resized for
-the contact sheet. All asset source links are pinned to the revisions checked
-for this image. The corresponding models and their required textures are now
-included in [examples](../../examples/README.md), with offline license texts
-and the VRM sample's embedded license settings. The installer does not include
-these example assets. Source links above identify the original assets and terms.
+[Search results and remaining candidate limitations](../../examples/SOURCES.md).
+
+Model files, textures, and offline licenses are in [examples](../../examples/README.md). They are not included in the installer.
 
 ## 3MF sample license
 
