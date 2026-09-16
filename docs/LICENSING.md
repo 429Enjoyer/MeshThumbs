@@ -40,7 +40,7 @@ source and license. The MSI installs the same archive alongside `LICENSE` and
 When updating dependencies, compare the locked Windows dependency graph with
 the notice inventory and retain the applicable license texts and source links.
 When changing compilers, update the runtime notices as well. This inventory
-corresponds to the Rust 1.98.1 / MinGW build of MeshThumbs 1.0.5.
+corresponds to the Rust 1.98.1 / MinGW build of MeshThumbs 1.0.6.
 
 ## Preview assets
 
@@ -51,7 +51,8 @@ preview images and previously published installers are not updated by this
 documentation change.
 
 The 1080p preview uses ten CC0 examples, a CC BY 4.0 sofa representing the USD
-family, a BSD-2-Clause 3MF sample, and a VRM Public License 1.0 avatar with its
-embedded usage settings. The sofa credit includes its author, copyright holder,
+family, a BSD-2-Clause 3MF sample, a VRM Public License 1.0 avatar with its
+embedded usage settings, and an original MIT-licensed circuit board for VRML.
+The sofa credit includes its author, copyright holder,
 source, license link, and rendering changes. Asset revisions are pinned in the
 credits; their licenses remain separate from the project MIT license.

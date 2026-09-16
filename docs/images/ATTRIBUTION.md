@@ -1,10 +1,10 @@
 # Preview credits
 
-`meshthumbs-preview.png` contains thirteen examples rendered by MeshThumbs 1.0.5
-in a 1920×1080 layout (five, five, and three centered examples per row). Each
+`meshthumbs-preview.png` contains fourteen examples rendered by MeshThumbs
+in a 1920×1080 layout (five, five, and four centered examples per row). Each
 model was rendered at 768×768 before resizing for the contact sheet. Ten use
 CC0 models from the Khronos glTF Sample Assets collection; the USD-family,
-3MF, and VRM examples are credited separately below.
+3MF, VRM, and original VRML examples are credited separately below.
 
 ## CC0 examples
 
@@ -36,6 +36,7 @@ its materials and sheen effects are omitted.
 
 ## Other examples
 
+- **WRL / VRML:** `CircuitBoard.wrl`, an original procedural model created for MeshThumbs, © 2026 MeshThumbs contributors, under the project's [MIT license](../../LICENSE). The board, traces, chips, connectors, and mounting pads use original geometric constructions, with no third-party models or textures. Rendered from VRML97 with MeshThumbs 1.0.6 and resized; the same scene was checked using both `.wrl` and `.vrml` extensions. The other thirteen examples retain their 1.0.5 renders at the same displayed size.
 - **USD / USDA / USDC / USDZ:** [GlamVelvetSofa](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/GlamVelvetSofa/README.md), Eric Chadwick, © 2021 Wayfair, LLC. [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/). Converted from glTF into all four USD encodings with Blender 4.0.2; the fabric base color uses the source's pale-pink variant. MeshThumbs renders base color and geometry; the original sheen, normal-map, and specular effects are omitted. All four exports produced identical thumbnail pixels; `Sofa.usdz` is shown once to represent the family. This rendered adaptation retains CC BY 4.0; the project MIT license does not replace it. No endorsement is implied.
 - **3MF:** [dodeca_chain_loop_color.3mf](https://github.com/3MFConsortium/3mf-samples/blob/665e20dc4d7777fd4c9702bca86a2d4028440337/examples/material/dodeca_chain_loop_color.3mf), © 2018 3MF Consortium. BSD 2-Clause license, reproduced below.
 - **VRM:** [VRM1_Constraint_Twist_Sample](https://github.com/vrm-c/vrm-specification/tree/821c11b250d8c70d5804ee13431e42bee56ea9c0/samples/VRM1_Constraint_Twist_Sample), © 2022 pixiv Inc. [VRM Public License 1.0](https://vrm.dev/licenses/1.0/), with the usage permissions embedded in sample version 1.0.1. Its metadata allows commercial use by corporations, use by everyone, redistribution, and modification/redistribution; credit notation is optional. Antisocial or hate usage is prohibited. The neutral model preview shown here follows those settings; the model itself is unchanged.

@@ -11,6 +11,7 @@ mod off;
 mod threemf;
 mod usd;
 mod vrm;
+mod vrml;
 mod x3d;
 
 pub(crate) fn load_scene(path: &Path, max_triangles: usize) -> Result<Scene, RenderError> {
@@ -29,7 +30,7 @@ pub(crate) fn load_scene(path: &Path, max_triangles: usize) -> Result<Scene, Ren
             usd::load(path, max_triangles).map_err(RenderError::Load)
         }
         "fbx" => load_fbx(path).map_err(RenderError::Load),
-        "stl" | "ply" | "dae" | "3ds" | "x3d" | "off" => {
+        "stl" | "ply" | "dae" | "3ds" | "x3d" | "off" | "wrl" | "vrml" => {
             legacy::load(path, max_triangles).map_err(RenderError::Load)
         }
         _ => Err(RenderError::UnsupportedFormat),

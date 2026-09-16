@@ -2,6 +2,13 @@
 
 [Back to MeshThumbs](../README.md)
 
+## 1.0.6
+
+- Add static VRML 2.0 / VRML97 previews for WRL and VRML files, including meshes,
+  primitives, DEF/USE instances, transforms, colors, and local textures.
+- Validate face indices and skip empty groups before importing VRML and X3D.
+- Update the 1080p README preview and asset credits with a VRML example.
+
 ## 1.0.5
 
 - Add USD, USDA, USDC, and USDZ previews using a native Rust reader.

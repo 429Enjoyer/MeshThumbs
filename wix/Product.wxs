@@ -4,7 +4,7 @@
     Id="*"
     Name="MeshThumbs"
     Language="1033"
-    Version="1.0.5"
+    Version="1.0.6"
     Manufacturer="MeshThumbs"
     UpgradeCode="5d411f35-6764-41dd-ae2b-20792d111c23">
 
@@ -13,7 +13,7 @@
       Compressed="yes"
       InstallScope="perMachine"
       Platform="x64"
-      Description="Windows Explorer thumbnails for 3D models, including OBJ, FBX, glTF, STL, 3MF, VRM, BLEND, X3D, OFF and USD" />
+      Description="Windows Explorer thumbnails for 3D models, including OBJ, FBX, glTF, STL, 3MF, VRM, BLEND, X3D, OFF, USD and VRML" />
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of MeshThumbs is already installed." />
     <MediaTemplate EmbedCab="yes" />
@@ -233,6 +233,28 @@
         </RegistryKey>
         <RegistryKey Root="HKCR" Key="CLSID\{EEBDC2F2-E564-476C-AD42-C8F35F8997F4}">
           <RegistryValue Type="string" Value="MeshThumbs Thumbnail Provider USDZ" />
+          <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
+          <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key=".vrml\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
+          <RegistryValue Type="string" Value="{D84B7C81-992B-480A-9108-17321DCF1410}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="SystemFileAssociations\.vrml\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
+          <RegistryValue Type="string" Value="{D84B7C81-992B-480A-9108-17321DCF1410}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="CLSID\{D84B7C81-992B-480A-9108-17321DCF1410}">
+          <RegistryValue Type="string" Value="MeshThumbs Thumbnail Provider VRML" />
+          <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
+          <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key=".wrl\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
+          <RegistryValue Type="string" Value="{991F57D3-64BA-42C9-A65C-19530FF5C176}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="SystemFileAssociations\.wrl\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
+          <RegistryValue Type="string" Value="{991F57D3-64BA-42C9-A65C-19530FF5C176}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="CLSID\{991F57D3-64BA-42C9-A65C-19530FF5C176}">
+          <RegistryValue Type="string" Value="MeshThumbs Thumbnail Provider WRL" />
           <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
           <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
         </RegistryKey>

@@ -14,14 +14,14 @@
     <br />
     <br />
     <a href="docs/images/meshthumbs-preview.png"><img
-        src="docs/images/meshthumbs-preview.png" alt="MeshThumbs previews in 1920×1080, including USD, USDA, USDC, and USDZ"
+        src="docs/images/meshthumbs-preview.png" alt="MeshThumbs previews in 1920×1080, including USD and WRL/VRML formats"
         width="100%" /></a>
   </p>
 </div>
 
 **Supported formats**
 
-`OBJ` · `FBX` · `GLB` · `glTF` · `STL` · `DAE` · `PLY` · `3DS` · `3MF` · `VRM` · `BLEND` · `X3D` · `OFF` · `USD` · `USDA` · `USDC` · `USDZ`
+`OBJ` · `FBX` · `GLB` · `glTF` · `STL` · `DAE` · `PLY` · `3DS` · `3MF` · `VRM` · `BLEND` · `X3D` · `OFF` · `USD` · `USDA` · `USDC` · `USDZ` · `WRL` · `VRML`
 
 ## Install
 

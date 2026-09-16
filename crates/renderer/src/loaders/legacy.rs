@@ -38,16 +38,18 @@ pub(super) fn load(path: &Path, budget: usize) -> anyhow::Result<Scene> {
     {
         "off" => Some((super::off::to_ply(path, budget)?, "ply")),
         "x3d" => Some((super::x3d::normalize(path)?, "x3d")),
+        "wrl" | "vrml" => Some((super::vrml::normalize(path)?, "x3d")),
         _ => None,
     };
     let request = match &normalized {
         Some((data, hint)) => importer.read_from_memory(data).with_memory_hint(*hint),
         None => importer.read_file(path),
     };
-    let generated_uvs = if path
-        .extension()
-        .is_some_and(|e| e.eq_ignore_ascii_case("x3d"))
-    {
+    let generated_uvs = if path.extension().is_some_and(|e| {
+        ["x3d", "wrl", "vrml"]
+            .iter()
+            .any(|ext| e.eq_ignore_ascii_case(ext))
+    }) {
         PostProcessSteps::GEN_UV_COORDS
     } else {
         PostProcessSteps::empty()
