@@ -1,8 +1,8 @@
 # Preview credits
 
-`meshthumbs-preview.png` contains ten examples rendered by MeshThumbs. The eight
-earlier models whose provenance was undocumented have been replaced with CC0
-models from the Khronos glTF Sample Assets collection.
+`meshthumbs-preview.png` contains twelve examples rendered by MeshThumbs in a
+1280×720, six-column layout. Ten use CC0 models from the Khronos glTF Sample
+Assets collection; the 3MF and VRM examples are credited separately below.
 
 ## CC0 examples
 
@@ -21,11 +21,16 @@ dedication. They retain that status; the project MIT license does not replace it
 | OBJ | [Avocado](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/Avocado/README.md) | Microsoft |
 | PLY | [BoxVertexColors](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/BoxVertexColors/README.md) | Marco Hutter |
 | STL | [WaterBottle](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/WaterBottle/README.md) | Microsoft |
+| X3D | [BarramundiFish](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/BarramundiFish/README.md) | Microsoft |
+| OFF | [SheenChair](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/SheenChair/README.md) | Eric Chadwick / Wayfair, LLC |
 
 Changes: models were converted to the displayed file formats where necessary,
 triangulated, framed, rendered, and resized. The ToyCar preview omits the fabric
 and glass props. Suzanne uses a uniform diffuse color; STL omits materials.
 Avocado's base-color texture was extracted and assigned to its OBJ material.
+BarramundiFish was converted to X3D with its base-color texture assigned to an
+ImageTexture node. SheenChair was converted to NOFF with geometry and normals;
+its materials and sheen effects are omitted.
 
 ## Other examples
 

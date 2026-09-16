@@ -45,4 +45,13 @@ Blender 5.0+ headers are supported, including gzip and Zstandard compression.
 Previews are resized with their original framing and aspect ratio; scenes are
 not re-rendered.
 
+X3D supports static XML mesh/primitive scenes, DEF/USE instances, materials, and
+local image textures. Animation and scripts are not executed. Text geometry,
+Inline scenes, prototypes, remote textures, and non-XML encodings are unsupported. Keep local textures
+beside the model or in their referenced relative folders.
+
+OFF supports ASCII OFF, COFF, NOFF, and CNOFF files, including RGB/RGBA vertex
+colors in 0–1 or 0–255 ranges. Binary OFF, per-face colors, and other header
+variants are unsupported. Line-only and point-only files have no mesh thumbnail.
+
 Logs: `C:\ProgramData\MeshThumbs\meshthumbs.log`.

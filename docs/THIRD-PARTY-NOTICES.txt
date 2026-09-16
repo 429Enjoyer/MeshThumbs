@@ -1,4 +1,4 @@
-Third-party notices for MeshThumbs 1.0.3
+Third-party notices for MeshThumbs 1.0.4
 
 MeshThumbs project code is covered by the MIT license in LICENSE, including
 attribution to its 3DThumbnails upstream. Dependencies retain their own licenses.

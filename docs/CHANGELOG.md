@@ -2,6 +2,11 @@
 
 [Back to MeshThumbs](../README.md)
 
+## 1.0.4
+
+- Add static XML X3D previews with DEF/USE instances, materials, and local textures.
+- Add ASCII OFF, COFF, NOFF, and CNOFF meshes with polygon triangulation and vertex colors.
+
 ## 1.0.3
 
 - Add BLEND embedded previews without requiring Blender.

@@ -7,8 +7,10 @@ use gltf::{image::Format, texture::WrappingMode};
 use crate::{RenderError, Scene, Texture, Triangle, Vertex, WrapMode};
 
 mod legacy;
+mod off;
 mod threemf;
 mod vrm;
+mod x3d;
 
 pub(crate) fn load_scene(path: &Path, max_triangles: usize) -> Result<Scene, RenderError> {
     match path
@@ -23,7 +25,7 @@ pub(crate) fn load_scene(path: &Path, max_triangles: usize) -> Result<Scene, Ren
         "vrm" => vrm::load(path).map_err(RenderError::Load),
         "3mf" => threemf::load(path, max_triangles).map_err(RenderError::Load),
         "fbx" => load_fbx(path).map_err(RenderError::Load),
-        "stl" | "ply" | "dae" | "3ds" => {
+        "stl" | "ply" | "dae" | "3ds" | "x3d" | "off" => {
             legacy::load(path, max_triangles).map_err(RenderError::Load)
         }
         _ => Err(RenderError::UnsupportedFormat),

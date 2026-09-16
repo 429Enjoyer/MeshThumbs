@@ -28,13 +28,37 @@ pub(super) fn load(path: &Path, budget: usize) -> anyhow::Result<Scene> {
     if std::fs::metadata(path)?.len() > MAX_MODEL_BYTES {
         bail!("model exceeds the 300 MiB compatibility importer limit");
     }
-    let imported = Importer::new()
-        .read_file(path)
+    let importer = Importer::new();
+    let normalized = match path
+        .extension()
+        .and_then(|e| e.to_str())
+        .unwrap_or("")
+        .to_ascii_lowercase()
+        .as_str()
+    {
+        "off" => Some((super::off::to_ply(path, budget)?, "ply")),
+        "x3d" => Some((super::x3d::normalize(path)?, "x3d")),
+        _ => None,
+    };
+    let request = match &normalized {
+        Some((data, hint)) => importer.read_from_memory(data).with_memory_hint(*hint),
+        None => importer.read_file(path),
+    };
+    let generated_uvs = if path
+        .extension()
+        .is_some_and(|e| e.eq_ignore_ascii_case("x3d"))
+    {
+        PostProcessSteps::GEN_UV_COORDS
+    } else {
+        PostProcessSteps::empty()
+    };
+    let imported = request
         .with_post_process(
             PostProcessSteps::TRIANGULATE
                 | PostProcessSteps::PRE_TRANSFORM_VERTICES
                 | PostProcessSteps::TRANSFORM_UV_COORDS
-                | PostProcessSteps::VALIDATE_DATA_STRUCTURE,
+                | PostProcessSteps::VALIDATE_DATA_STRUCTURE
+                | generated_uvs,
         )
         .import()
         .with_context(|| format!("failed to import {}", path.display()))?;

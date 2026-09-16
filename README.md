@@ -4,9 +4,9 @@
 
 **Supported formats**
 
-`OBJ` · `FBX` · `GLB` · `glTF` · `STL` · `DAE` · `PLY` · `3DS` · `3MF` · `VRM` · `BLEND`
+`OBJ` · `FBX` · `GLB` · `glTF` · `STL` · `DAE` · `PLY` · `3DS` · `3MF` · `VRM` · `BLEND` · `X3D` · `OFF`
 
-![MeshThumbs thumbnail examples](docs/images/meshthumbs-preview.png)
+![MeshThumbs thumbnail examples, including X3D and OFF](docs/images/meshthumbs-preview.png)
 
 ## Install
 

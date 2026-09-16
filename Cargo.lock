@@ -503,7 +503,7 @@ dependencies = [
 
 [[package]]
 name = "renderer"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "anyhow",
  "asset-importer",
@@ -666,7 +666,7 @@ dependencies = [
 
 [[package]]
 name = "thumbgen"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "anyhow",
  "image",
@@ -675,7 +675,7 @@ dependencies = [
 
 [[package]]
 name = "thumbnail_provider"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "anyhow",
  "directories",

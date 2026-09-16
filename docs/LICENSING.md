@@ -35,7 +35,8 @@ source and license. The MSI installs the same archive alongside `LICENSE` and
 When updating dependencies, compare the locked Windows dependency graph with
 the notice inventory and retain the applicable license texts and source links.
 When changing compilers, update the runtime notices as well. This inventory
-corresponds to the Rust 1.98.1 / MinGW build of MeshThumbs 1.0.3.
+corresponds to the Rust 1.98.1 / MinGW build of MeshThumbs 1.0.4. The X3D and OFF
+additions reuse existing dependencies and do not add new third-party libraries.
 
 ## Preview assets
 

@@ -49,6 +49,8 @@ const CLSID_3DS_PROVIDER: GUID = GUID::from_u128(0x0ad51061_9a3c_4ec3_9757_874ec
 const CLSID_3MF_PROVIDER: GUID = GUID::from_u128(0x35a24a7a_cc90_48b3_9849_548ddaa06b01);
 const CLSID_VRM_PROVIDER: GUID = GUID::from_u128(0x4c451ba6_cc4c_47fb_8f5f_3d32029e2f45);
 const CLSID_BLEND_PROVIDER: GUID = GUID::from_u128(0xaf3d3dcd_8c60_4e29_a483_46db39c40fb9);
+const CLSID_X3D_PROVIDER: GUID = GUID::from_u128(0x098b9e30_da6d_43b8_9c2d_f82d32b4b070);
+const CLSID_OFF_PROVIDER: GUID = GUID::from_u128(0xf0c794c3_d2b3_42d4_a861_966ced3c966b);
 
 #[derive(Clone, Copy)]
 struct ProviderInfo {
@@ -56,7 +58,7 @@ struct ProviderInfo {
     extension: &'static str,
 }
 
-const PROVIDERS: [ProviderInfo; 11] = [
+const PROVIDERS: [ProviderInfo; 13] = [
     ProviderInfo {
         clsid: CLSID_OBJ_PROVIDER,
         extension: ".obj",
@@ -100,6 +102,14 @@ const PROVIDERS: [ProviderInfo; 11] = [
     ProviderInfo {
         clsid: CLSID_BLEND_PROVIDER,
         extension: ".blend",
+    },
+    ProviderInfo {
+        clsid: CLSID_X3D_PROVIDER,
+        extension: ".x3d",
+    },
+    ProviderInfo {
+        clsid: CLSID_OFF_PROVIDER,
+        extension: ".off",
     },
 ];
 
