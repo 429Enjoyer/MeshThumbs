@@ -46,6 +46,8 @@ const CLSID_STL_PROVIDER: GUID = GUID::from_u128(0xa3bafd17_52cd_4cf6_869e_a4bb0
 const CLSID_DAE_PROVIDER: GUID = GUID::from_u128(0x7bf654cd_6b62_4a1c_be5f_53df447c2be6);
 const CLSID_PLY_PROVIDER: GUID = GUID::from_u128(0xab2cde52_5c15_4daf_b43a_e4c9f1eaaec0);
 const CLSID_3DS_PROVIDER: GUID = GUID::from_u128(0x0ad51061_9a3c_4ec3_9757_874ecb89457c);
+const CLSID_3MF_PROVIDER: GUID = GUID::from_u128(0x35a24a7a_cc90_48b3_9849_548ddaa06b01);
+const CLSID_VRM_PROVIDER: GUID = GUID::from_u128(0x4c451ba6_cc4c_47fb_8f5f_3d32029e2f45);
 
 #[derive(Clone, Copy)]
 struct ProviderInfo {
@@ -53,7 +55,7 @@ struct ProviderInfo {
     extension: &'static str,
 }
 
-const PROVIDERS: [ProviderInfo; 8] = [
+const PROVIDERS: [ProviderInfo; 10] = [
     ProviderInfo {
         clsid: CLSID_OBJ_PROVIDER,
         extension: ".obj",
@@ -85,6 +87,14 @@ const PROVIDERS: [ProviderInfo; 8] = [
     ProviderInfo {
         clsid: CLSID_3DS_PROVIDER,
         extension: ".3ds",
+    },
+    ProviderInfo {
+        clsid: CLSID_3MF_PROVIDER,
+        extension: ".3mf",
+    },
+    ProviderInfo {
+        clsid: CLSID_VRM_PROVIDER,
+        extension: ".vrm",
     },
 ];
 
@@ -327,8 +337,13 @@ impl IClassFactory_Impl for ClassFactory_Impl {
     }
 }
 
+/// Returns the class factory requested by the Windows COM loader.
+///
+/// # Safety
+/// Non-null input pointers must reference valid GUIDs, and `ppv` must point to
+/// writable storage for an interface pointer, as required by the COM ABI.
 #[no_mangle]
-pub extern "system" fn DllGetClassObject(
+pub unsafe extern "system" fn DllGetClassObject(
     rclsid: *const GUID,
     riid: *const GUID,
     ppv: *mut *mut c_void,

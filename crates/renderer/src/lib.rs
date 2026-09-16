@@ -6,8 +6,9 @@ use std::path::Path;
 pub use raster::RgbaBitmap;
 
 pub const MAX_MODEL_BYTES: u64 = 300 * 1024 * 1024;
-pub const SUPPORTED_EXTENSIONS: &[&str] =
-    &["obj", "fbx", "glb", "gltf", "stl", "dae", "ply", "3ds"];
+pub const SUPPORTED_EXTENSIONS: &[&str] = &[
+    "obj", "fbx", "glb", "gltf", "stl", "dae", "ply", "3ds", "3mf", "vrm",
+];
 
 #[derive(Clone, Debug)]
 pub struct RenderOptions {

@@ -190,8 +190,6 @@ fn draw_triangle(
             if z >= depth[di] {
                 continue;
             }
-            depth[di] = z;
-
             let inv_z0 = 1.0 / p[0].z.max(0.0001);
             let inv_z1 = 1.0 / p[1].z.max(0.0001);
             let inv_z2 = 1.0 / p[2].z.max(0.0001);
@@ -223,6 +221,11 @@ fn draw_triangle(
                     .clamp(0.0, 255.0) as u8
             });
             color = modulate(color, vertex_color);
+            // Transparent hair/clothing texels must not occlude the avatar.
+            if color[3] == 0 {
+                continue;
+            }
+            depth[di] = z;
 
             let normal = (n[0] * w0 + n[1] * w1 + n[2] * w2).normalize_or_zero();
             let shade = 0.68 + normal.dot(light).max(0.0) * 0.32;

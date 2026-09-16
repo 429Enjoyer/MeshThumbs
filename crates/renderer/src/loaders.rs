@@ -7,6 +7,8 @@ use gltf::{image::Format, texture::WrappingMode};
 use crate::{RenderError, Scene, Texture, Triangle, Vertex, WrapMode};
 
 mod legacy;
+mod threemf;
+mod vrm;
 
 pub(crate) fn load_scene(path: &Path, max_triangles: usize) -> Result<Scene, RenderError> {
     match path
@@ -18,6 +20,8 @@ pub(crate) fn load_scene(path: &Path, max_triangles: usize) -> Result<Scene, Ren
     {
         "obj" => load_obj(path).map_err(RenderError::Load),
         "glb" | "gltf" => load_gltf(path).map_err(RenderError::Load),
+        "vrm" => vrm::load(path).map_err(RenderError::Load),
+        "3mf" => threemf::load(path, max_triangles).map_err(RenderError::Load),
         "fbx" => load_fbx(path).map_err(RenderError::Load),
         "stl" | "ply" | "dae" | "3ds" => {
             legacy::load(path, max_triangles).map_err(RenderError::Load)
@@ -81,6 +85,14 @@ fn load_obj(path: &Path) -> anyhow::Result<Scene> {
 fn load_gltf(path: &Path) -> anyhow::Result<Scene> {
     let source = gltf::Gltf::open(path)
         .with_context(|| format!("failed to load glTF {}", path.display()))?;
+    load_gltf_source(path, source, Mat4::IDENTITY)
+}
+
+fn load_gltf_source(
+    path: &Path,
+    source: gltf::Gltf,
+    root_transform: Mat4,
+) -> anyhow::Result<Scene> {
     let document = source.document;
     let base = path.parent().unwrap_or_else(|| Path::new("."));
     let buffers = gltf::import_buffers(&document, Some(base), source.blob)?;
@@ -117,7 +129,7 @@ fn load_gltf(path: &Path) -> anyhow::Result<Scene> {
         .or_else(|| document.scenes().next())
     {
         for node in default_scene.nodes() {
-            load_gltf_node(node, Mat4::IDENTITY, &buffers, &textures, &mut scene);
+            load_gltf_node(node, root_transform, &buffers, &textures, &mut scene);
         }
     }
 
