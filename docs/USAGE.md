@@ -6,7 +6,7 @@ Run the commands below from the repository root.
 
 ## Install and upgrade
 
-The 1.1.2 MSI upgrades earlier releases, including 1.1.0 and local 1.0.10 builds. Matching
+The 1.1.3 MSI upgrades earlier releases, including 1.1.0 and local 1.0.10 builds. Matching
 versions are also treated as upgrades. The previous release is removed inside
 the upgrade transaction after the new shared components are installed.
 
@@ -193,6 +193,9 @@ supported. Missing normals use face normals. Subdivision refinement, curves,
 points, NURBS patches, materials/textures, and HDF5 archives are unsupported.
 The reader treats Alembic coordinates as Y-up and converts clockwise polygon
 winding for rendering. Non-mesh objects do not contribute thumbnail geometry.
+Repeated consecutive/closing polygon corners are removed before triangulation,
+retaining the surviving corners' normals and colors. Collapsed faces with fewer
+than three distinct consecutive corners do not contribute triangles.
 
 IGES (`.igs`, `.iges`) uses Open CASCADE to read surfaces, solids, and their
 placements. It shares STEP's tessellation, neutral material, precision handling,

@@ -53,11 +53,26 @@ mod windows {
             })
             .collect::<Vec<_>>();
         let points = vertices.iter().map(|v| v.position).collect::<Vec<_>>();
-        let triangles = triangulate(&(0..count).collect::<Vec<_>>(), &points)?;
+        // Exporters may represent a triangle as a quad with a repeated corner.
+        // Zero-length edges block ear clipping; retain original corner indices
+        // so removing them does not detach colors/normals from their vertices.
+        let mut corners = Vec::with_capacity(count);
+        for i in 0..count {
+            if corners.last().is_none_or(|&j| points[j] != points[i]) {
+                corners.push(i);
+            }
+        }
+        if corners.len() > 1 && points[corners[0]] == points[*corners.last().unwrap()] {
+            corners.pop();
+        }
+        if corners.len() < 3 {
+            return Ok(());
+        }
+        let triangles = triangulate(&corners, &points)?;
         output.scene.triangles.try_reserve(triangles.len())?;
         for indices in triangles {
             output.scene.triangles.push(Triangle {
-                vertices: fix_normals(indices.map(|i| vertices[i])),
+                vertices: fix_normals(indices.map(|i| vertices[corners[i]])),
                 color: [255; 4],
                 texture: None,
             });
@@ -136,5 +151,111 @@ mod windows {
             );
         }
         Ok(output.scene)
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        fn output(budget: usize) -> Output {
+            Output {
+                scene: Scene::new(),
+                budget,
+                error: None,
+            }
+        }
+
+        fn polygon(points: &[[f64; 3]]) -> Vec<f64> {
+            points
+                .iter()
+                .enumerate()
+                .flat_map(|(i, p)| [p[0], p[1], p[2], 0., 0., 1., i as f64 / 16., 0.5, 1., 1.])
+                .collect()
+        }
+
+        #[test]
+        fn repeated_classroom_corner_keeps_the_triangle() {
+            // Reduced from the CC0 Classroom Alembic export (Christophe Seux;
+            // Gaffer example export), credited in examples/README.md.
+            let points = [
+                [0.011283021, -0.03381071, -0.34303266],
+                [0.011395096, -0.033801265, -0.3429906],
+                [0.011382262, -0.03424911, -0.3430281],
+                [0.011382262, -0.03424911, -0.3430281],
+            ];
+            let mut out = output(2);
+            append(&mut out, &polygon(&points), 4).unwrap();
+            assert_eq!(out.scene.triangles.len(), 1);
+            for (i, v) in out.scene.triangles[0].vertices.iter().enumerate() {
+                assert_eq!(v.position, Vec3::from_array(points[i].map(|v| v as f32)));
+            }
+        }
+
+        #[test]
+        fn concave_polygon_preserves_winding_area_and_corner_attributes() {
+            for reverse in [false, true] {
+                let mut points = vec![
+                    [0., 0., 0.],
+                    [2., 0., 0.],
+                    [2., 0., 0.],
+                    [2., 2., 0.],
+                    [1., 1., 0.],
+                    [0., 2., 0.],
+                    [0., 0., 0.],
+                ];
+                if reverse {
+                    points.reverse();
+                }
+                let data = polygon(&points);
+                let mut out = output(5);
+                append(&mut out, &data, points.len()).unwrap();
+                assert_eq!(out.scene.triangles.len(), 3);
+                let mut area = 0.;
+                for t in &out.scene.triangles {
+                    let [a, b, c] = t.vertices.map(|v| v.position);
+                    let signed = (b - a).cross(c - a).z / 2.;
+                    assert!(if reverse { signed < 0. } else { signed > 0. });
+                    area += signed.abs();
+                    for v in t.vertices {
+                        let i = points
+                            .iter()
+                            .position(|p| Vec3::from_array(p.map(|v| v as f32)) == v.position)
+                            .unwrap();
+                        assert_eq!(v.color, to_rgba(i as f32 / 16., 0.5, 1., 1.));
+                        assert_eq!(v.normal, Vec3::Z);
+                    }
+                }
+                assert!((area - 3.).abs() < 1e-6);
+            }
+        }
+
+        #[test]
+        fn collapsed_corners_do_not_emit_invalid_geometry() {
+            let mut out = output(8);
+            append(&mut out, &polygon(&[[0., 0., 0.]; 4]), 4).unwrap();
+            append(
+                &mut out,
+                &polygon(&[[0., 0., 0.], [1., 0., 0.], [0., 0., 0.]]),
+                3,
+            )
+            .unwrap();
+            assert!(out.scene.triangles.is_empty());
+            append(
+                &mut out,
+                &polygon(&[[0., 0., 0.], [1., 0., 0.], [0., 1., 0.]]),
+                3,
+            )
+            .unwrap();
+            assert_eq!(out.scene.triangles.len(), 1);
+        }
+
+        #[test]
+        fn duplicate_cleanup_keeps_limits_and_nonfinite_checks() {
+            let points = [[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [0., 1., 0.]];
+            assert!(append(&mut output(1), &polygon(&points), 4).is_err());
+            let mut data = polygon(&points);
+            data[30] = f64::NAN;
+            assert!(append(&mut output(2), &data, 4).is_err());
+        }
     }
 }

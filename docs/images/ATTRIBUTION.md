@@ -4,7 +4,7 @@
 in a 1920×1080 layout (eight, eight, seven, and seven centered examples per row). Each
 model was rendered at 768×768 before resizing for the contact sheet. Ten use
 CC0 models from the Khronos glTF Sample Assets collection; the USD-family,
-3MF, VRM, downloaded native-format examples, and three procedural fallbacks are credited below.
+3MF, VRM, downloaded native-format examples, and two procedural fallbacks are credited below.
 
 ## CC0 examples
 
@@ -35,6 +35,14 @@ ImageTexture node. SheenChair was converted to NOFF with geometry and normals;
 its materials and sheen effects are omitted.
 
 ## Native-format internet examples
+
+- **Classroom.abc:** [Classroom](https://github.com/ezequielmastrasso/gaffer-examples/blob/eab0243e478e6a573f44d1289643c6e40cf79ab0/assets/classroom/abc/classroom.abc), original model by Christophe Seux,
+  Alembic export distributed by Ezequiel Mastrasso / Gaffer Examples.
+  [CC0](../../examples/LICENSES/CC0-1.0.txt); [upstream credit](https://github.com/ezequielmastrasso/gaffer-examples/blob/eab0243e478e6a573f44d1289643c6e40cf79ab0/README.md#licences).
+  Native Ogawa file renamed only. Rendered without materials/textures, framed,
+  and resized; the complete scene includes its ceiling and exterior walls.
+  The source model geometry is unchanged.
+
 
 Sources and byte checksums are recorded in [sources.json](../../examples/sources.json).
 The files were rendered at 768×768 and resized for this 1920×1080 collection.
@@ -70,7 +78,6 @@ KiCad's [library exception](../../examples/LICENSES/KiCad-exception.md) and
 
 ## Retained examples
 
-- **Alembic:** `Knot.abc`, an original procedural trefoil tube, © 2026 MeshThumbs contributors, [MIT](../../LICENSE). Exported from Blender 4.0.2 as Ogawa with rotation samples for frames 1–12. The thumbnail uses the initial authored time.
 - **IGES:** `Gear.igs` / `Gear.iges`, original cylindrical/box CAD geometry with a central cut, © 2026 MeshThumbs contributors, [MIT](../../LICENSE). Exported through Open CASCADE and rendered with a neutral material.
 - **USD / USDA / USDC / USDZ:** [GlamVelvetSofa](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/GlamVelvetSofa/README.md), Eric Chadwick, © 2021 Wayfair, LLC. [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/). Converted from glTF into all four USD encodings with Blender 4.0.2; the fabric base color uses the source's pale-pink variant. MeshThumbs renders base color and geometry; the original sheen, normal-map, and specular effects are omitted. All four exports produced identical thumbnail pixels; `Sofa.usdz` is shown once to represent the family. This rendered adaptation retains CC BY 4.0; the project MIT license does not replace it. No endorsement is implied.
 - **3MF:** [dodeca_chain_loop_color.3mf](https://github.com/3MFConsortium/3mf-samples/blob/665e20dc4d7777fd4c9702bca86a2d4028440337/examples/material/dodeca_chain_loop_color.3mf), © 2018 3MF Consortium. BSD 2-Clause license, reproduced below.

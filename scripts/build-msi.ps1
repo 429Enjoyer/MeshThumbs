@@ -13,7 +13,7 @@ $ProductWxs = Join-Path $Root "wix\Product.wxs"
 $InstallerUiWxs = Join-Path $Root "wix\InstallerUI.wxs"
 $RestartExplorerSource = Get-Content -LiteralPath (Join-Path $Root "scripts\restart-explorer.ps1") -Raw
 $RestartExplorerCommand = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($RestartExplorerSource))
-$OutputMsi = Join-Path $Root "MeshThumbs-1.1.2-x64.msi"
+$OutputMsi = Join-Path $Root "MeshThumbs-1.1.3-x64.msi"
 $LocalWix = Join-Path $Root ".tools\wix314"
 
 if (-not $SkipBuild) {

@@ -210,6 +210,17 @@
       "evidence": "https://github.com/KiCad/kicad-packages3D/blob/b8b3cfdfad88ba66f21002b3de51dc6f7d55ba5a/Connector_USB.3dshapes/CREDITS.md",
       "source_sha256": "34a2947897a95d7d5cd3bb1565629b0a916d49cf19a0b7f5ea652fc235f4250c",
       "sha256": "34a2947897a95d7d5cd3bb1565629b0a916d49cf19a0b7f5ea652fc235f4250c"
+    },
+    {
+      "file": "Classroom.abc",
+      "source": "https://github.com/ezequielmastrasso/gaffer-examples/blob/eab0243e478e6a573f44d1289643c6e40cf79ab0/assets/classroom/abc/classroom.abc",
+      "credit": "Christophe Seux; Alembic export distributed by Ezequiel Mastrasso / Gaffer Examples",
+      "license": "CC0-1.0.txt",
+      "terms": "CC0",
+      "changes": "Downloaded native Alembic export; renamed only. MeshThumbs renders the complete scene from outside with a neutral material, including the ceiling. No objects were removed.",
+      "evidence": "https://github.com/ezequielmastrasso/gaffer-examples/blob/eab0243e478e6a573f44d1289643c6e40cf79ab0/README.md#licences",
+      "source_sha256": "dc30a0d6007b0c744ca52574d41c44e1c044cde069e1c47d131481b45aab4f57",
+      "sha256": "dc30a0d6007b0c744ca52574d41c44e1c044cde069e1c47d131481b45aab4f57"
     }
   ],
   "aliases": {
@@ -225,5 +236,6 @@
       "url": "https://github.com/pennennennennennenem/MikuMikuDayo/releases/download/MikuMikuDayo130/MikuMikuDayo130.zip",
       "sha256": "7d5b9bc0183ea24f9fce24a91739346d50dace7ef022d75cd6bf265e12d0a6bb"
     }
-  ]
+  ],
+  "validated_with": "MeshThumbs 1.1.3"
 }

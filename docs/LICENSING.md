@@ -56,7 +56,7 @@ the existing Assimp dependency; no new Rust dependency is added.
 When updating dependencies, compare the locked Windows dependency graph with
 the notice inventory and retain the applicable license texts and source links.
 When changing compilers, update the runtime notices as well. This inventory
-corresponds to the Rust 1.98.1 / MinGW build of MeshThumbs 1.1.2.
+corresponds to the Rust 1.98.1 / MinGW build of MeshThumbs 1.1.3.
 
 The standard WiX 3.14.1 installer dialogs and artwork retain MS-RL. Their
 unmodified sources, license, and this build's original installer authoring
@@ -73,9 +73,10 @@ documentation change.
 
 The 1080p preview contains internet-sourced models under CC0, CC BY 4.0,
 BSD, MIT, the Irrlicht notice, McNeel's permissive terms, CC BY-SA 3.0/4.0,
-and the VRM Public License 1.0 with its embedded settings. Three original MIT
-fallbacks remain for Alembic, IGES, and MD5MESH. Refer to the per-model credits
-for exact copyright holders, revisions, and changes; do not treat the entire
+and the VRM Public License 1.0 with its embedded settings. Two original MIT
+fallbacks remain for IGES and MD5MESH. The Classroom Alembic example is CC0.
+Refer to the per-model credits for exact copyright holders, revisions, and
+changes; do not treat the entire
 asset collection as MIT. Share-alike rendered adaptations retain their source
 license. The KiCad library exception and attribution are included.
 

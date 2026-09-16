@@ -13,7 +13,7 @@ ROWS = [
      ('ColorChain.3mf', ''), ('FlightHelmet.gltf', ''), ('Avocado.obj', ''), ('BoxVertexColors.ply', '')],
     [('WaterBottle.stl', ''), ('Avatar.vrm', ''), ('BarramundiFish.x3d', ''), ('SheenChair.off', ''),
      ('Sofa.usdz', 'USD · USDA · USDC · USDZ'), ('USB_Micro-B.wrl', 'WRL · VRML'),
-     ('USB_Micro-B.step', 'STEP · STP'), ('Knot.abc', 'Ogawa')],
+     ('USB_Micro-B.step', 'STEP · STP'), ('Classroom.abc', 'Ogawa')],
     [('Gear.igs', 'IGS · IGES'), ('hello_mesh.3dm', 'Mesh'), ('Duplex_A_20110907.ifc', 'IFC2x3'),
      ('Airplane.pmx', 'PMX'), ('T-Rex.vox', 'MagicaVoxel'), ('boxuv.lwo', 'LightWave'),
      ('holy_grailref.smd', 'Reference mesh')],

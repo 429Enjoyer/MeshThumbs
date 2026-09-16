@@ -1,7 +1,7 @@
 # Example models
 
 These files supply the thirty tiles in the [README preview](../docs/images/meshthumbs-preview.png).
-**27 tiles now use internet-sourced assets; three retain procedural fallbacks.**
+**28 tiles now use internet-sourced assets; two retain procedural fallbacks.**
 There are **37 model files**: the thirty preview entries, six format aliases/encodings,
 and `simple_cube.lwo`, the object referenced by `move_x.lws`.
 Keep the texture files, `assets/`, `textures/`, and `Avocado.mtl` beside the models.
@@ -39,7 +39,7 @@ See [the search results](SOURCES.md) and [source URLs/checksums](sources.json).
 | [Airplane.pmx](https://github.com/pennennennennennenem/MikuMikuDayo/releases/tag/MikuMikuDayo130) | [Airplane.pmx](Airplane.pmx) | pennennennennennenem, MikuMikuDayo airplane | [CC0](LICENSES/CC0-1.0.txt) |
 | [USB_Micro-B.wrl](https://github.com/KiCad/kicad-packages3D/blob/b8b3cfdfad88ba66f21002b3de51dc6f7d55ba5a/Connector_USB.3dshapes/USB_Micro-B_Molex_47346-0001.wrl) | [USB_Micro-B.wrl](USB_Micro-B.wrl) | Joan Obijuan; adapted for KiCad by Frank Shackmeister (Shack) | [CC BY-SA 4.0 with KiCad library exception](LICENSES/CC-BY-SA-4.0.txt) |
 | [USB_Micro-B.step](https://github.com/KiCad/kicad-packages3D/blob/b8b3cfdfad88ba66f21002b3de51dc6f7d55ba5a/Connector_USB.3dshapes/USB_Micro-B_Molex_47346-0001.step) | [USB_Micro-B.step](USB_Micro-B.step) | Joan Obijuan; adapted for KiCad by Frank Shackmeister (Shack) | [CC BY-SA 4.0 with KiCad library exception](LICENSES/CC-BY-SA-4.0.txt) |
-| Knot | [Knot.abc](Knot.abc) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
+| [Classroom](https://github.com/ezequielmastrasso/gaffer-examples/blob/eab0243e478e6a573f44d1289643c6e40cf79ab0/assets/classroom/abc/classroom.abc) | [Classroom.abc](Classroom.abc) | Christophe Seux; Gaffer Examples Alembic export | [CC0](LICENSES/CC0-1.0.txt) |
 | Gear | [Gear.igs](Gear.igs) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
 | Mech | [Mech.md5mesh](Mech.md5mesh) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
 
@@ -85,9 +85,15 @@ The Duplex credit is: BSI (2020) "Duplex Apartment Test Files," buildingSMART
 International. The model is unchanged; its rendered adaptation retains CC BY 4.0.
 No source author endorses MeshThumbs.
 
+`Classroom.abc` is the unchanged CC0 Alembic export from Gaffer Examples,
+original model by Christophe Seux. [Upstream credit and terms](https://github.com/ezequielmastrasso/gaffer-examples/blob/eab0243e478e6a573f44d1289643c6e40cf79ab0/README.md#licences).
+Its ceiling and walls remain present; the exterior view uses a neutral material
+because Alembic material graphs are not supported. Version 1.1.3 handles its
+repeated polygon corners without discarding the affected surfaces.
+
 ## Procedural fallbacks
 
-`Knot.abc` (Ogawa), `Gear.igs` / `Gear.iges` (CAD solids), and `Mech.md5mesh`
+`Gear.igs` / `Gear.iges` (CAD solids) and `Mech.md5mesh`
 (weighted bind pose with `assets/Mech_d.tga`) remain original MIT assets.
 The search log explains the current candidate limitations; it does not claim
 that no other online models exist. No new procedural model was created for this refresh.

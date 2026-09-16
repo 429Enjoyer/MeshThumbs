@@ -1,0 +1,10 @@
+# Preserve downloaded model bytes and the checksums in examples/sources.json.
+examples/*.ASE -text
+examples/*.dxf -text
+examples/*.ifc -text
+examples/*.lws -text
+examples/*.smd -text
+examples/*.step -text
+examples/*.stp -text
+examples/*.vrml -text
+examples/*.wrl -text

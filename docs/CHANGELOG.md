@@ -2,6 +2,10 @@
 
 [Back to MeshThumbs](../README.md)
 
+## 1.1.3
+
+- Fix ABC previews.
+
 ## 1.1.2
 
 - Add DXF BLOCK/INSERT support.
