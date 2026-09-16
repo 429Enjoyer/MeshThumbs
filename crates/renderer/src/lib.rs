@@ -12,6 +12,7 @@ pub const SUPPORTED_EXTENSIONS: &[&str] =
 #[derive(Clone, Debug)]
 pub struct RenderOptions {
     pub size: u32,
+    /// Reject larger meshes instead of dropping faces and opening holes.
     pub max_triangles: usize,
 }
 
@@ -19,7 +20,7 @@ impl Default for RenderOptions {
     fn default() -> Self {
         Self {
             size: 256,
-            max_triangles: 120_000,
+            max_triangles: 5_000_000,
         }
     }
 }
@@ -30,6 +31,8 @@ pub enum RenderError {
     UnsupportedFormat,
     #[error("model has no renderable triangles")]
     EmptyModel,
+    #[error("model has {actual} triangles, exceeding the {limit} triangle limit")]
+    TooManyTriangles { actual: usize, limit: usize },
     #[error(transparent)]
     Load(#[from] anyhow::Error),
 }
@@ -76,6 +79,12 @@ impl Scene {
     }
 
     fn prepare(&mut self, budget: usize) -> Result<(), RenderError> {
+        if self.triangles.len() > budget {
+            return Err(RenderError::TooManyTriangles {
+                actual: self.triangles.len(),
+                limit: budget,
+            });
+        }
         self.triangles
             .retain(|t| t.vertices.iter().all(|v| v.position.is_finite()));
         if self.triangles.is_empty() {
@@ -110,19 +119,6 @@ impl Scene {
         });
         if self.triangles.is_empty() {
             return Err(RenderError::EmptyModel);
-        }
-        let total = self.triangles.len();
-        if total > budget {
-            let mut index = 0;
-            let mut selected = 0;
-            self.triangles.retain(|_| {
-                let keep = selected < budget && index == selected * total / budget;
-                index += 1;
-                if keep {
-                    selected += 1;
-                }
-                keep
-            });
         }
         Ok(())
     }

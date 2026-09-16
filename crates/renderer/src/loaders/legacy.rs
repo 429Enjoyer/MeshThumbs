@@ -71,16 +71,21 @@ pub(super) fn load(path: &Path, budget: usize) -> anyhow::Result<Scene> {
         })
         .collect::<Vec<_>>();
 
-    // Spread the budget over the whole model, so later meshes do not disappear.
-    // Borrow native buffers instead of cloning all vertex data into Rust first.
+    // Sampling individual faces destroys surface coverage on dense scans.
+    // Check the limit before allocating Rust triangles, then keep the whole mesh.
     let total = imported
         .meshes()
         .map(|m| m.faces().filter(|f| f.indices().len() == 3).count())
         .sum::<usize>();
-    let limit = budget.min(total);
+    if total > budget {
+        return Err(crate::RenderError::TooManyTriangles {
+            actual: total,
+            limit: budget,
+        }
+        .into());
+    }
     let mut scene = Scene::new();
-    let mut face_number = 0usize;
-    let mut sample = 0usize;
+    scene.triangles.reserve_exact(total);
     for mesh in imported.meshes() {
         let positions = mesh.vertices_raw();
         let normals = mesh.normals_raw_opt().unwrap_or(&[]);
@@ -93,12 +98,6 @@ pub(super) fn load(path: &Path, budget: usize) -> anyhow::Result<Scene> {
             if indices.len() != 3 {
                 continue;
             }
-            let current = face_number;
-            face_number += 1;
-            if sample >= limit || current != sample * total / limit {
-                continue;
-            }
-            sample += 1;
             if indices.iter().any(|&i| i as usize >= positions.len()) {
                 continue;
             }
