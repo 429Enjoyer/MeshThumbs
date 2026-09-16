@@ -2,7 +2,6 @@
 /target-msi/
 /.tools/
 /.reference/
-/examples/
 /*.msi
 /*.wixpdb
 /wix/obj/

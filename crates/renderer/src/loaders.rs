@@ -8,6 +8,7 @@ use crate::{RenderError, Scene, Texture, Triangle, Vertex, WrapMode};
 
 mod legacy;
 mod off;
+mod step;
 mod threemf;
 mod usd;
 mod vrm;
@@ -26,6 +27,7 @@ pub(crate) fn load_scene(path: &Path, max_triangles: usize) -> Result<Scene, Ren
         "glb" | "gltf" => load_gltf(path).map_err(RenderError::Load),
         "vrm" => vrm::load(path).map_err(RenderError::Load),
         "3mf" => threemf::load(path, max_triangles).map_err(RenderError::Load),
+        "step" | "stp" => step::load(path, max_triangles).map_err(RenderError::Load),
         "usd" | "usda" | "usdc" | "usdz" => {
             usd::load(path, max_triangles).map_err(RenderError::Load)
         }

@@ -37,10 +37,20 @@ The unmodified MPL-2.0 source for `option-ext` 0.2.0 is included as
 source and license. The MSI installs the same archive alongside `LICENSE` and
 `THIRD-PARTY-NOTICES.txt`, so its source remains available offline.
 
+STEP uses Open CASCADE Technology 7.9.3 under LGPL-2.1 with the Open CASCADE
+exception. Its libraries remain separate, replaceable DLLs; MeshThumbs code and
+the small C interface adapter remain MIT. The installer includes the library's
+corresponding source and build system in `step/occt-source-7.9.3.tar.gz`, plus
+[rebuild and replacement instructions](OCCT-SOURCE.md). Notices include the LGPL,
+its exception, the bundled DELABELLA triangulator, and Flex/Bison parser notices.
+The MinGW CAD build also ships its GCC, C++, and pthread runtime DLLs; their
+terms and exceptions are retained in the runtime notices. No new Rust package
+is added by this integration.
+
 When updating dependencies, compare the locked Windows dependency graph with
 the notice inventory and retain the applicable license texts and source links.
 When changing compilers, update the runtime notices as well. This inventory
-corresponds to the Rust 1.98.1 / MinGW build of MeshThumbs 1.0.6.
+corresponds to the Rust 1.98.1 / MinGW build of MeshThumbs 1.0.7.
 
 ## Preview assets
 
@@ -52,7 +62,11 @@ documentation change.
 
 The 1080p preview uses ten CC0 examples, a CC BY 4.0 sofa representing the USD
 family, a BSD-2-Clause 3MF sample, a VRM Public License 1.0 avatar with its
-embedded usage settings, and an original MIT-licensed circuit board for VRML.
+embedded usage settings, and original MIT-licensed circuit board and bracket
+models for VRML and STEP.
+The [examples](../examples/README.md) directory redistributes the corresponding
+model files and required textures under those same licenses. It includes license
+texts, credits, conversion notes, and the unmodified VRM sample's license settings.
 The sofa credit includes its author, copyright holder,
 source, license link, and rendering changes. Asset revisions are pinned in the
 credits; their licenses remain separate from the project MIT license.

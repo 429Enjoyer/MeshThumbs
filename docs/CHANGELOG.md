@@ -2,6 +2,15 @@
 
 [Back to MeshThumbs](../README.md)
 
+## 1.0.7
+
+- Add STEP and STP previews with Open CASCADE tessellation of CAD solids,
+  surfaces, and self-contained assemblies, without a separate CAD application.
+- Load the CAD backend only for STEP files and include replaceable libraries,
+  corresponding source, and license notices in the installer.
+- Add a STEP example to the 1080p README preview and update asset credits.
+- Include the README preview models, textures, and licenses in `examples/`.
+
 ## 1.0.6
 
 - Add static VRML 2.0 / VRML97 previews for WRL and VRML files, including meshes,

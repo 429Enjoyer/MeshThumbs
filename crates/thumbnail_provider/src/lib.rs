@@ -59,13 +59,16 @@ const CLSID_USDZ_PROVIDER: GUID = GUID::from_u128(0xeebdc2f2_e564_476c_ad42_c8f3
 const CLSID_WRL_PROVIDER: GUID = GUID::from_u128(0x991f57d3_64ba_42c9_a65c_19530ff5c176);
 const CLSID_VRML_PROVIDER: GUID = GUID::from_u128(0xd84b7c81_992b_480a_9108_17321dcf1410);
 
+const CLSID_STEP_PROVIDER: GUID = GUID::from_u128(0x4c93500d_0e9b_46ec_9e14_831c72a0b34c);
+const CLSID_STP_PROVIDER: GUID = GUID::from_u128(0xefe86458_f28c_43fe_bd01_fd661c662344);
+
 #[derive(Clone, Copy)]
 struct ProviderInfo {
     clsid: GUID,
     extension: &'static str,
 }
 
-const PROVIDERS: [ProviderInfo; 19] = [
+const PROVIDERS: [ProviderInfo; 21] = [
     ProviderInfo {
         clsid: CLSID_OBJ_PROVIDER,
         extension: ".obj",
@@ -141,6 +144,14 @@ const PROVIDERS: [ProviderInfo; 19] = [
     ProviderInfo {
         clsid: CLSID_VRML_PROVIDER,
         extension: ".vrml",
+    },
+    ProviderInfo {
+        clsid: CLSID_STEP_PROVIDER,
+        extension: ".step",
+    },
+    ProviderInfo {
+        clsid: CLSID_STP_PROVIDER,
+        extension: ".stp",
     },
 ];
 

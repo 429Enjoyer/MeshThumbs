@@ -14,7 +14,10 @@ cargo run -p thumbgen -- model.glb preview.png 256
 
 ## Build
 
-Requires Windows x64, Rust 1.96+, a C++ compiler, CMake, and WiX 3.14.
+Requires Windows x64, Rust 1.96+, an x64 C++ compiler, CMake 3.20+, and WiX 3.14.
+The STEP backend needs a C++17 compiler; MinGW builds require its POSIX-thread
+variant. The first build downloads the pinned Open CASCADE 7.9.3 source and
+compiles it, which takes substantially longer than incremental Rust builds.
 
 ```powershell
 .\scripts\build-msi.ps1
@@ -22,14 +25,24 @@ Requires Windows x64, Rust 1.96+, a C++ compiler, CMake, and WiX 3.14.
 
 The MSI installer is written to the repository root.
 
+For CLI development, run `scripts/build-step.ps1` once to put the CAD backend
+in `target/release/step`, then build/run `thumbgen` with `--release`. Use
+`scripts/build-step.ps1 -Configuration debug` for the default debug CLI build.
+Keep the `step` directory beside `thumbgen.exe` when copying a build. Other
+formats remain usable when the optional development backend has not been built;
+the MSI always includes it. The backend can also be cross-compiled from Linux
+using `native/step/mingw-toolchain.cmake`. See [OCCT source and rebuild notes](OCCT-SOURCE.md).
+
 When adding a format, update its renderer, CLI, Explorer registration, installer,
 and documentation together. Include an actual render in the 1920×1080 README
 preview, check its source license, and update the asset credits and changelog.
+Keep the matching models, required textures, and license texts in `examples/`.
 Check dependency notices whenever the dependency graph changes.
 
 ## Manual registration
 
 Keep `thumbnail_provider.dll` and `thumbgen.exe` together for manual registration.
+Include the accompanying `step` directory for STEP previews.
 Registration scripts are available for the [current user](../scripts/register-current-user.ps1)
 or [all users](../scripts/register-machine.ps1).
 
@@ -70,6 +83,20 @@ silently omit geometry. Parsing is bounded to 64 nested nodes, 100,000 nodes,
 and 300 MiB of expanded data; DEF/USE expansion also has node and depth limits.
 Keep local textures beside the model or in their referenced relative folders.
 Both extensions require a filesystem-backed item in Explorer to resolve textures.
+
+STEP and STP read self-contained ISO 10303-21 text files using Open CASCADE
+7.9.3. CAD solids, trimmed surfaces, and assembly placements are tessellated
+with a chord tolerance of 0.1% of the model's largest bounding-box dimension
+(minimum 0.0000001 model units). Meshes use smooth surface normals and a neutral
+material; CAD colors, textures, PMI/annotations, and wire-only geometry are not
+rendered. External assembly files are not followed, so only geometry stored in
+the main file is shown. Compressed STEP and STEP XML are unsupported.
+The CAD reader retains exception checks, rejects more than 100,000 roots/faces,
+and shares the worker's five-second deadline and five-million-triangle limit.
+Large or difficult CAD assemblies can exceed that deadline and show no preview.
+Both extensions support file, item, and anonymous stream initialization.
+Recentered double-precision CAD coordinates are converted to the thumbnail
+renderer's coordinate system before rendering, treating CAD Z as up.
 
 USD, USDA, USDC, and USDZ are read directly, without an external USD application.
 Previews use the stage's start time and support polygon meshes, Cube/Sphere/

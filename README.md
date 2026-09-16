@@ -14,20 +14,20 @@
     <br />
     <br />
     <a href="docs/images/meshthumbs-preview.png"><img
-        src="docs/images/meshthumbs-preview.png" alt="MeshThumbs previews in 1920×1080, including USD and WRL/VRML formats"
+        src="docs/images/meshthumbs-preview.png" alt="MeshThumbs previews in 1920×1080, including STEP/STP, USD, and WRL/VRML formats"
         width="100%" /></a>
   </p>
 </div>
 
 **Supported formats**
 
-`OBJ` · `FBX` · `GLB` · `glTF` · `STL` · `DAE` · `PLY` · `3DS` · `3MF` · `VRM` · `BLEND` · `X3D` · `OFF` · `USD` · `USDA` · `USDC` · `USDZ` · `WRL` · `VRML`
+`OBJ` · `FBX` · `GLB` · `glTF` · `STL` · `DAE` · `PLY` · `3DS` · `3MF` · `VRM` · `BLEND` · `X3D` · `OFF` · `USD` · `USDA` · `USDC` · `USDZ` · `WRL` · `VRML` · `STEP` · `STP`
 
 ## Install
 
 Download the `.msi` installer from the latest release and run it to install or upgrade. Uninstall through **Windows Settings → Apps → Installed apps**.
 
-[Usage & Build](docs/USAGE.md) · [Changelog](docs/CHANGELOG.md)
+[Usage & Build](docs/USAGE.md) · [Example models](examples/README.md) · [Changelog](docs/CHANGELOG.md)
 
 ## License
 
