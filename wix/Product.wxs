@@ -4,7 +4,7 @@
     Id="*"
     Name="MeshThumbs"
     Language="1033"
-    Version="1.1.0"
+    Version="1.1.1"
     Manufacturer="MeshThumbs"
     UpgradeCode="5d411f35-6764-41dd-ae2b-20792d111c23">
 
@@ -436,6 +436,50 @@
         </RegistryKey>
         <RegistryKey Root="HKCR" Key="CLSID\{4BAC9304-92F2-4177-82ED-FB4A9989CAAA}">
           <RegistryValue Type="string" Value="MeshThumbs Thumbnail Provider MD5MESH" />
+          <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
+          <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key=".ase\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
+          <RegistryValue Type="string" Value="{E36A4A8D-C884-4E7A-A5D2-3571197FC4F7}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="SystemFileAssociations\.ase\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
+          <RegistryValue Type="string" Value="{E36A4A8D-C884-4E7A-A5D2-3571197FC4F7}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="CLSID\{E36A4A8D-C884-4E7A-A5D2-3571197FC4F7}">
+          <RegistryValue Type="string" Value="MeshThumbs Thumbnail Provider ASE" />
+          <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
+          <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key=".lxo\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
+          <RegistryValue Type="string" Value="{0ADA8766-AA7F-4E6D-95D1-D1161DD7F870}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="SystemFileAssociations\.lxo\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
+          <RegistryValue Type="string" Value="{0ADA8766-AA7F-4E6D-95D1-D1161DD7F870}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="CLSID\{0ADA8766-AA7F-4E6D-95D1-D1161DD7F870}">
+          <RegistryValue Type="string" Value="MeshThumbs Thumbnail Provider LXO" />
+          <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
+          <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key=".lws\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
+          <RegistryValue Type="string" Value="{F1CC9814-4F31-40FF-B825-F485D096268C}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="SystemFileAssociations\.lws\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
+          <RegistryValue Type="string" Value="{F1CC9814-4F31-40FF-B825-F485D096268C}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="CLSID\{F1CC9814-4F31-40FF-B825-F485D096268C}">
+          <RegistryValue Type="string" Value="MeshThumbs Thumbnail Provider LWS" />
+          <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
+          <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key=".dxf\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
+          <RegistryValue Type="string" Value="{7C584B0C-BFEB-401C-9BCE-0FED8C228F70}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="SystemFileAssociations\.dxf\shellex\{e357fccd-a995-4576-b01f-234630154e96}">
+          <RegistryValue Type="string" Value="{7C584B0C-BFEB-401C-9BCE-0FED8C228F70}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="CLSID\{7C584B0C-BFEB-401C-9BCE-0FED8C228F70}">
+          <RegistryValue Type="string" Value="MeshThumbs Thumbnail Provider DXF" />
           <RegistryValue Name="DisableProcessIsolation" Type="integer" Value="1" />
           <RegistryKey Key="InprocServer32"><RegistryValue Type="string" Value="[#ThumbDll]" /><RegistryValue Name="ThreadingModel" Type="string" Value="Both" /></RegistryKey>
         </RegistryKey>

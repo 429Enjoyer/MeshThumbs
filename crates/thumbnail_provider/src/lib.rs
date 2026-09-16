@@ -80,13 +80,18 @@ const CLSID_MD2_PROVIDER: GUID = GUID::from_u128(0xdda72edb_1092_43cf_b3d6_5c96a
 const CLSID_MD3_PROVIDER: GUID = GUID::from_u128(0x4f1c159e_6b46_4cc9_b992_44dc908ec1fc);
 const CLSID_MD5MESH_PROVIDER: GUID = GUID::from_u128(0x4bac9304_92f2_4177_82ed_fb4a9989caaa);
 
+const CLSID_ASE_PROVIDER: GUID = GUID::from_u128(0xe36a4a8d_c884_4e7a_a5d2_3571197fc4f7);
+const CLSID_LXO_PROVIDER: GUID = GUID::from_u128(0x0ada8766_aa7f_4e6d_95d1_d1161dd7f870);
+const CLSID_LWS_PROVIDER: GUID = GUID::from_u128(0xf1cc9814_4f31_40ff_b825_f485d096268c);
+const CLSID_DXF_PROVIDER: GUID = GUID::from_u128(0x7c584b0c_bfeb_401c_9bce_0fed8c228f70);
+
 #[derive(Clone, Copy)]
 struct ProviderInfo {
     clsid: GUID,
     extension: &'static str,
 }
 
-const PROVIDERS: [ProviderInfo; 33] = [
+const PROVIDERS: [ProviderInfo; 37] = [
     ProviderInfo {
         clsid: CLSID_OBJ_PROVIDER,
         extension: ".obj",
@@ -218,6 +223,22 @@ const PROVIDERS: [ProviderInfo; 33] = [
     ProviderInfo {
         clsid: CLSID_MD5MESH_PROVIDER,
         extension: ".md5mesh",
+    },
+    ProviderInfo {
+        clsid: CLSID_ASE_PROVIDER,
+        extension: ".ase",
+    },
+    ProviderInfo {
+        clsid: CLSID_LXO_PROVIDER,
+        extension: ".lxo",
+    },
+    ProviderInfo {
+        clsid: CLSID_LWS_PROVIDER,
+        extension: ".lws",
+    },
+    ProviderInfo {
+        clsid: CLSID_DXF_PROVIDER,
+        extension: ".dxf",
     },
 ];
 
@@ -464,7 +485,10 @@ impl IClassFactory_Impl for ClassFactory_Impl {
         let state = ThumbnailProvider::new(self.provider.extension);
         let unknown: IUnknown = if matches!(
             self.provider.extension,
-            ".smd"
+            ".ase"
+                | ".lxo"
+                | ".lws"
+                | ".smd"
                 | ".md2"
                 | ".md3"
                 | ".md5mesh"

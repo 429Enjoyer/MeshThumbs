@@ -21,7 +21,7 @@
 
 **Supported formats**
 
-`OBJ` · `FBX` · `GLB` · `glTF` · `STL` · `DAE` · `PLY` · `3DS` · `3MF` · `VRM` · `BLEND` · `X3D` · `OFF` · `USD` · `USDA` · `USDC` · `USDZ` · `WRL` · `VRML` · `STEP` · `STP` · `ABC` · `IGS` · `IGES` · `3DM` · `IFC` · `PMX` · `VOX` · `LWO` · `SMD` · `MD2` · `MD3` · `MD5MESH`
+`OBJ` · `FBX` · `GLB` · `glTF` · `STL` · `DAE` · `PLY` · `3DS` · `3MF` · `VRM` · `BLEND` · `X3D` · `OFF` · `USD` · `USDA` · `USDC` · `USDZ` · `WRL` · `VRML` · `STEP` · `STP` · `ABC` · `IGS` · `IGES` · `3DM` · `IFC` · `PMX` · `VOX` · `LWO` · `SMD` · `MD2` · `MD3` · `MD5MESH` · `ASE` · `LXO` · `LWS` · `DXF`
 
 ## Install
 

@@ -2,6 +2,10 @@
 
 [Back to MeshThumbs](../README.md)
 
+## 1.1.1
+
+- Add ASE, LXO, LWS, and DXF support.
+
 ## 1.1.0
 
 - Add SMD, MD2, MD3, and MD5MESH support.

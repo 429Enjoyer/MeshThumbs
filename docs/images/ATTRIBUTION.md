@@ -1,7 +1,7 @@
 # Preview credits
 
-`meshthumbs-preview.png` contains twenty-six examples rendered by MeshThumbs
-in a 1920×1080 layout (seven, seven, six, and six centered examples per row). Each
+`meshthumbs-preview.png` contains thirty examples rendered by MeshThumbs
+in a 1920×1080 layout (eight, eight, seven, and seven centered examples per row). Each
 model was rendered at 768×768 before resizing for the contact sheet. Ten use
 CC0 models from the Khronos glTF Sample Assets collection; the USD-family,
 3MF, VRM, and original procedural examples are credited separately below.
@@ -35,6 +35,12 @@ ImageTexture node. SheenChair was converted to NOFF with geometry and normals;
 its materials and sheen effects are omitted.
 
 ## Other examples
+
+- **ASE:** `Arcade.ase`, an original procedural arcade cabinet with an original screen image (`assets/ArcadeScreen.png`), © 2026 MeshThumbs contributors, [MIT](../../LICENSE). No game artwork or characters are used.
+- **LXO:** `Camera.lxo`, an original procedural camera mesh written in the LXOB container, © 2026 MeshThumbs contributors, [MIT](../../LICENSE). No Modo application or third-party geometry was used.
+- **LWS:** `Orbit.lws`, an original LWSC 3 scene with three transformed instances of the original `Satellite.lwo` example, © 2026 MeshThumbs contributors, [MIT](../../LICENSE). Keep the referenced object beside the scene file.
+- **DXF:** `Pavilion.dxf`, an original procedural pavilion exported as ASCII 3DFACE geometry with indexed colors, © 2026 MeshThumbs contributors, [MIT](../../LICENSE). These four examples can be recreated with [the scene example generator](../../scripts/generate-scene-examples.py) and were rendered by MeshThumbs at 768×768 before resizing.
+
 
 - **SMD:** `Turret.smd`, an original procedural turret with two reference bones and an original color atlas (`assets/Turret.png`), © 2026 MeshThumbs contributors, [MIT](../../LICENSE). Rendered as reference geometry with Z-up converted to Y-up.
 - **MD2:** `Crate.md2`, an original procedural crate with two vertex frames and an original indexed PCX skin (`assets/Crate.pcx`), © 2026 MeshThumbs contributors, [MIT](../../LICENSE). Frame zero is shown.

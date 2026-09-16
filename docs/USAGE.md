@@ -6,7 +6,7 @@ Run the commands below from the repository root.
 
 ## Install and upgrade
 
-The 1.1.0 MSI upgrades earlier releases, including local 1.0.10 builds. Matching
+The 1.1.1 MSI upgrades earlier releases, including 1.1.0 and local 1.0.10 builds. Matching
 versions are also treated as upgrades. The previous release is removed inside
 the upgrade transaction after the new shared components are installed.
 
@@ -245,8 +245,8 @@ limit and Explorer deadline. MagicaVoxel does not need to be installed.
 LightWave (`.lwo`) uses Assimp for polygon meshes, layers, surface/vertex colors,
 normals, UVs, and local diffuse image textures. LWOB and LWO2 samples were
 checked. Subdivision surfaces show their control mesh, not a subdivided result.
-Procedural/node materials and animation are not reproduced. LWS scenes and
-LXO files are not registered. LightWave does not need to be installed.
+Procedural/node materials and animation are not reproduced. Separate LWS scenes
+and LXO mesh files are described below. LightWave does not need to be installed.
 
 PMX and LWO require file or filesystem-backed item initialization in Explorer
 so relative textures retain their original paths. Anonymous streams are not
@@ -288,3 +288,42 @@ Missing or unsupported textures fall back to material colors. Game installations
 PAK/PK3/PK4 archives, VMT/VTF materials, Doom material declarations, shader effects,
 and normal/specular maps are not resolved. Extract geometry and supported image
 textures before requesting a thumbnail.
+
+
+## ASE, LXO, LWS, and DXF
+
+These four extensions use the bundled Assimp reader. No 3ds Max, Modo,
+LightWave, or CAD application is required.
+
+- **ASE:** static mesh exports, object transforms, materials, vertex colors,
+  UVs, and local diffuse textures. Plain text, UTF-8 BOM, and UTF-16 LE/BE BOM
+  inputs are supported. Geometry uses the reference mesh; animation, skeletal
+  deformation, cameras, lights, and procedural material graphs are not rendered.
+- **LXO:** polygon mesh layers stored in Modo's LXOB container, with layer
+  pivots, vertex colors, normals, UVs, and supported diffuse image materials.
+  This is a mesh-layer preview: Modo ITEM/CHAN scene-item transforms, instances,
+  deformation, procedural geometry, and full shader graphs are not evaluated.
+  Subdivision surfaces show their control mesh. Tested with real LXOB exports.
+- **LWS:** UTF-8 LWSC 3–5 scenes referencing local LWOB/LWO2/LXOB `.lwo` objects,
+  including LoadObject/LoadObjectLayer, object parenting, pivots, and transforms
+  from the initial authored channel keys. Local object paths are resolved beside
+  the scene or up to two parent folders for packaged Scenes/Objects layouts.
+  Texture paths are rebased against each object before merging, so same-named
+  textures in different folders remain distinct. Missing objects, nested scene
+  references, invalid parenting, and truncated object containers fail the preview.
+  Plugins are skipped; animation playback, LWO3 objects, LWSC 1/2, external scene
+  nesting, object visibility/dissolve settings, and full LightWave rendering are unsupported.
+  Limits are 1,024 object references, 4,096 nodes, 64 nested blocks/parent levels,
+  100,000 source lines, and 300 MiB of collected/normalized package data.
+- **DXF:** ASCII 3DFACE and POLYLINE polyface meshes, with indexed entity/vertex
+  colors and Z-up conversion. Block INSERTs, ACIS solids, REGION/BODY/SURFACE,
+  modern MESH, SOLID and HATCH entities are rejected; explode or export surfaces
+  as 3DFACE/polyfaces first. Lines, curves and annotations are not tessellated;
+  line-only drawings have no thumbnail. Binary DXF, textures, true-color/layer
+  material inheritance, and full CAD document rendering are unsupported. Parsing
+  is limited to ten million group-code pairs and requires the EOF record.
+
+ASE, LXO, and LWS use file or filesystem-backed item initialization in Explorer
+to retain their sidecar paths. Keep referenced objects and textures in place.
+DXF geometry is self-contained and also supports anonymous streams. The shared
+five-second Explorer deadline and five-million-triangle ceiling still apply.

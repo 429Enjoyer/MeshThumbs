@@ -6,7 +6,9 @@ use gltf::{image::Format, texture::WrappingMode};
 
 use crate::{RenderError, Scene, Texture, Triangle, Vertex, WrapMode};
 
+mod dxf;
 mod legacy;
+mod lws;
 mod native_scene;
 mod off;
 mod pcx;
@@ -40,7 +42,7 @@ pub(crate) fn load_scene(path: &Path, max_triangles: usize) -> Result<Scene, Ren
         }
         "fbx" => load_fbx(path).map_err(RenderError::Load),
         "stl" | "ply" | "dae" | "3ds" | "x3d" | "off" | "wrl" | "vrml" | "ifc" | "pmx" | "lwo"
-        | "smd" | "md2" | "md3" | "md5mesh" => {
+        | "smd" | "md2" | "md3" | "md5mesh" | "ase" | "lxo" | "lws" | "dxf" => {
             legacy::load(path, max_triangles).map_err(RenderError::Load)
         }
         _ => Err(RenderError::UnsupportedFormat),

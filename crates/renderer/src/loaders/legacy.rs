@@ -40,6 +40,8 @@ pub(super) fn load(path: &Path, budget: usize) -> anyhow::Result<Scene> {
         "x3d" => Some((super::x3d::normalize(path)?, "x3d")),
         "wrl" | "vrml" => Some((super::vrml::normalize(path)?, "x3d")),
         "md5mesh" => Some((normalize_md5(path)?, "md5mesh")),
+        "dxf" => Some((super::dxf::read(path)?, "dxf")),
+        "ase" => Some((normalize_ase(&std::fs::read(path)?)?, "ase")),
         _ => None,
     };
     let request = match &normalized {
@@ -52,6 +54,19 @@ pub(super) fn load(path: &Path, budget: usize) -> anyhow::Result<Scene> {
         .unwrap_or("")
         .to_ascii_lowercase();
     let game_model = matches!(extension.as_str(), "smd" | "md2" | "md3" | "md5mesh");
+    let request = if extension == "lws" {
+        let (name, files) = super::lws::files(path)?;
+        importer
+            .read_file(name)
+            .with_file_system(files)
+            .with_property_int("IMPORT_LWS_ANIM_START", 0)
+            .with_property_int("IMPORT_LWS_ANIM_END", 0)
+            .with_property_bool("IMPORT_NO_SKELETON_MESHES", true)
+    } else if extension == "ase" {
+        request.with_property_bool("IMPORT_NO_SKELETON_MESHES", true)
+    } else {
+        request
+    };
     let request = if game_model {
         // Preview one mesh in its reference pose / first vertex frame. Do not
         // auto-assemble adjacent MD3 parts or load animation/shader scripts.
@@ -307,6 +322,35 @@ fn normalize_md5(path: &Path) -> anyhow::Result<Vec<u8>> {
     md5_line_endings(&bytes)
 }
 
+fn normalize_ase(bytes: &[u8]) -> anyhow::Result<Vec<u8>> {
+    let result = if bytes.starts_with(&[0xff, 0xfe]) || bytes.starts_with(&[0xfe, 0xff]) {
+        let (pairs, remainder) = bytes[2..].as_chunks::<2>();
+        if !remainder.is_empty() {
+            bail!("truncated UTF-16 ASE text");
+        }
+        let words = pairs
+            .iter()
+            .map(|p| {
+                if bytes[0] == 0xff {
+                    u16::from_le_bytes(*p)
+                } else {
+                    u16::from_be_bytes(*p)
+                }
+            })
+            .collect::<Vec<_>>();
+        String::from_utf16(&words)?.into_bytes()
+    } else {
+        bytes
+            .strip_prefix(&[0xef, 0xbb, 0xbf])
+            .unwrap_or(bytes)
+            .to_vec()
+    };
+    if result.len() > MAX_MODEL_BYTES as usize {
+        bail!("normalized ASE exceeds 300 MiB");
+    }
+    Ok(result)
+}
+
 fn md5_line_endings(bytes: &[u8]) -> anyhow::Result<Vec<u8>> {
     let extra = bytes
         .iter()
@@ -337,6 +381,27 @@ fn wrap(mode: &TextureMapMode) -> WrapMode {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn ase_bom_encodings_match_plain_text() {
+        let text = "*3DSMAX_ASCIIEXPORT 200\n*COMMENT \"Mesh 日本語\"\n";
+        for little in [true, false] {
+            let mut bytes = if little {
+                vec![0xff, 0xfe]
+            } else {
+                vec![0xfe, 0xff]
+            };
+            for word in text.encode_utf16() {
+                bytes.extend(if little {
+                    word.to_le_bytes()
+                } else {
+                    word.to_be_bytes()
+                });
+            }
+            assert_eq!(normalize_ase(&bytes).unwrap(), text.as_bytes());
+        }
+        assert!(normalize_ase(&[0xff, 0xfe, 1]).is_err());
+    }
 
     #[test]
     fn missing_texture_uv_property_defaults_to_channel_zero() {

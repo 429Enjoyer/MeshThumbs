@@ -1,7 +1,8 @@
 # Example models
 
-These are the twenty-six models shown in the [README preview](../docs/images/meshthumbs-preview.png).
-There are **32 model files**, including the USD encodings and VRML/STEP/IGES aliases.
+These are the thirty models shown in the [README preview](../docs/images/meshthumbs-preview.png).
+There are **36 model files**, including the USD encodings and VRML/STEP/IGES aliases.
+`Orbit.lws` references `Satellite.lwo`; keep both together.
 All models are in this directory so they can be viewed together in Explorer.
 Keep `assets/`, `textures/`, and `Avocado.mtl` beside them; those files supply
 textures and materials. FBX, GLB, VRM, 3MF, and USDZ include their required assets.
@@ -34,6 +35,10 @@ textures and materials. FBX, GLB, VRM, 3MF, and USDZ include their required asse
 | Crate | [Crate.md2](Crate.md2), [PCX skin](assets/Crate.pcx) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
 | Drone | [Drone.md3](Drone.md3), [texture](assets/Drone.png) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
 | Mech | [Mech.md5mesh](Mech.md5mesh), [diffuse texture](assets/Mech_d.tga) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
+| Arcade | [Arcade.ase](Arcade.ase), [screen texture](assets/ArcadeScreen.png) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
+| Camera | [Camera.lxo](Camera.lxo) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
+| Orbit | [Orbit.lws](Orbit.lws), [referenced object](Satellite.lwo) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
+| Pavilion | [Pavilion.dxf](Pavilion.dxf) | © 2026 MeshThumbs contributors | [MIT](LICENSES/MIT.txt) |
 
 ## Changes and licensing
 
@@ -89,6 +94,13 @@ four MD3 surfaces and two frames, and Mech has two weighted joints in MD5MESH.
 The previews show the reference/bind pose or first frame. Recreate these assets
 with `python scripts/generate-game-examples.py` (Python 3.10+ and Pillow); it
 reuses the original mesh-building helpers in the PMX/VOX/LWO example generator.
+
+Arcade, Camera, Orbit, and Pavilion are original MIT examples with no third-party
+geometry or artwork. Arcade is an ASE mesh with an original screen image;
+Camera is a minimal LXOB polygon mesh; Orbit is an LWSC 3 scene that instances
+the original Satellite object with three placements; Pavilion uses DXF 3DFACE
+geometry and indexed colors. Recreate them with
+`python scripts/generate-scene-examples.py` (Python 3.10+ and Pillow).
 
 The project's MIT license does **not** relicense third-party models or textures.
 `assets/FlightHelmet/` belongs to FlightHelmet; the Avocado, BarramundiFish, and
