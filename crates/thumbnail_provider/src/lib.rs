@@ -51,6 +51,10 @@ const CLSID_VRM_PROVIDER: GUID = GUID::from_u128(0x4c451ba6_cc4c_47fb_8f5f_3d320
 const CLSID_BLEND_PROVIDER: GUID = GUID::from_u128(0xaf3d3dcd_8c60_4e29_a483_46db39c40fb9);
 const CLSID_X3D_PROVIDER: GUID = GUID::from_u128(0x098b9e30_da6d_43b8_9c2d_f82d32b4b070);
 const CLSID_OFF_PROVIDER: GUID = GUID::from_u128(0xf0c794c3_d2b3_42d4_a861_966ced3c966b);
+const CLSID_USD_PROVIDER: GUID = GUID::from_u128(0x61b9231b_1e4b_4a1b_adfb_812e3ae8a6bb);
+const CLSID_USDA_PROVIDER: GUID = GUID::from_u128(0x3ec714f0_b74b_477c_b682_8b74aee7c61a);
+const CLSID_USDC_PROVIDER: GUID = GUID::from_u128(0x125a17ba_7451_4726_bd0b_738e93add02f);
+const CLSID_USDZ_PROVIDER: GUID = GUID::from_u128(0xeebdc2f2_e564_476c_ad42_c8f35f8997f4);
 
 #[derive(Clone, Copy)]
 struct ProviderInfo {
@@ -58,7 +62,7 @@ struct ProviderInfo {
     extension: &'static str,
 }
 
-const PROVIDERS: [ProviderInfo; 13] = [
+const PROVIDERS: [ProviderInfo; 17] = [
     ProviderInfo {
         clsid: CLSID_OBJ_PROVIDER,
         extension: ".obj",
@@ -110,6 +114,22 @@ const PROVIDERS: [ProviderInfo; 13] = [
     ProviderInfo {
         clsid: CLSID_OFF_PROVIDER,
         extension: ".off",
+    },
+    ProviderInfo {
+        clsid: CLSID_USD_PROVIDER,
+        extension: ".usd",
+    },
+    ProviderInfo {
+        clsid: CLSID_USDA_PROVIDER,
+        extension: ".usda",
+    },
+    ProviderInfo {
+        clsid: CLSID_USDC_PROVIDER,
+        extension: ".usdc",
+    },
+    ProviderInfo {
+        clsid: CLSID_USDZ_PROVIDER,
+        extension: ".usdz",
     },
 ];
 
@@ -333,7 +353,7 @@ impl IClassFactory_Impl for ClassFactory_Impl {
         let state = ThumbnailProvider::new(self.provider.extension);
         let unknown: IUnknown = if matches!(
             self.provider.extension,
-            ".obj" | ".fbx" | ".gltf" | ".dae" | ".3ds"
+            ".obj" | ".fbx" | ".gltf" | ".dae" | ".3ds" | ".x3d" | ".usd" | ".usda" | ".usdc"
         ) {
             FileThumbnailProvider { inner: state }.into()
         } else {

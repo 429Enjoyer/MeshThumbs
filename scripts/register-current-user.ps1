@@ -19,7 +19,11 @@ $Providers = @(
     @{ Ext = ".vrm"; Clsid = "{4C451BA6-CC4C-47FB-8F5F-3D32029E2F45}"; DisableProcessIsolation = 1 },
     @{ Ext = ".blend"; Clsid = "{AF3D3DCD-8C60-4E29-A483-46DB39C40FB9}"; DisableProcessIsolation = 1 },
     @{ Ext = ".x3d"; Clsid = "{098B9E30-DA6D-43B8-9C2D-F82D32B4B070}"; DisableProcessIsolation = 1 },
-    @{ Ext = ".off"; Clsid = "{F0C794C3-D2B3-42D4-A861-966CED3C966B}"; DisableProcessIsolation = 1 }
+    @{ Ext = ".off"; Clsid = "{F0C794C3-D2B3-42D4-A861-966CED3C966B}"; DisableProcessIsolation = 1 },
+    @{ Ext = ".usd"; Clsid = "{61B9231B-1E4B-4A1B-ADFB-812E3AE8A6BB}"; DisableProcessIsolation = 1 },
+    @{ Ext = ".usda"; Clsid = "{3EC714F0-B74B-477C-B682-8B74AEE7C61A}"; DisableProcessIsolation = 1 },
+    @{ Ext = ".usdc"; Clsid = "{125A17BA-7451-4726-BD0B-738E93ADD02F}"; DisableProcessIsolation = 1 },
+    @{ Ext = ".usdz"; Clsid = "{EEBDC2F2-E564-476C-AD42-C8F35F8997F4}"; DisableProcessIsolation = 1 }
 )
 
 if (-not (Test-Path $Dll)) {

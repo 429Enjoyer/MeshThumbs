@@ -12,7 +12,7 @@ license file. The upstream attribution is retained in the project license.
 
 ## Dependencies and distribution
 
-[Third-party notices](THIRD-PARTY-NOTICES.txt) records 92 packages in the locked
+[Third-party notices](THIRD-PARTY-NOTICES.txt) records 119 packages in the locked
 Windows GNU dependency graph, including build dependencies and procedural
 macros. It also contains notices for bundled native code and Rust/MinGW runtimes.
 Optional native components and other-platform runtime notices are retained
@@ -26,6 +26,11 @@ The `ufbx` Rust crate omits a standalone license file from its archive. Its
 manifest declares `MIT OR PDDL-1.0`; the notices retain that declaration, its
 package author, pinned source links, and the MIT notice for bundled ufbx 0.21.1.
 
+USD parsing uses `openusd` 0.7.0 under MIT. Its crate archive omits the workspace
+license file; the notices include the license from the exact upstream commit
+recorded in the package's `.cargo_vcs_info.json`. New transitive dependency
+notices include the Zlib terms for `zlib-rs` and Apache-2.0 terms for `zopfli`.
+
 The unmodified MPL-2.0 source for `option-ext` 0.2.0 is included as
 [option-ext-0.2.0.crate](third-party/option-ext-0.2.0.crate). Its SHA-256 matches
 `Cargo.lock`. This is a gzip-compressed tar archive containing the published
@@ -35,8 +40,7 @@ source and license. The MSI installs the same archive alongside `LICENSE` and
 When updating dependencies, compare the locked Windows dependency graph with
 the notice inventory and retain the applicable license texts and source links.
 When changing compilers, update the runtime notices as well. This inventory
-corresponds to the Rust 1.98.1 / MinGW build of MeshThumbs 1.0.4. The X3D and OFF
-additions reuse existing dependencies and do not add new third-party libraries.
+corresponds to the Rust 1.98.1 / MinGW build of MeshThumbs 1.0.5.
 
 ## Preview assets
 
@@ -45,3 +49,9 @@ The project MIT license does not relicense models or their rendered images.
 README image, its source, license, and the changes made for display. Earlier
 preview images and previously published installers are not updated by this
 documentation change.
+
+The 1080p preview uses ten CC0 examples, a CC BY 4.0 sofa representing the USD
+family, a BSD-2-Clause 3MF sample, and a VRM Public License 1.0 avatar with its
+embedded usage settings. The sofa credit includes its author, copyright holder,
+source, license link, and rendering changes. Asset revisions are pinned in the
+credits; their licenses remain separate from the project MIT license.

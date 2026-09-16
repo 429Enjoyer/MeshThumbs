@@ -14,7 +14,7 @@ cargo run -p thumbgen -- model.glb preview.png 256
 
 ## Build
 
-Requires Windows x64, Rust 1.88+, a C++ compiler, CMake, and WiX 3.14.
+Requires Windows x64, Rust 1.96+, a C++ compiler, CMake, and WiX 3.14.
 
 ```powershell
 .\scripts\build-msi.ps1
@@ -53,5 +53,18 @@ beside the model or in their referenced relative folders.
 OFF supports ASCII OFF, COFF, NOFF, and CNOFF files, including RGB/RGBA vertex
 colors in 0–1 or 0–255 ranges. Binary OFF, per-face colors, and other header
 variants are unsupported. Line-only and point-only files have no mesh thumbnail.
+
+USD, USDA, USDC, and USDZ are read directly, without an external USD application.
+Previews use the stage's start time and support polygon meshes, Cube/Sphere/
+Cylinder/Cone primitives, transforms, local references, material subsets,
+display colors, and UsdPreviewSurface base-color textures. USDZ contents and
+referenced source assets share a 300 MiB read budget. Missing optional textures
+fall back to material colors; unresolved scene references may prevent a preview.
+Explorer uses the original file path for USD/USDA/USDC and X3D so relative assets
+remain resolvable. These formats require a filesystem-backed item; USDZ can also
+be read from an anonymous stream because its resources are packaged together.
+Subdivision uses the control mesh. Skinning, simulation, scene lighting,
+PointInstancer geometry, and nested USDZ packages are unsupported. Other shader
+graphs, including MaterialX, use an untextured fallback; this is not a full PBR render.
 
 Logs: `C:\ProgramData\MeshThumbs\meshthumbs.log`.

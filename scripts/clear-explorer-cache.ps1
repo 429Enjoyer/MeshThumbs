@@ -32,7 +32,11 @@ $providerClsids = @(
     "{4C451BA6-CC4C-47FB-8F5F-3D32029E2F45}",
     "{AF3D3DCD-8C60-4E29-A483-46DB39C40FB9}",
     "{098B9E30-DA6D-43B8-9C2D-F82D32B4B070}",
-    "{F0C794C3-D2B3-42D4-A861-966CED3C966B}"
+    "{F0C794C3-D2B3-42D4-A861-966CED3C966B}",
+    "{61B9231B-1E4B-4A1B-ADFB-812E3AE8A6BB}",
+    "{3EC714F0-B74B-477C-B682-8B74AEE7C61A}",
+    "{125A17BA-7451-4726-BD0B-738E93ADD02F}",
+    "{EEBDC2F2-E564-476C-AD42-C8F35F8997F4}"
 )
 
 function Remove-ThumbnailKeyIfOurs {
@@ -45,7 +49,7 @@ function Remove-ThumbnailKeyIfOurs {
 }
 
 function Remove-CurrentUserShellOverrides {
-    foreach ($ext in ".obj", ".fbx", ".glb", ".gltf", ".stl", ".dae", ".ply", ".3ds", ".3mf", ".vrm", ".blend", ".x3d", ".off") {
+    foreach ($ext in ".obj", ".fbx", ".glb", ".gltf", ".stl", ".dae", ".ply", ".3ds", ".3mf", ".vrm", ".blend", ".x3d", ".off", ".usd", ".usda", ".usdc", ".usdz") {
         Remove-ThumbnailKeyIfOurs "HKCU:\Software\Classes\$ext\shellex\$thumbHandler"
         Remove-ThumbnailKeyIfOurs "HKCU:\Software\Classes\SystemFileAssociations\$ext\shellex\$thumbHandler"
 

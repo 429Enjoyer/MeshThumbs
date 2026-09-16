@@ -11,7 +11,7 @@ $TargetDir = Join-Path $TargetRoot $Configuration
 $WixObj = Join-Path $Root "wix\obj"
 $WixBin = Join-Path $Root "wix\bin"
 $ProductWxs = Join-Path $Root "wix\Product.wxs"
-$OutputMsi = Join-Path $Root "MeshThumbs-1.0.4-x64.msi"
+$OutputMsi = Join-Path $Root "MeshThumbs-1.0.5-x64.msi"
 $LocalWix = Join-Path $Root ".tools\wix314"
 
 if (-not $SkipBuild) {

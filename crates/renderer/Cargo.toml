@@ -12,6 +12,7 @@ flate2 = "1"
 glam = "0.29"
 gltf = { version = "1.4", features = ["import", "KHR_texture_transform", "KHR_materials_unlit"] }
 image = { version = "0.25", default-features = false, features = ["png", "jpeg", "bmp", "tga", "dds"] }
+openusd = "0.7"
 roxmltree = "0.21"
 serde_json = "1"
 thiserror = "2"
