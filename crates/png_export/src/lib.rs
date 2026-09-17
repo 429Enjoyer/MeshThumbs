@@ -30,6 +30,8 @@ pub fn selection(mut files: Vec<PathBuf>) -> anyhow::Result<Vec<PathBuf>> {
 #[cfg(windows)]
 pub mod batch;
 #[cfg(windows)]
+mod blender;
+#[cfg(windows)]
 pub mod job;
 
 #[cfg(test)]

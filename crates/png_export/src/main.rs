@@ -79,6 +79,22 @@ mod ui {
         if report.collisions > 0 {
             text += "\nSome models share an output name; the last successful export is kept.";
         }
+        if !report.blend_fallbacks.is_empty() {
+            text += &format!(
+                "\n\n{} BLEND file(s) used their stored preview instead of 3D geometry:",
+                report.blend_fallbacks.len()
+            );
+            for (path, reason) in report.blend_fallbacks.iter().take(8) {
+                text += &format!(
+                    "\n{}: {}",
+                    path.file_name().unwrap_or_default().to_string_lossy(),
+                    reason.chars().take(220).collect::<String>()
+                );
+            }
+            if report.blend_fallbacks.len() > 8 {
+                text += "\nAdditional fallback details omitted.";
+            }
+        }
         if !report.failures.is_empty() {
             text += &format!("\n\n{} file(s) failed:", report.failures.len());
             for (path, error) in report.failures.iter().take(8) {

@@ -16,15 +16,21 @@ If setup reports Explorer files in use, finish any copies or moves, click
 Closing folder windows alone may leave Explorer running. The button forcibly
 closes the current user's Explorer windows; close other listed apps separately.
 If setup requests a Windows restart, restart to finish replacing locked files.
+The completion page also has **Restart Explorer** to recover a missing desktop
+or taskbar without opening Task Manager. It checks that both shell windows are
+responding; a background `explorer.exe` alone does not count as recovery.
 
 The installer refreshes file associations without automatically restarting
-Explorer. Upgrading from original 1.0.8 or earlier packages can still invoke
-their older uninstall/restart behavior.
+Explorer. Old cached uninstallers retain their own restart policy; upgrading
+from them can still invoke their older behavior.
 
 For deployment: `/qf` uses the full UI with **Restart Explorer**; `/qb` uses
 basic Windows Installer UI; `/qn` runs silently. Handle exit code **3010** as
-a required restart. The MSI uses `MSIRESTARTMANAGERCONTROL=DisableShutdown`
-and does not suppress reboot requests.
+a required restart. The MSI uses `MSIRESTARTMANAGERCONTROL=Disable` to fully
+disable Restart Manager interaction and uses the classic files-in-use dialog.
+Reboot requests are not suppressed. `DisableShutdown` was insufficient with the
+bundled Restart Manager UI; Windows logged failed Explorer shutdown/recovery
+(events 10006 and 10010). See [Microsoft's property documentation](https://learn.microsoft.com/en-us/windows/win32/msi/msirestartmanagercontrol).
 
 ## Export PNG thumbnails
 
@@ -45,8 +51,14 @@ PNG. Read-only destinations produce an error without elevation.
 One dialog shows progress and offers **Cancel**. Completed PNGs remain; individual
 failures do not stop the batch and are listed in the final summary. Rendering
 runs outside Explorer. Each file has a 30-second deadline and a 2 GiB worker
-memory limit; IFC4 keeps its shorter converter limits below. Selections are
+memory limit; BLEND has the larger explicit-export budget below and IFC4 keeps
+its shorter converter limits. Selections are
 limited to 10,000 files and 16 MiB of path data.
+
+For **BLEND**, the menu and `--export-png` try installed Blender to read real
+geometry before rendering it with MeshThumbs. If Blender is missing, fails,
+or times out, the saved preview is used and identified in the final summary.
+If neither works, the export fails without replacing the old PNG.
 
 ## CLI
 
@@ -117,7 +129,8 @@ use the MSI to install the PNG context menu.
 ## Rendering & Troubleshooting
 
 Automatic Explorer previews render in a separate CPU worker with a **5-second
-timeout**, **300 MiB file limit**, and **5-million-triangle limit**. Corrupt,
+timeout**, **300 MiB mesh file limit**, and **5-million-triangle limit**. BLEND
+saved previews only read a bounded prefix, so the total file can exceed 300 MiB. Corrupt,
 unsupported, or complex models may have no preview. PNG export uses the same
 renderer and format limits, with the longer deadline described above.
 
@@ -150,9 +163,40 @@ expanded package data is limited to 300 MiB.
 
 ### BLEND
 
-Uses the saved preview image, preserving its framing and aspect ratio. Supports
+Automatic Explorer thumbnails and the explicit-output CLI use the saved preview
+image, preserving its framing and aspect ratio. Supports
 little-endian legacy and Blender 5.0+ headers, gzip, and Zstandard compression.
-Files without an embedded preview have no thumbnail; scenes are not re-rendered.
+Files without an embedded preview have no automatic thumbnail.
+Preview reads are limited to 32 MiB of decompressed header data and four million
+preview pixels, independent of the total BLEND size. Anonymous Shell streams
+also copy at most the first 32 MiB.
+
+The context menu and `--export-png` can instead read geometry through **Blender
+3.6 or newer** (tested with 4.0). MeshThumbs searches standard Blender Foundation
+installation folders and `PATH`. For portable/custom installations, set the
+`MESHTHUMBS_BLENDER` environment variable to the absolute path of `blender.exe`.
+An invalid override uses the saved-preview fallback; restart Explorer after
+changing its environment so the context menu receives the setting.
+
+Conversion uses the active scene/view layer at its saved frame, evaluated mesh
+and curve geometry, instances, viewport modifiers, and supported glTF materials.
+Hidden objects are omitted. MeshThumbs supplies framing and lighting; Cycles/EEVEE
+effects, procedural shaders, volumes, simulations, and source cameras/lights are
+not reproduced. Missing linked assets can limit the result.
+
+Large BLEND sources are accepted for manual export. The converted GLB is limited
+to **1 GiB and ten million triangles**, with referenced textures resized in memory
+to at most 1024 pixels per side. Repeated instances share converted mesh data.
+
+Blender runs hidden with factory startup, automatic file scripts disabled, and
+two requested threads. Conversion and the subsequent mesh render each have a
+**120-second deadline**. Each process gets a memory budget based on one quarter
+of installed RAM or half of currently available RAM, whichever is smaller,
+bounded to 512 MiB–8 GiB. This reserves capacity for other applications.
+MeshThumbs starts only one Blender conversion per Windows session;
+other exports wait up to 120 seconds, with Cancel available, then fall back.
+Cancel terminates the child process and preserves the previous PNG. The original BLEND is never
+saved or modified. Blender is optional and is not bundled with the MSI.
 
 ### X3D, WRL / VRML, and OFF
 

@@ -2,6 +2,7 @@
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import subprocess
+import shutil
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -19,17 +20,32 @@ ROWS = [
      ('holy_grailref.smd', 'Reference mesh')],
     [('faerie.md2', 'First frame'), ('copter.md3', 'First frame · PCX skin'),
      ('Mech.md5mesh', 'Bind pose'), ('ThreeCubesGreen.ASE', ''), ('CrazyEngine.lxo', 'LXOB mesh'),
-     ('move_x.lws', 'Referenced object'), ('wuson.dxf', 'Block inserts')],
+     ('move_x.lws', 'Referenced object'), ('wuson.dxf', 'Block inserts'),
+     ('suzanne.blend', 'PNG export · Blender')],
 ]
 EXTENSIONS = {'.'+name.lower() for row in ROWS for file, _ in row for name in [file.rsplit('.', 1)[1]]}
 EXTENSIONS.update({'.usd', '.usda', '.usdc', '.vrml', '.stp', '.iges'})
 
 
 def render(path):
-    subprocess.run([str(ROOT/'target/release/thumbgen.exe'), str(path),
-                    str(OUTPUT/(path.name+'.png')), '768'], check=True, timeout=60)
+    size = 768
+    if path.suffix.lower() == '.blend':
+        # Export in a staging folder so the curated model/textures stay untouched.
+        staging = OUTPUT/'blend'
+        staging.mkdir(exist_ok=True)
+        model = staging/path.name
+        shutil.copy2(path, model)
+        result = subprocess.run([str(ROOT/'target/release/thumbgen.exe'), '--export-png',
+                                 '1024', str(model)], check=True, capture_output=True, timeout=120)
+        if b'used stored BLEND preview' in result.stderr:
+            raise RuntimeError('README BLEND tile requires a successful Blender geometry export')
+        shutil.copy2(model.with_suffix('.png'), OUTPUT/(path.name+'.png'))
+        size = 1024
+    else:
+        subprocess.run([str(ROOT/'target/release/thumbgen.exe'), str(path),
+                        str(OUTPUT/(path.name+'.png')), '768'], check=True, timeout=60)
     with Image.open(OUTPUT/(path.name+'.png')) as image:
-        assert image.size == (768, 768), path.name
+        assert image.size == (size, size), path.name
         assert image.convert('RGBA').getchannel('A').getbbox(), path.name
     return path.name
 

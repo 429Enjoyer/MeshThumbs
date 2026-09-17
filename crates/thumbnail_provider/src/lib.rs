@@ -660,7 +660,8 @@ fn write_stream_to_temp_model(stream: &IStream, extension_hint: &str) -> Result<
     } else {
         None
     };
-    if stat.cbSize == 0 || stat.cbSize > MAX_MODEL_BYTES {
+    let blend = extension_hint.eq_ignore_ascii_case(".blend");
+    if stat.cbSize == 0 || (!blend && stat.cbSize > MAX_MODEL_BYTES) {
         return Err(Error::from(E_FAIL));
     }
     // File-backed Shell streams can preserve sidecar buffers and textures.
@@ -704,7 +705,13 @@ fn write_stream_to_temp_model(stream: &IStream, extension_hint: &str) -> Result<
         .map_err(|_| Error::from(E_FAIL))?;
     file.write_all(&buffer[..prefix_len as usize])
         .map_err(|_| Error::from(E_FAIL))?;
-    let mut remaining = stat.cbSize - prefix_len as u64;
+    // BLEND thumbnails only need the bounded prefix, even for anonymous streams.
+    let copy_size = if blend {
+        stat.cbSize.min(renderer::MAX_BLEND_PREVIEW_BYTES)
+    } else {
+        stat.cbSize
+    };
+    let mut remaining = copy_size - prefix_len as u64;
     while remaining > 0 {
         let requested = remaining.min(buffer.len() as u64) as u32;
         let mut read = 0;

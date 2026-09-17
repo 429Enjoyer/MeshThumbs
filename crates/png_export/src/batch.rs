@@ -18,6 +18,7 @@ pub struct Report {
     pub failures: Vec<(PathBuf, String)>,
     pub collisions: usize,
     pub cancelled: bool,
+    pub blend_fallbacks: Vec<(PathBuf, String)>,
 }
 
 pub fn run(files: Vec<PathBuf>, size: u32, observer: &mut dyn Observer) -> Result<Report> {
@@ -47,8 +48,13 @@ pub fn run(files: Vec<PathBuf>, size: u32, observer: &mut dyn Observer) -> Resul
         }
         observer.begin(index, files.len(), input);
         match one(&executable, input, &destination, size, observer) {
-            Ok(true) => report.written += 1,
-            Ok(false) => {
+            Ok(Outcome::Written(fallback)) => {
+                report.written += 1;
+                if let Some(reason) = fallback {
+                    report.blend_fallbacks.push((input.clone(), reason));
+                }
+            }
+            Ok(Outcome::Cancelled) => {
                 report.cancelled = true;
                 break;
             }
@@ -70,13 +76,18 @@ impl Drop for Workspace {
     }
 }
 
+enum Outcome {
+    Written(Option<String>),
+    Cancelled,
+}
+
 fn one(
     executable: &Path,
     input: &Path,
     destination: &Path,
     size: u32,
     observer: &mut dyn Observer,
-) -> Result<bool> {
+) -> Result<Outcome> {
     ensure!(input.is_file(), "The selected file no longer exists");
     let workspace = Workspace(
         tempfile::Builder::new()
@@ -84,21 +95,93 @@ fn one(
             .tempdir()?,
     );
     let raw = workspace.0.path().join("result.rgba");
-    let args: Vec<OsString> = vec![
+    let mut fallback = None;
+    let mut rendered = false;
+    if input
+        .extension()
+        .is_some_and(|ext| ext.eq_ignore_ascii_case("blend"))
+    {
+        match crate::blender::convert(input, workspace.0.path(), observer) {
+            Ok(Some(model)) => {
+                match render(
+                    executable,
+                    &model,
+                    &raw,
+                    workspace.0.path(),
+                    size,
+                    true,
+                    observer,
+                ) {
+                    Ok(true) => rendered = true,
+                    Ok(false) => return Ok(Outcome::Cancelled),
+                    Err(error) => fallback = Some(format!("Geometry render failed: {error:#}")),
+                }
+            }
+            Ok(None) => return Ok(Outcome::Cancelled),
+            Err(error) => fallback = Some(format!("{error:#}")),
+        }
+    }
+    if !rendered
+        && !render(
+            executable,
+            input,
+            &raw,
+            workspace.0.path(),
+            size,
+            false,
+            observer,
+        )
+        .with_context(|| {
+            fallback.as_ref().map_or_else(
+                || "Rendering failed".to_owned(),
+                |reason| format!("{reason}; stored preview also failed"),
+            )
+        })?
+    {
+        return Ok(Outcome::Cancelled);
+    }
+    let pixels = std::fs::read(&raw)?;
+    if publish(destination, &pixels, size, observer)? {
+        Ok(Outcome::Written(fallback))
+    } else {
+        Ok(Outcome::Cancelled)
+    }
+}
+
+fn render(
+    executable: &Path,
+    input: &Path,
+    raw: &Path,
+    workspace: &Path,
+    size: u32,
+    blend_geometry: bool,
+    observer: &mut dyn Observer,
+) -> Result<bool> {
+    if observer.cancelled() {
+        return Ok(false);
+    }
+    // A second attempt must never consume the first attempt's bitmap/error.
+    let _ = std::fs::remove_file(raw);
+    let _ = std::fs::remove_file(raw.with_extension("error.txt"));
+    let mut args: Vec<OsString> = vec![
         input.into(),
         raw.as_os_str().into(),
         size.to_string().into(),
         "--raw-rgba".into(),
         "--work-dir".into(),
-        workspace.0.path().as_os_str().into(),
+        workspace.as_os_str().into(),
     ];
-    let mut worker = renderer::process::Process::spawn(
-        executable,
-        &args,
-        workspace.0.path(),
-        2 * 1024 * 1024 * 1024,
-    )?;
-    let deadline = Instant::now() + Duration::from_secs(30);
+    if blend_geometry {
+        args.push("--blend-geometry".into());
+    }
+    let memory = if blend_geometry {
+        crate::blender::memory_limit()
+    } else {
+        2 * 1024 * 1024 * 1024
+    };
+    let mut worker = renderer::process::Process::spawn(executable, &args, workspace, memory)?;
+    let seconds = if blend_geometry { 120 } else { 30 };
+    let deadline = Instant::now() + Duration::from_secs(seconds);
     loop {
         if observer.cancelled() {
             return Ok(false);
@@ -120,17 +203,17 @@ fn one(
             }
             break;
         }
-        ensure!(Instant::now() < deadline, "Rendering exceeded 30 seconds");
+        ensure!(
+            Instant::now() < deadline,
+            "Rendering exceeded {seconds} seconds"
+        );
         std::thread::sleep(Duration::from_millis(20));
     }
-    drop(worker);
-    let expected = size as usize * size as usize * 4;
     ensure!(
-        std::fs::metadata(&raw)?.len() == expected as u64,
+        std::fs::metadata(raw)?.len() == size as u64 * size as u64 * 4,
         "Invalid rendered bitmap size"
     );
-    let pixels = std::fs::read(&raw)?;
-    publish(destination, &pixels, size, observer)
+    Ok(true)
 }
 
 fn publish(

@@ -38,6 +38,9 @@ fn main() -> anyhow::Result<()> {
         for (path, error) in &report.failures {
             eprintln!("{}: {error}", path.display());
         }
+        for (path, reason) in &report.blend_fallbacks {
+            eprintln!("{}: used stored BLEND preview ({reason})", path.display());
+        }
         if !report.failures.is_empty() {
             bail!("some PNG exports failed");
         }
@@ -71,13 +74,20 @@ fn render(args: &[std::ffi::OsString]) -> anyhow::Result<()> {
         .and_then(|s| s.parse().ok())
         .unwrap_or(256);
 
-    let bitmap = render_thumbnail(
-        &input,
-        &RenderOptions {
-            size,
-            ..Default::default()
-        },
-    )
+    let geometry = args.get(3).is_some_and(|a| a == "--raw-rgba")
+        && args.get(4).is_some_and(|a| a == "--work-dir")
+        && args.get(6).is_some_and(|a| a == "--blend-geometry");
+    let bitmap = if geometry {
+        renderer::render_exported_blend(&input, size)
+    } else {
+        render_thumbnail(
+            &input,
+            &RenderOptions {
+                size,
+                ..Default::default()
+            },
+        )
+    }
     .with_context(|| format!("failed to render {}", input.display()))?;
 
     // Private worker transport: fixed dimensions are validated by the COM host.

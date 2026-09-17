@@ -2,13 +2,14 @@
 
 [Back to MeshThumbs](../README.md)
 
-The installer uses the unmodified **WiX Toolset 3.14.1 WixUI_Minimal** dialog
-library. Only `FilesInUse` is replaced by the original MeshThumbs dialog in
-`wix/InstallerUI.wxs`, adding the explicit Restart Explorer button. The welcome
+The installer uses the **WiX Toolset 3.14.1 WixUI_Minimal** dialog library.
+`FilesInUse` is replaced by the MeshThumbs dialog in `wix/InstallerUI.wxs`;
+the stock completion dialog gains recovery text and a **Restart Explorer** button.
+Both buttons run only when clicked. The welcome
 page's license text is generated from the project `LICENSE` during packaging.
 The build adapter `wix/MeshThumbsWixUIExtension.cs` filters only the built-in
-`FilesInUse` section from the WiX library before linking. This avoids duplicate
-dialog IDs while preserving the original Minimal navigation, dialogs, and assets.
+`FilesInUse` section and adds the two completion controls before linking.
+The remaining Minimal navigation, dialogs, and assets are unchanged.
 The adapter is a build tool and is not executed by the installed application.
 
 WiX UI sources and artwork retain the **Microsoft Reciprocal License (MS-RL)**

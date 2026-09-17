@@ -13,7 +13,7 @@ use crate::RgbaBitmap;
 
 // A thumbnail lives near the start, before GLOB and scene data. Bound both
 // decompression and allocations even if a malformed file advertises huge sizes.
-const MAX_PREFIX_BYTES: u64 = 32 * 1024 * 1024;
+const MAX_PREFIX_BYTES: u64 = crate::MAX_BLEND_PREVIEW_BYTES;
 const MAX_PREVIEW_PIXELS: u64 = 4 * 1024 * 1024;
 
 pub(crate) fn render(path: &Path, size: u32) -> Result<RgbaBitmap> {

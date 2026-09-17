@@ -1,19 +1,89 @@
 # Embedded in the MSI UI action so it works before installed files are replaced.
 # This script runs only when the user clicks Restart Explorer, never unattended.
+param([switch]$DefinitionsOnly)
 $ErrorActionPreference = 'Stop'
 
 function Get-OwnedExplorer {
     param([int]$Session, [string]$OwnerSid, [string]$Executable)
     foreach ($process in @(Get-Process -Name explorer -ErrorAction SilentlyContinue)) {
-        if ($process.SessionId -ne $Session) { continue }
-        $null = $process.Handle # Pin the process identity before validating it.
-        # Do not terminate similarly named executables or another user's shell.
-        if (-not [string]::Equals($process.Path, $Executable, [StringComparison]::OrdinalIgnoreCase)) { continue }
-        $instance = Get-CimInstance -ClassName Win32_Process -Filter "ProcessId=$($process.Id)"
-        if (-not $instance) { continue }
-        $owner = Invoke-CimMethod -InputObject $instance -MethodName GetOwnerSid
-        if ($owner.ReturnValue -eq 0 -and $owner.Sid -eq $OwnerSid) { $process }
+        try {
+            if ($process.SessionId -ne $Session -or $process.HasExited) { continue }
+            $null = $process.Handle # Pin the process identity before validating it.
+            # Do not terminate similarly named executables or another user's shell.
+            if (-not [string]::Equals($process.Path, $Executable, [StringComparison]::OrdinalIgnoreCase)) { continue }
+            $instance = Get-CimInstance -ClassName Win32_Process -Filter "ProcessId=$($process.Id)"
+            if (-not $instance) { continue }
+            $owner = Invoke-CimMethod -InputObject $instance -MethodName GetOwnerSid
+            if ($owner.ReturnValue -eq 0 -and $owner.Sid -eq $OwnerSid) { $process }
+        } catch {
+            # Explorer may exit between enumeration and validation. Re-check on
+            # the next poll; an unverified process must never be terminated.
+            continue
+        }
     }
+}
+
+function Test-ExplorerDesktop {
+    param([int]$Session, [string]$OwnerSid, [string]$Executable)
+    if (-not ('MeshThumbs.ExplorerDesktop' -as [type])) {
+        Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+namespace MeshThumbs {
+    public static class ExplorerDesktop {
+        [DllImport("user32.dll")] public static extern IntPtr GetShellWindow();
+        [DllImport("user32.dll", CharSet=CharSet.Unicode)]
+        public static extern IntPtr FindWindow(string className, string title);
+        [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr window, out uint process);
+        [DllImport("user32.dll", SetLastError=true)]
+        private static extern IntPtr SendMessageTimeout(IntPtr window, uint message, UIntPtr wParam, IntPtr lParam, uint flags, uint timeout, out UIntPtr result);
+        public static int Owner(IntPtr window) { uint pid; GetWindowThreadProcessId(window, out pid); return (int)pid; }
+        public static bool Responds(IntPtr window) {
+            UIntPtr result;
+            return window != IntPtr.Zero && SendMessageTimeout(window, 0, UIntPtr.Zero, IntPtr.Zero, 3, 500, out result) != IntPtr.Zero;
+        }
+    }
+}
+'@
+    }
+    $desktop = [MeshThumbs.ExplorerDesktop]::GetShellWindow()
+    $taskbar = [MeshThumbs.ExplorerDesktop]::FindWindow('Shell_TrayWnd', $null)
+    if ($desktop -eq [IntPtr]::Zero -or $taskbar -eq [IntPtr]::Zero) { return $false }
+    $owned = @(Get-OwnedExplorer -Session $Session -OwnerSid $OwnerSid -Executable $Executable)
+    if ([MeshThumbs.ExplorerDesktop]::Owner($desktop) -notin $owned.Id -or
+        [MeshThumbs.ExplorerDesktop]::Owner($taskbar) -notin $owned.Id) { return $false }
+    return [MeshThumbs.ExplorerDesktop]::Responds($desktop) -and [MeshThumbs.ExplorerDesktop]::Responds($taskbar)
+}
+
+function Wait-ExplorerDesktop {
+    param([int]$Session, [string]$OwnerSid, [string]$Executable, [int]$Attempts)
+    for ($attempt = 0; $attempt -lt $Attempts; $attempt++) {
+        if (Test-ExplorerDesktop -Session $Session -OwnerSid $OwnerSid -Executable $Executable) { return $true }
+        Start-Sleep -Milliseconds 250
+    }
+    return $false
+}
+
+function Restore-ExplorerDesktop {
+    param([int]$Session, [string]$OwnerSid, [string]$Executable)
+    # Process existence is insufficient: RM can leave explorer.exe alive with
+    # no desktop/taskbar. Wait for actual shell windows to respond.
+    if (Wait-ExplorerDesktop -Session $Session -OwnerSid $OwnerSid -Executable $Executable -Attempts 40) { return }
+    if (-not @(Get-OwnedExplorer -Session $Session -OwnerSid $OwnerSid -Executable $Executable).Count) {
+        if (Test-ExplorerProcessInSession -Session $Session) {
+            throw 'Explorer is running under another account or cannot be verified. Run setup from the same Windows account as your desktop.'
+        }
+        # This is the user's visible desktop, not a hidden background helper.
+        Start-Process -FilePath $Executable -WindowStyle Normal
+    }
+    if (-not (Wait-ExplorerDesktop -Session $Session -OwnerSid $OwnerSid -Executable $Executable -Attempts 60)) {
+        throw 'Windows has not restored the desktop and taskbar. Finish setup and restart Windows to complete recovery.'
+    }
+}
+
+function Test-ExplorerProcessInSession {
+    param([int]$Session)
+    return @(Get-Process -Name explorer -ErrorAction SilentlyContinue | Where-Object { $_.SessionId -eq $Session }).Count -gt 0
 }
 
 function Restart-CurrentUserExplorer {
@@ -24,9 +94,6 @@ function Restart-CurrentUserExplorer {
     $sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
     $executable = Join-Path $env:WINDIR 'explorer.exe'
     $processes = @(Get-OwnedExplorer -Session $session -OwnerSid $sid -Executable $executable)
-    if ($processes.Count -eq 0) {
-        throw 'No Explorer process owned by this user was found. Close other applications in the list, then click Retry.'
-    }
 
     $stopped = $false
     try {
@@ -36,33 +103,23 @@ function Restart-CurrentUserExplorer {
             if (-not $process.HasExited) {
                 $process.Kill()
                 $stopped = $true
-                if (-not $process.WaitForExit(3000)) { throw 'Explorer did not exit. Please restart it using Task Manager.' }
+                if (-not $process.WaitForExit(3000)) { throw 'Explorer did not exit. Finish setup and restart Windows to complete recovery.' }
             }
         }
     } finally {
-        if ($stopped) {
-            $restored = $false
-            for ($attempt = 0; $attempt -lt 20; $attempt++) {
-                if (@(Get-OwnedExplorer -Session $session -OwnerSid $sid -Executable $executable).Count) {
-                    $restored = $true
-                    break
-                }
-                Start-Sleep -Milliseconds 250
-            }
-            # Winlogon normally restores Explorer. Do not open a second window
-            # if recovery happened during the final polling interval.
-            if (-not $restored -and -not @(Get-OwnedExplorer -Session $session -OwnerSid $sid -Executable $executable).Count) {
-                Start-Process -FilePath $executable -WindowStyle Hidden
-            }
+        if ($stopped -or $processes.Count -eq 0) {
+            Restore-ExplorerDesktop -Session $session -OwnerSid $sid -Executable $executable
         }
     }
 }
 
+if ($DefinitionsOnly) { return }
+
 try {
     Restart-CurrentUserExplorer
 } catch {
-    # The action does not abort setup: the FilesInUse dialog retains Retry,
-    # Ignore and Cancel. Show the reason instead of silently doing nothing.
+    # The action does not abort setup. The files-in-use and completion dialogs
+    # remain available; show a recovery failure rather than claiming success.
     if ([Environment]::UserInteractive -and [System.Diagnostics.Process]::GetCurrentProcess().SessionId -ne 0) {
         Add-Type -AssemblyName System.Windows.Forms
         [void][System.Windows.Forms.MessageBox]::Show($_.Exception.Message, 'MeshThumbs - Restart Explorer', 'OK', 'Warning')

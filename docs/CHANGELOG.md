@@ -2,6 +2,12 @@
 
 [Back to MeshThumbs](../README.md)
 
+## 1.1.6
+
+- Add BLEND geometry export using installed Blender, with saved-preview fallback.
+- Fix large BLEND previews and exports.
+- Fix Explorer recovery during installer upgrades.
+
 ## 1.1.5
 
 - Add MeshThumbs context menu for PNG thumbnail export.

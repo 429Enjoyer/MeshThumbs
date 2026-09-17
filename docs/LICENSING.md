@@ -8,6 +8,8 @@
 3DThumbnails. The upstream [manifest](https://github.com/While402/3DThumbnails/blob/main/Cargo.toml)
 and README declare MIT; the imported tree had no standalone license file.
 The PNG exporter, context-menu handler, and native adapters are original MIT code.
+The Blender conversion script is also original MIT code. It invokes the user's
+installed Blender; no Blender executable or add-on source is redistributed.
 
 ## Dependencies and redistribution
 

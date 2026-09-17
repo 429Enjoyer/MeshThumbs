@@ -13,7 +13,7 @@ $ProductWxs = Join-Path $Root "wix\Product.wxs"
 $InstallerUiWxs = Join-Path $Root "wix\InstallerUI.wxs"
 $RestartExplorerSource = Get-Content -LiteralPath (Join-Path $Root "scripts\restart-explorer.ps1") -Raw
 $RestartExplorerCommand = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($RestartExplorerSource))
-$OutputMsi = Join-Path $Root "MeshThumbs-1.1.5-x64.msi"
+$OutputMsi = Join-Path $Root "MeshThumbs-1.1.6-x64.msi"
 $LocalWix = Join-Path $Root ".tools\wix314"
 
 if (-not $SkipBuild) {
@@ -166,8 +166,8 @@ if (-not $light -and (Test-Path (Join-Path $LocalWix "light.exe"))) {
 if ($candle -and $light) {
     $UiExtension = Join-Path (Split-Path -Parent $light.FullName) "WixUIExtension.dll"
     if (-not (Test-Path -LiteralPath $UiExtension)) { throw "WixUIExtension.dll is required beside light.exe." }
-    # WiX auto-includes its FilesInUse dialog. Filter that one library section
-    # while keeping the standard Minimal dialogs/navigation and assets intact.
+    # Replace FilesInUse and extend the stock completion dialog with recovery;
+    # retain the other Minimal dialogs, navigation and artwork.
     $Csc = Join-Path $env:WINDIR "Microsoft.NET\Framework64\v4.0.30319\csc.exe"
     $WixSdk = Join-Path (Split-Path -Parent $light.FullName) "wix.dll"
     $UiAdapter = Join-Path $WixObj "MeshThumbsWixUIExtension.dll"

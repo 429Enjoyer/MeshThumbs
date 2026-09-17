@@ -1,8 +1,8 @@
 # Example models
 
-These files supply the thirty-one tiles in the [README preview](../docs/images/meshthumbs-preview.png).
-**29 tiles use internet-sourced assets; two retain procedural fallbacks.**
-There are **39 model files**: the thirty-one preview entries, six format aliases/encodings,
+These files supply the thirty-two tiles in the [README preview](../docs/images/meshthumbs-preview.png).
+**30 tiles use internet-sourced assets; two retain procedural fallbacks.**
+There are **40 model files**: the thirty-two preview entries, six format aliases/encodings,
 `simple_cube.lwo` (referenced by `move_x.lws`), and the additional `PlanarSurface.3dm` example.
 Keep the texture files, `assets/`, `textures/`, and `Avocado.mtl` beside the models.
 
@@ -12,6 +12,7 @@ See [the search results](SOURCES.md) and [source URLs/checksums](sources.json).
 
 | Model | Files | Credit | License |
 | --- | --- | --- | --- |
+| [Suzanne BLEND](https://github.com/Soft8Soft/threejs-blender-template/tree/b26e55701c0a1323ce9aa57d357cddf0de3f854f) | [suzanne.blend](suzanne.blend) | © 2021 Soft8Soft LLC | [MIT](LICENSES/Soft8Soft-MIT.txt) |
 | [Suzanne](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/Suzanne/README.md) | [Suzanne.3ds](Suzanne.3ds) | Norbert Nopper / UX3D | [CC0](LICENSES/CC0-1.0.txt) |
 | [Lantern](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/Lantern/README.md) | [Lantern.dae](Lantern.dae) | Microsoft (sbtron); Frank Galligan | [CC0](LICENSES/CC0-1.0.txt) |
 | [ToyCar](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/ToyCar/README.md) | [ToyCar.fbx](ToyCar.fbx) | Guido Odendahl; Eric Chadwick | [CC0](LICENSES/CC0-1.0.txt) |
@@ -71,6 +72,10 @@ its disclaimer of warranties. The original settings remain in `Avatar.vrm`.
 ## Native-format downloads
 
 These files were downloaded in their original formats.
+`suzanne.blend` is unchanged from Soft8Soft's template. The README tile shows
+geometry exported through installed Blender, with MeshThumbs framing and lighting;
+automatic Explorer previews still use its embedded image. The optional scene
+HDRI is not used or redistributed. Its original MIT notice is included.
 `Airplane.pmx` and `USB_Micro-B.*` are renamed; `.vrml` and `.stp` are byte-identical
 aliases of `.wrl` and `.step`. `Gear.iges` remains an alias of `Gear.igs`.
 `faerie.md2` adds a skin-name record for the supplied `faerie2.bmp`; its geometry,

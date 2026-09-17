@@ -4,6 +4,8 @@
     <!-- Original FilesInUse replacement. All other dialogs, navigation, fonts
          and artwork come from the unmodified WiX 3.14.1 WixUI_Minimal library. -->
     <UI Id="MeshThumbsUI">
+      <!-- Control is added to the stock WiX ExitDialog by the build adapter. -->
+      <Publish Dialog="ExitDialog" Control="RestoreExplorer" Event="DoAction" Value="RestartExplorerFromUI">1</Publish>
       <Dialog Id="FilesInUse" Width="370" Height="270" Title="[ProductName] Setup" KeepModeless="yes">
         <Control Id="Retry" Type="PushButton" X="128" Y="243" Width="65" Height="17" Default="yes" Text="Retry">
           <Publish Event="EndDialog" Value="Retry">1</Publish>

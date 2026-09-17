@@ -4,7 +4,7 @@
     Id="*"
     Name="MeshThumbs"
     Language="1033"
-    Version="1.1.5"
+    Version="1.1.6"
     Manufacturer="MeshThumbs"
     UpgradeCode="5d411f35-6764-41dd-ae2b-20792d111c23">
 
@@ -18,10 +18,10 @@
     <!-- Install shared components before retiring the old product. Removing the
          old package first exposes a missing/mixed worker while Explorer is live. -->
     <MajorUpgrade AllowSameVersionUpgrades="yes" Schedule="afterInstallExecute" DowngradeErrorMessage="A newer version of MeshThumbs is already installed." />
-    <!-- RM can fail to close/restart the desktop across installer/user contexts.
-         Retain file-in-use detection; let MSI request a reboot for locked files
-         instead of automatically shutting down Explorer. Do not suppress reboot. -->
-    <Property Id="MSIRESTARTMANAGERCONTROL" Value="DisableShutdown" Secure="yes" />
+    <!-- DisableShutdown still permits RM integration in an RM-aware package.
+         Fully disable it: RM can leave Explorer without its desktop after a
+         failed cross-user shutdown. Use FilesInUse and normal reboot handling. -->
+    <Property Id="MSIRESTARTMANAGERCONTROL" Value="Disable" Secure="yes" />
     <MediaTemplate EmbedCab="yes" />
     <UIRef Id="MeshThumbsUI" />
     <UIRef Id="WixUI_Minimal" />

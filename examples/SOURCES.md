@@ -1,6 +1,6 @@
 # Internet example search
 
-Checked 16 September 2026. Prefer downloadable, redistributable models in the
+Checked 17 September 2026. Prefer downloadable, redistributable models in the
 target format before creating a procedural example. A download being free does
 not by itself establish redistribution rights.
 
@@ -13,6 +13,7 @@ The earlier Khronos, 3MF, and VRM assets retain their existing pinned credits.
 
 | Format | Internet example | Source / terms |
 | --- | --- | --- |
+| BLEND | `suzanne.blend` | [Soft8Soft template](https://github.com/Soft8Soft/threejs-blender-template/tree/b26e55701c0a1323ce9aa57d357cddf0de3f854f), [MIT](LICENSES/Soft8Soft-MIT.txt); unchanged native file, geometry exported with Blender 4.0. |
 | ABC | `Classroom.abc` | [Christophe Seux / Gaffer Examples](https://github.com/ezequielmastrasso/gaffer-examples/blob/eab0243e478e6a573f44d1289643c6e40cf79ab0/README.md#licences), CC0 |
 | WRL / VRML | USB Micro-B connector | [KiCad](https://github.com/KiCad/kicad-packages3D/tree/b8b3cfdfad88ba66f21002b3de51dc6f7d55ba5a/Connector_USB.3dshapes), CC BY-SA 4.0 with library exception |
 | STEP / STP | Same connector, native CAD export | Same KiCad source and terms |
@@ -31,8 +32,8 @@ The earlier Khronos, 3MF, and VRM assets retain their existing pinned credits.
 | LWS | `move_x.lws` with `simple_cube.lwo` | Assimp test collection, BSD-3-Clause |
 | DXF | `wuson.dxf` | Assimp test collection, BSD-3-Clause |
 
-The README preview was rendered from the distributed files with MeshThumbs 1.1.4
-at 768×768 per tile. The
+The README preview was rendered from the distributed files with MeshThumbs 1.1.6
+at 768×768 per tile, except BLEND's 1024×1024 geometry export. The
 1920×1080 README sheet shows the selected showcase models; `PlanarSurface.3dm`
 remains an additional example outside the sheet. The source files are unchanged except the MD2
 skin-name record, documented in the inventory. Renames and aliases do not change
@@ -79,5 +80,6 @@ python scripts/render-example-previews.py
 
 Requires Python 3.10+ and Pillow. It renders all example model files (including
 aliases, the LWS dependency, and the additional planar 3DM example) before
-assembling the thirty-one selected tiles.
+assembling the thirty-two selected tiles. The BLEND tile requires installed Blender;
+the script rejects a stored-preview fallback for that tile.
 Intermediate PNGs go to `target/example-previews/`.

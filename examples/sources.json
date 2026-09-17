@@ -1,5 +1,5 @@
 {
-  "checked": "2026-09-16",
+  "checked": "2026-09-17",
   "policy": "Search for redistributable online assets before creating procedural examples.",
   "assets": [
     {
@@ -243,6 +243,17 @@
       "evidence": "https://github.com/mcneel/rhino-developer-samples/blob/786cf13c4a1ea50444fbf6471b1a8a1507b3114f/License.md",
       "source_sha256": "11dcf2b38da9747e0af919f6ca56d832fe9b448a48affe8291778967c63cac4d",
       "sha256": "11dcf2b38da9747e0af919f6ca56d832fe9b448a48affe8291778967c63cac4d"
+    },
+    {
+      "file": "suzanne.blend",
+      "source": "https://github.com/Soft8Soft/threejs-blender-template/blob/b26e55701c0a1323ce9aa57d357cddf0de3f854f/suzanne.blend",
+      "credit": "Copyright (c) 2021 Soft8Soft LLC",
+      "license": "Soft8Soft-MIT.txt",
+      "terms": "MIT",
+      "changes": "Unchanged native BLEND file. PNG export reads evaluated geometry; the optional scene HDRI is not used or redistributed.",
+      "evidence": "https://github.com/Soft8Soft/threejs-blender-template/blob/b26e55701c0a1323ce9aa57d357cddf0de3f854f/LICENSE",
+      "source_sha256": "9ad72206d198f4838a14c33fdfb00b1f569857e040e054e0387959971becb951",
+      "sha256": "9ad72206d198f4838a14c33fdfb00b1f569857e040e054e0387959971becb951"
     }
   ],
   "aliases": {

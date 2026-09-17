@@ -1,8 +1,8 @@
 # Preview credits
 
-`meshthumbs-preview.png` contains thirty-one examples rendered by MeshThumbs
-in a 1920×1080 layout. Each
-model was rendered at 768×768 before resizing for the contact sheet. Ten use
+`meshthumbs-preview.png` contains thirty-two examples rendered by MeshThumbs
+in a 1920×1080 layout. Models were rendered at 768×768 (BLEND at 1024×1024)
+before resizing for the contact sheet. Ten use
 CC0 models from the Khronos glTF Sample Assets collection; the USD-family,
 3MF, VRM, downloaded native-format examples, and two procedural fallbacks are credited below.
 
@@ -35,6 +35,13 @@ ImageTexture node. SheenChair was converted to NOFF with geometry and normals;
 its materials and sheen effects are omitted.
 
 ## Native-format internet examples
+
+- **suzanne.blend:** [Soft8Soft Three.js-Blender Template](https://github.com/Soft8Soft/threejs-blender-template/blob/b26e55701c0a1323ce9aa57d357cddf0de3f854f/suzanne.blend), © 2021 Soft8Soft LLC.
+  [MIT](../../examples/LICENSES/Soft8Soft-MIT.txt), with [upstream terms](https://github.com/Soft8Soft/threejs-blender-template/blob/b26e55701c0a1323ce9aa57d357cddf0de3f854f/LICENSE).
+  Model bytes are unchanged. The tile shows evaluated geometry exported with Blender 4.0,
+  rendered, framed, and resized by MeshThumbs. It demonstrates PNG export, not the
+  embedded image used by Explorer. Scene lighting/HDRI and full shader effects are omitted;
+  the optional HDRI is not redistributed. No endorsement is implied.
 
 - **Basin.ifc:** [basin-tessellation.ifc](https://github.com/buildingSMART/Sample-Test-Files/blob/80d976a9b193a26a8e928c3e79bff67af1de68a8/IFC%204.0.2.1%20(IFC%204%20ADD2%20TC1)/ISO%20Spec%20-%20ReferenceView_V1.2/basin-tessellation.ifc), © buildingSMART
   International Ltd.; original file header credits "Jon" and the Geometry Gym

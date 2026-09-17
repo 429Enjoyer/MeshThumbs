@@ -9,6 +9,9 @@ use std::path::Path;
 pub use raster::RgbaBitmap;
 
 pub const MAX_MODEL_BYTES: u64 = 300 * 1024 * 1024;
+pub const MAX_BLEND_PREVIEW_BYTES: u64 = 32 * 1024 * 1024;
+pub const MAX_BLEND_EXPORT_BYTES: u64 = 1024 * 1024 * 1024;
+pub const MAX_BLEND_EXPORT_TRIANGLES: usize = 10_000_000;
 pub const SUPPORTED_EXTENSIONS: &[&str] = &[
     "obj", "fbx", "glb", "gltf", "stl", "dae", "ply", "3ds", "3mf", "vrm", "blend", "x3d", "off",
     "usd", "usda", "usdc", "usdz", "wrl", "vrml", "step", "stp", "abc", "igs", "iges", "3dm",
@@ -47,7 +50,33 @@ pub fn render_thumbnail(
     path: impl AsRef<Path>,
     options: &RenderOptions,
 ) -> Result<RgbaBitmap, RenderError> {
-    let path = path.as_ref();
+    render_with_limit(path.as_ref(), options, MAX_MODEL_BYTES)
+}
+
+/// The explicit BLEND export worker may load a larger converted GLB. Explorer
+/// never calls this entry point and retains its ordinary geometry limits.
+pub fn render_exported_blend(path: &Path, size: u32) -> Result<RgbaBitmap, RenderError> {
+    if !path
+        .extension()
+        .is_some_and(|ext| ext.eq_ignore_ascii_case("glb"))
+    {
+        return Err(RenderError::UnsupportedFormat);
+    }
+    render_with_limit(
+        path,
+        &RenderOptions {
+            size,
+            max_triangles: MAX_BLEND_EXPORT_TRIANGLES,
+        },
+        MAX_BLEND_EXPORT_BYTES,
+    )
+}
+
+fn render_with_limit(
+    path: &Path,
+    options: &RenderOptions,
+    max_bytes: u64,
+) -> Result<RgbaBitmap, RenderError> {
     let extension = path
         .extension()
         .and_then(|s| s.to_str())
@@ -58,13 +87,16 @@ pub fn render_thumbnail(
     {
         return Err(RenderError::UnsupportedFormat);
     }
-    if std::fs::metadata(path).map_err(anyhow::Error::from)?.len() > MAX_MODEL_BYTES {
-        return Err(RenderError::Load(anyhow::anyhow!(
-            "model exceeds the 300 MiB limit"
-        )));
-    }
+    // The BLEND reader only inspects a bounded prefix for the saved preview.
+    // A large scene/packed texture payload does not make that image expensive.
     if extension.eq_ignore_ascii_case("blend") {
         return blend::render(path, options.size.clamp(32, 1024)).map_err(RenderError::Load);
+    }
+    if std::fs::metadata(path).map_err(anyhow::Error::from)?.len() > max_bytes {
+        return Err(RenderError::Load(anyhow::anyhow!(
+            "model exceeds the {} MiB limit",
+            max_bytes / (1024 * 1024)
+        )));
     }
     if options.max_triangles == 0 {
         return Err(RenderError::EmptyModel);

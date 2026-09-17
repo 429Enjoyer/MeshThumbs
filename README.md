@@ -23,17 +23,11 @@
 
 `OBJ` · `FBX` · `GLB` · `glTF` · `STL` · `DAE` · `PLY` · `3DS` · `3MF` · `VRM` · `BLEND` · `X3D` · `OFF` · `USD` · `USDA` · `USDC` · `USDZ` · `WRL` · `VRML` · `STEP` · `STP` · `ABC` · `IGS` · `IGES` · `3DM` · `IFC` · `PMX` · `VOX` · `LWO` · `SMD` · `MD2` · `MD3` · `MD5MESH` · `ASE` · `LXO` · `LWS` · `DXF`
 
-## Install
+## Usage
 
-Download the `.msi` installer from the latest release and run it to install or upgrade.
-
-Uninstall through **Windows Settings → Apps → Installed apps**.
-
-## Generate PNG thumbnails
-
-Right-click models → **MeshThumbs** → choose a PNG size (256, 512, or 1024).
-On Windows 11, use **Show more options**. PNGs are saved beside the models,
-replacing existing files with the same name.
+- **Install:** Run the latest `.msi` to install or upgrade. Uninstall through Windows Settings → Apps.
+- **Export PNG:** Right-click models → MeshThumbs → choose 256, 512, or 1024. On Windows 11, select Show more options first. PNGs are saved beside the models, replacing same-named PNGs.
+- **BLEND:** PNG export uses installed Blender for 3D geometry, falling back to the saved preview. Explorer thumbnails always use the saved preview.
 
 ## License
 
